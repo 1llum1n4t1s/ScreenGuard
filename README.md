@@ -1,0 +1,2 @@
+# ScreenGuard
+ブラウザ内の任意の場所を隠すChrome拡張機能
