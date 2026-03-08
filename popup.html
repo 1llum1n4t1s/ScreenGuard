@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="popup-container">
+    <div class="show-overlay-wrapper">
+      <button type="button" id="showOverlay" class="btn-primary">
+        Show Overlay
+      </button>
+    </div>
+    <div class="hide-after">
+      <label class="timer-toggle">
+        <input type="checkbox" id="hideAfterEnabled" />
+        <span>自動非表示:</span>
+      </label>
+      <div class="timer-inputs">
+        <input type="number" id="hideAfterMin" min="0" max="99" placeholder="0" disabled />
+        <span>分</span>
+        <input type="number" id="hideAfterSec" min="0" max="59" placeholder="0" disabled />
+        <span>秒</span>
+      </div>
+    </div>
+  </div>
+  <script src="scripts/actions.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- メイングラデーション（ダークブルー/ティール系） -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2c3e50;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3498db;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- オーバーレイ用グラデーション -->
+    <linearGradient id="overlayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ecf0f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#bdc3c7;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- シャドウフィルタ -->
+    <filter id="softShadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+
+    <filter id="innerGlow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 背景（角丸） -->
+  <rect width="512" height="512" rx="108" fill="url(#bgGradient)"/>
+
+  <!-- 装飾サークル（ガラスモーフィズム風） -->
+  <circle cx="100" cy="100" r="130" fill="white" opacity="0.06"/>
+  <circle cx="420" cy="420" r="110" fill="white" opacity="0.05"/>
+  <circle cx="380" cy="80" r="50" fill="white" opacity="0.04"/>
+
+  <!-- モニター/ウィンドウ枠 -->
+  <g filter="url(#softShadow)">
+    <rect x="96" y="96" width="320" height="240" rx="16" fill="#1a252f" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
+    <!-- ウィンドウのタイトルバー -->
+    <rect x="96" y="96" width="320" height="32" rx="16" fill="#34495e"/>
+    <rect x="96" y="112" width="320" height="16" fill="#34495e"/>
+    <!-- タイトルバーのドット -->
+    <circle cx="118" cy="112" r="5" fill="#e74c3c" opacity="0.9"/>
+    <circle cx="136" cy="112" r="5" fill="#f39c12" opacity="0.9"/>
+    <circle cx="154" cy="112" r="5" fill="#2ecc71" opacity="0.9"/>
+    <!-- コンテンツエリア（暗い画面） -->
+    <rect x="99" y="128" width="314" height="205" fill="#2c3e50"/>
+    <!-- コンテンツのプレースホルダー行 -->
+    <rect x="120" y="150" width="180" height="8" rx="4" fill="rgba(255,255,255,0.15)"/>
+    <rect x="120" y="170" width="260" height="6" rx="3" fill="rgba(255,255,255,0.08)"/>
+    <rect x="120" y="184" width="220" height="6" rx="3" fill="rgba(255,255,255,0.08)"/>
+    <rect x="120" y="198" width="240" height="6" rx="3" fill="rgba(255,255,255,0.08)"/>
+    <rect x="120" y="220" width="140" height="8" rx="4" fill="rgba(255,255,255,0.12)"/>
+    <rect x="120" y="240" width="200" height="6" rx="3" fill="rgba(255,255,255,0.08)"/>
+    <rect x="120" y="254" width="180" height="6" rx="3" fill="rgba(255,255,255,0.08)"/>
+  </g>
+
+  <!-- シェード（オーバーレイ） - 画面を覆うように重なる -->
+  <g filter="url(#softShadow)">
+    <rect x="140" y="155" width="280" height="220" rx="8" fill="url(#overlayGradient)" opacity="0.95"/>
+    <!-- シェードの質感ライン -->
+    <line x1="160" y1="200" x2="400" y2="200" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+    <line x1="160" y1="240" x2="400" y2="240" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+    <line x1="160" y1="280" x2="400" y2="280" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+    <line x1="160" y1="320" x2="400" y2="320" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+  </g>
+
+  <!-- 閉じるボタン（赤） -->
+  <g transform="translate(388, 163)">
+    <rect width="24" height="24" rx="4" fill="#e74c3c"/>
+    <line x1="7" y1="7" x2="17" y2="17" stroke="rgba(0,0,0,0.5)" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="17" y1="7" x2="7" y2="17" stroke="rgba(0,0,0,0.5)" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- タイマー表示 -->
+  <g filter="url(#innerGlow)">
+    <text x="280" y="285"
+          font-family="'Segoe UI', -apple-system, sans-serif"
+          font-size="42"
+          font-weight="600"
+          fill="#515173"
+          text-anchor="middle"
+          opacity="0.7">3:00</text>
+  </g>
+
+  <!-- リサイズハンドル（右下） -->
+  <g transform="translate(408, 363)">
+    <rect width="10" height="10" rx="2" fill="#bfbdbd" opacity="0.8"/>
+  </g>
+  <g transform="translate(142, 363)">
+    <rect width="10" height="10" rx="2" fill="#bfbdbd" opacity="0.8"/>
+  </g>
+  <g transform="translate(142, 157)">
+    <rect width="10" height="10" rx="2" fill="#bfbdbd" opacity="0.6"/>
+  </g>
+
+  <!-- 目のアイコン（右下に小さく） -->
+  <g transform="translate(350, 400)" filter="url(#innerGlow)">
+    <ellipse cx="30" cy="20" rx="28" ry="18" fill="none" stroke="white" stroke-width="5" opacity="0.8"/>
+    <circle cx="30" cy="20" r="10" fill="white" opacity="0.8"/>
+    <circle cx="30" cy="20" r="5" fill="#3498db" opacity="0.9"/>
+  </g>
+</svg>

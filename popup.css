@@ -1,0 +1,85 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font: 13px/1.6 -apple-system, "Segoe UI", sans-serif;
+  color: #222;
+  width: 260px;
+}
+
+.popup-container {
+  padding: 14px 16px;
+}
+
+/* ---------- Show Overlay Button ---------- */
+.show-overlay-wrapper {
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.btn-primary {
+  display: inline-block;
+  padding: 7px 28px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  background: linear-gradient(#fff 5%, #f5f5f5 100%);
+  border: 1px solid #d4d4d4;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(#f5f5f5 5%, #fff 100%);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+/* ---------- Timer Section ---------- */
+.hide-after {
+  text-align: center;
+}
+
+.timer-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.timer-toggle input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.timer-inputs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.timer-inputs input[type="number"] {
+  width: 48px;
+  padding: 3px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.timer-inputs input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.timer-inputs span {
+  font-size: 12px;
+  color: #666;
+}

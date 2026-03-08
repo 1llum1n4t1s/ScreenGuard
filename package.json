@@ -1,0 +1,23 @@
+{
+  "name": "screen-shade",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "description": "Chrome extension to shade/cover page content with a resizable overlay",
+  "scripts": {
+    "generate-icons": "node scripts/generate-icons.js",
+    "generate-screenshots": "node scripts/generate-screenshots.js",
+    "build": "npm run generate-icons && npm run generate-screenshots"
+  },
+  "devDependencies": {
+    "puppeteer": "^24.37.5",
+    "sharp": "^0.33.0"
+  },
+  "keywords": [
+    "chrome-extension",
+    "screen-shade",
+    "overlay",
+    "privacy"
+  ],
+  "author": "",
+  "license": "MIT"
+}
