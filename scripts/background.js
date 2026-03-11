@@ -1,8 +1,6 @@
 importScripts("/scripts/actions.js");
 
 let state = {
-  isTimeoutEnabled: false,
-  timeout: null,
   theme: "light",
 };
 
@@ -13,15 +11,14 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     return true; // 非同期 sendResponse のため
   }
 
-  if (request.action === Actions.GET_POPUP_STATE) {
-    sendResponse({ ...state });
+  // リセットを content script に中継
+  if (request.action === Actions.RESET_PREFS) {
+    forwardToActiveTab(request);
     return false;
   }
 });
 
 async function handleShowOverlay(request) {
-  state.isTimeoutEnabled = request.data?.isTimeoutEnabled ?? false;
-  state.timeout = request.data?.timeout ?? null;
   state.theme = request.data?.theme ?? "light";
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -56,10 +53,13 @@ async function handleShowOverlay(request) {
   // content script へオーバーレイ表示指示
   chrome.tabs.sendMessage(tabId, {
     action: Actions.SHOW_OVERLAY_CS,
-    data: {
-      isTimeoutEnabled: state.isTimeoutEnabled,
-      timeout: state.timeout,
-      theme: state.theme,
-    },
+    data: { theme: state.theme },
   });
+}
+
+async function forwardToActiveTab(message) {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tab?.id) {
+    chrome.tabs.sendMessage(tab.id, message).catch(() => {});
+  }
 }

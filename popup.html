@@ -17,22 +17,13 @@
         <span class="theme-swatch"></span>Glass
       </button>
     </div>
-    <div class="show-overlay-wrapper">
+    <div class="action-buttons">
       <button type="button" id="showOverlay" class="btn-primary">
-        Show Overlay
+        オーバーレイを表示
       </button>
-    </div>
-    <div class="hide-after">
-      <label class="timer-toggle">
-        <input type="checkbox" id="hideAfterEnabled" />
-        <span>自動非表示:</span>
-      </label>
-      <div class="timer-inputs">
-        <input type="number" id="hideAfterMin" min="0" max="99" placeholder="0" disabled />
-        <span>分</span>
-        <input type="number" id="hideAfterSec" min="0" max="59" placeholder="0" disabled />
-        <span>秒</span>
-      </div>
+      <button type="button" id="resetPrefs" class="btn-reset" title="位置とサイズをリセット">
+        リセット
+      </button>
     </div>
   </div>
   <script src="scripts/actions.js"></script>

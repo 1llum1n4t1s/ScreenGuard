@@ -70,15 +70,17 @@ body {
   border-color: #aab;
 }
 
-/* ---------- Show Overlay Button ---------- */
-.show-overlay-wrapper {
-  margin-bottom: 14px;
-  text-align: center;
+/* ---------- Action Buttons ---------- */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
 }
 
 .btn-primary {
-  display: inline-block;
-  padding: 7px 28px;
+  flex: 1;
+  padding: 7px 16px;
   font-size: 13px;
   font-weight: 600;
   color: #555;
@@ -97,45 +99,26 @@ body {
   transform: translateY(1px);
 }
 
-/* ---------- Timer Section ---------- */
-.hide-after {
-  text-align: center;
-}
-
-.timer-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+.btn-reset {
+  padding: 7px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #888;
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   cursor: pointer;
-  margin-bottom: 6px;
+  transition: all 0.15s;
+  white-space: nowrap;
 }
 
-.timer-toggle input[type="checkbox"] {
-  cursor: pointer;
+.btn-reset:hover {
+  color: #e74c3c;
+  border-color: #e74c3c;
+  background: #fef5f5;
 }
 
-.timer-inputs {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-
-.timer-inputs input[type="number"] {
-  width: 48px;
-  padding: 3px 6px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  text-align: center;
-  font-size: 13px;
-}
-
-.timer-inputs input:disabled {
-  opacity: 0.4;
+.btn-reset:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
-}
-
-.timer-inputs span {
-  font-size: 12px;
-  color: #666;
 }

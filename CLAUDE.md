@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Screen Shade is a Chrome Extension (Manifest V3) that covers page content with a resizable, draggable overlay. Supports 3 themes (Light/Dark/Glass blur), optional countdown timer for auto-hide, and persists overlay position/size/theme across sessions via `chrome.storage.local`. The extension is localized in Japanese.
+Screen Shade is a Chrome Extension (Manifest V3) that covers page content with a resizable, draggable overlay. Supports 3 themes (Light/Dark/Glass blur) and persists overlay position/size/theme across sessions via `chrome.storage.local`. The extension is localized in Japanese.
 
 ## Build Commands
 
@@ -23,32 +23,32 @@ Three components communicate via `chrome.runtime` message passing. Message actio
 ```
 Popup (popup.html/js/css)
   ──SHOW_OVERLAY──▶  Background (scripts/background.js)
-  ◀──GET_POPUP_STATE──  │
-                         │ injects scripts/CSS into tab, then:
-                         ──SHOW_OVERLAY_CS──▶  Content Script (scripts/content.js)
+                       │ injects scripts/CSS into tab, then:
+                       ──SHOW_OVERLAY_CS──▶  Content Script (scripts/content.js)
+  ──RESET_PREFS──▶   Background ──forward──▶  Content Script
 ```
 
 ### Popup (`popup.html`, `popup.js`, `popup.css`)
-User interface (260px wide). Theme selector (Light/Dark/Glass), timeout settings (minutes/seconds) with input validation. Sends `SHOW_OVERLAY` with `{isTimeoutEnabled, timeout, theme}` to background, then closes. Restores last-used theme from `chrome.storage.local`.
+User interface (260px wide). Theme selector (Light/Dark/Glass) and reset button for position/size. Sends `SHOW_OVERLAY` with `{theme}` to background, then closes. Restores last-used theme from `chrome.storage.local`.
 
 ### Background (`scripts/background.js`)
-Service worker. Stores timeout/theme state, injects `content.js` + `actions.js` + `css/content.css` into the active tab on first use (checks `window.__screenShadeRunning` to avoid re-injection), then sends `SHOW_OVERLAY_CS` with theme to the content script. Goes idle when not processing messages.
+Service worker. Stores theme state, injects `content.js` + `actions.js` + `css/content.css` into the active tab on first use (checks `window.__screenShadeRunning` to avoid re-injection), then sends `SHOW_OVERLAY_CS` with theme to the content script. Forwards `RESET_PREFS` to active tab. Skips injection on `chrome://`, `edge://`, `about:` pages.
 
 ### Content Script (`scripts/content.js`)
-IIFE-wrapped. Creates `#screenShadeOverlay` (z-index: 2147483647) with close button, timer label, 8 resize handles, and drag-to-move. Uses Pointer Events API for both resize and drag. Theme is applied via `data-theme` attribute. Timer runs locally via `setInterval` (1s). Overlay position/size/theme are saved to `chrome.storage.local` on resize/move end, and restored on next creation.
+IIFE-wrapped. Creates `#screenShadeOverlay` (z-index: 2147483647) with close button, 8 resize handles, and drag-to-move. Uses Pointer Events API with `setPointerCapture` for both resize and drag. Theme is applied via `data-theme` attribute. Overlay position/size are saved to `chrome.storage.local` on resize/move end, and restored on next creation. Theme always comes from popup selection (not storage).
 
 ### Styling (`css/content.css`)
-All rules use `!important` to override page styles. Overlay has fixed positioning with 15px inset margins. Resize handles: corner (16×16px) and edge (8px thickness). Close button uses CSS pseudo-elements for the × mark.
+All rules use `!important` to override page styles. Overlay uses explicit `top/left/width/height` positioning (no `bottom/right`). Resize handles: corner (16×16px) and edge (8px thickness). Close button uses CSS pseudo-elements for the × mark.
 
 ## Key Files
 
 | File | Purpose |
 |------|---------|
-| `manifest.json` | MV3 config; permissions: `activeTab`, `scripting` |
+| `manifest.json` | MV3 config; permissions: `activeTab`, `scripting`, `storage` |
 | `scripts/actions.js` | Frozen action constants shared across all scripts |
-| `scripts/background.js` | Service worker: state, script injection |
-| `scripts/content.js` | Overlay DOM creation, resize, timer |
-| `popup.js` | Popup UI logic, timeout calculation |
+| `scripts/background.js` | Service worker: state, script injection, message forwarding |
+| `scripts/content.js` | Overlay DOM creation, resize, drag, persistence |
+| `popup.js` | Popup UI logic, theme selection, reset |
 | `css/content.css` | Overlay styles with `!important` overrides |
 | `icons/icon.svg` | Source icon (512×512); PNGs generated to `images/` |
 | `webstore-screenshots/*.html` | HTML templates rendered to `webstore-images/` by Puppeteer |
