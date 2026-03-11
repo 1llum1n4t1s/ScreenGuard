@@ -5,15 +5,21 @@
   window.__screenShadeRunning = true;
 
   const STORAGE_KEY = "shadePrefs";
+  const DEFAULT_BLUR = 5;
 
   // ---------- State ----------
   let overlayEl = null;
   let currentTheme = "light";
+  let currentBlur = DEFAULT_BLUR;
 
   // ---------- Message Listener ----------
   chrome.runtime.onMessage.addListener((request) => {
     if (request.action === Actions.SHOW_OVERLAY_CS) {
-      onShowCommand(request.data.theme);
+      onShowCommand(request.data.theme, request.data.glassBlur);
+    }
+    if (request.action === Actions.UPDATE_BLUR) {
+      currentBlur = clampBlur(request.data?.glassBlur);
+      applyBlur();
     }
     if (request.action === Actions.RESET_PREFS) {
       chrome.storage.local.remove(STORAGE_KEY);
@@ -21,16 +27,38 @@
   });
 
   // ---------- Show / Close ----------
-  function onShowCommand(theme) {
+  function onShowCommand(theme, glassBlur) {
     // ポップアップで選択されたテーマを常に優先
     currentTheme = theme ?? "light";
+    currentBlur = clampBlur(glassBlur);
 
     if (!overlayEl) {
       createOverlay();
     } else {
-      // テーマ変更のみ
+      // テーマ・ぼかし変更
       overlayEl.dataset.theme = currentTheme;
+      applyBlur();
       savePrefs();
+    }
+  }
+
+  /** blur 値を有効範囲に収める */
+  function clampBlur(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return DEFAULT_BLUR;
+    return Math.max(1, Math.min(20, Math.round(n)));
+  }
+
+  /** Glass テーマの blur をインラインスタイルで適用 */
+  function applyBlur() {
+    if (!overlayEl) return;
+    if (currentTheme === "glass") {
+      const val = `blur(${currentBlur}px) saturate(180%)`;
+      overlayEl.style.setProperty("-webkit-backdrop-filter", val, "important");
+      overlayEl.style.setProperty("backdrop-filter", val, "important");
+    } else {
+      overlayEl.style.removeProperty("-webkit-backdrop-filter");
+      overlayEl.style.removeProperty("backdrop-filter");
     }
   }
 
@@ -113,6 +141,9 @@
     overlayEl.addEventListener("pointerdown", onDragStart);
 
     document.body.appendChild(overlayEl);
+
+    // Glass テーマの blur を適用
+    applyBlur();
 
     // 保存された位置・サイズを読み込む（テーマは復元しない）
     loadPrefsAndApply();

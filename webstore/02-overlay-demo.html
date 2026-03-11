@@ -3,13 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Screenshot 2 - Overlay Demo</title>
+  <title>Screenshot 2 - Overlay Demo (3 Themes)</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       width: 1280px;
@@ -17,234 +13,286 @@
       background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       position: relative;
       overflow: hidden;
+      gap: 20px;
     }
-
-    .browser-mockup {
-      width: 920px;
-      height: 580px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .browser-header {
-      height: 40px;
-      background: #f1f3f5;
-      border-bottom: 1px solid #dee2e6;
-      display: flex;
-      align-items: center;
-      padding: 0 12px;
-      gap: 8px;
-    }
-
-    .browser-dots {
-      display: flex;
-      gap: 6px;
-    }
-
-    .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-    }
-
-    .dot.red { background: #ff5f57; }
-    .dot.yellow { background: #ffbd2e; }
-    .dot.green { background: #28ca42; }
-
-    .browser-url {
-      flex: 1;
-      height: 24px;
-      background: white;
-      border: 1px solid #dee2e6;
-      border-radius: 6px;
-      padding: 0 12px;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      color: #868e96;
-      margin-left: 12px;
-    }
-
-    .browser-content {
-      height: calc(100% - 40px);
-      background: white;
-      position: relative;
-    }
-
-    /* ページ内容（背景に薄く見える） */
-    .page-behind {
-      position: absolute;
-      inset: 0;
-      padding: 30px;
-      opacity: 0.15;
-    }
-
-    .page-behind h1 {
-      font-size: 24px;
-      color: #212529;
-      margin-bottom: 12px;
-    }
-
-    .page-behind p {
-      font-size: 14px;
-      color: #495057;
-      line-height: 1.8;
-      margin-bottom: 8px;
-    }
-
-    /* オーバーレイ */
-    .shade-overlay {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      right: 15px;
-      bottom: 15px;
-      background: #e4e4e4;
-      border-radius: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* 閉じるボタン */
-    .close-btn {
-      position: absolute;
-      top: 20px;
-      right: 25px;
-      width: 32px;
-      height: 32px;
-      background: #e74c3c;
-      border-radius: 5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .close-btn::before,
-    .close-btn::after {
-      content: "";
-      position: absolute;
-      width: 18px;
-      height: 3px;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 1px;
-    }
-
-    .close-btn::before { transform: rotate(45deg); }
-    .close-btn::after { transform: rotate(-45deg); }
-
-    /* タイマー表示 */
-    .timer-display {
-      font-size: 60px;
-      font-family: -apple-system, 'Segoe UI', sans-serif;
-      color: #515173;
-      font-weight: 300;
-      letter-spacing: 2px;
-    }
-
-    /* リサイズハンドル */
-    .handle {
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      background: #bfbdbd;
-      border-radius: 2px;
-    }
-
-    .handle-nw { top: 0; left: 0; }
-    .handle-ne { top: 0; right: 0; }
-    .handle-sw { bottom: 0; left: 0; }
-    .handle-se { bottom: 0; right: 0; }
 
     .caption {
       position: absolute;
-      top: 30px;
+      top: 28px;
       left: 50%;
       transform: translateX(-50%);
       color: rgba(255, 255, 255, 0.85);
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 600;
       letter-spacing: 0.5px;
     }
 
-    .feature-badges {
+    .themes-row {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .theme-demo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .theme-label {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 4px 16px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* ミニブラウザ */
+    .mini-browser {
+      width: 360px;
+      height: 280px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .mini-browser-header {
+      height: 28px;
+      background: #f1f3f5;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 5px;
+    }
+
+    .mini-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .mini-dot.red { background: #ff5f57; }
+    .mini-dot.yellow { background: #ffbd2e; }
+    .mini-dot.green { background: #28ca42; }
+
+    .mini-browser-content {
+      position: relative;
+      height: calc(100% - 28px);
+      background: white;
+    }
+
+    /* ページコンテンツ（薄く） */
+    .mini-page {
+      padding: 14px;
+      opacity: 0.12;
+    }
+    .mini-page-line {
+      height: 5px;
+      background: #333;
+      border-radius: 3px;
+      margin-bottom: 7px;
+    }
+    .mini-page-line:nth-child(1) { width: 55%; height: 9px; }
+    .mini-page-line:nth-child(2) { width: 90%; }
+    .mini-page-line:nth-child(3) { width: 72%; }
+    .mini-page-line:nth-child(4) { width: 85%; }
+    .mini-page-line:nth-child(5) { width: 38%; height: 8px; margin-top: 14px; }
+    .mini-page-line:nth-child(6) { width: 80%; }
+    .mini-page-line:nth-child(7) { width: 65%; }
+
+    /* オーバーレイ共通 */
+    .mini-overlay {
       position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Light テーマ */
+    .mini-overlay.light {
+      background: #f0f0f0;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+    /* Dark テーマ */
+    .mini-overlay.dark {
+      background: #2a2a2e;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    /* Glass テーマ */
+    .mini-overlay.glass {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(5px) saturate(180%);
+      -webkit-backdrop-filter: blur(5px) saturate(180%);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.4);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    /* 閉じるボタン */
+    .mini-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mini-close.light-close { background: rgba(0,0,0,0.12); }
+    .mini-close.dark-close { background: rgba(255,255,255,0.12); }
+    .mini-close.glass-close { background: rgba(0,0,0,0.15); }
+
+    .mini-close::before, .mini-close::after {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 2px;
+      border-radius: 1px;
+    }
+    .mini-close.light-close::before, .mini-close.light-close::after,
+    .mini-close.glass-close::before, .mini-close.glass-close::after {
+      background: rgba(0,0,0,0.5);
+    }
+    .mini-close.dark-close::before, .mini-close.dark-close::after {
+      background: rgba(255,255,255,0.6);
+    }
+    .mini-close::before { transform: rotate(45deg); }
+    .mini-close::after { transform: rotate(-45deg); }
+
+    /* ハンドル */
+    .mini-handle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+    }
+    .mini-handle.light-h { background: rgba(0,0,0,0.1); }
+    .mini-handle.dark-h { background: rgba(255,255,255,0.1); }
+    .mini-handle.glass-h { background: rgba(0,0,0,0.12); }
+    .mini-handle-nw { top: 0; left: 0; }
+    .mini-handle-ne { top: 0; right: 0; }
+    .mini-handle-sw { bottom: 0; left: 0; }
+    .mini-handle-se { bottom: 0; right: 0; }
+
+    .feature-badges {
       display: flex;
       gap: 16px;
     }
-
     .feature-badge {
       display: flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255,255,255,0.12);
       backdrop-filter: blur(10px);
       padding: 8px 16px;
       border-radius: 20px;
-      color: rgba(255, 255, 255, 0.9);
+      color: rgba(255,255,255,0.9);
       font-size: 13px;
       font-weight: 500;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255,255,255,0.15);
     }
 
     .watermark {
       position: absolute;
-      bottom: 70px;
+      bottom: 16px;
       left: 50%;
       transform: translateX(-50%);
       font-size: 14px;
-      color: rgba(255, 255, 255, 0.25);
+      color: rgba(255,255,255,0.25);
       font-weight: 600;
       letter-spacing: 1px;
     }
   </style>
 </head>
 <body>
-  <div class="caption">オーバーレイでページを覆い隠す</div>
+  <div class="caption">3つのテーマでページを覆い隠す</div>
 
-  <div class="browser-mockup">
-    <div class="browser-header">
-      <div class="browser-dots">
-        <div class="dot red"></div>
-        <div class="dot yellow"></div>
-        <div class="dot green"></div>
+  <div class="themes-row">
+    <!-- Light -->
+    <div class="theme-demo">
+      <div class="theme-label">Light</div>
+      <div class="mini-browser">
+        <div class="mini-browser-header">
+          <div class="mini-dot red"></div><div class="mini-dot yellow"></div><div class="mini-dot green"></div>
+        </div>
+        <div class="mini-browser-content">
+          <div class="mini-page">
+            <div class="mini-page-line"></div><div class="mini-page-line"></div><div class="mini-page-line"></div>
+            <div class="mini-page-line"></div><div class="mini-page-line"></div><div class="mini-page-line"></div><div class="mini-page-line"></div>
+          </div>
+          <div class="mini-overlay light">
+            <div class="mini-close light-close"></div>
+            <div class="mini-handle mini-handle-nw light-h"></div><div class="mini-handle mini-handle-ne light-h"></div>
+            <div class="mini-handle mini-handle-sw light-h"></div><div class="mini-handle mini-handle-se light-h"></div>
+          </div>
+        </div>
       </div>
-      <div class="browser-url">https://example.com/article</div>
     </div>
-    <div class="browser-content">
-      <div class="page-behind">
-        <h1>機密レポート - 2025年度</h1>
-        <p>このページには重要な情報が含まれています。離席時や画面共有時にはScreen Shadeで隠しましょう。</p>
-        <p>オーバーレイは自由にリサイズ可能で、タイマーによる自動非表示にも対応しています。</p>
-      </div>
 
-      <div class="shade-overlay">
-        <div class="close-btn"></div>
-        <div class="timer-display">2 min 45 sec</div>
-        <div class="handle handle-nw"></div>
-        <div class="handle handle-ne"></div>
-        <div class="handle handle-sw"></div>
-        <div class="handle handle-se"></div>
+    <!-- Dark -->
+    <div class="theme-demo">
+      <div class="theme-label">Dark</div>
+      <div class="mini-browser">
+        <div class="mini-browser-header">
+          <div class="mini-dot red"></div><div class="mini-dot yellow"></div><div class="mini-dot green"></div>
+        </div>
+        <div class="mini-browser-content">
+          <div class="mini-page">
+            <div class="mini-page-line"></div><div class="mini-page-line"></div><div class="mini-page-line"></div>
+            <div class="mini-page-line"></div><div class="mini-page-line"></div><div class="mini-page-line"></div><div class="mini-page-line"></div>
+          </div>
+          <div class="mini-overlay dark">
+            <div class="mini-close dark-close"></div>
+            <div class="mini-handle mini-handle-nw dark-h"></div><div class="mini-handle mini-handle-ne dark-h"></div>
+            <div class="mini-handle mini-handle-sw dark-h"></div><div class="mini-handle mini-handle-se dark-h"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Glass -->
+    <div class="theme-demo">
+      <div class="theme-label">Glass</div>
+      <div class="mini-browser">
+        <div class="mini-browser-header">
+          <div class="mini-dot red"></div><div class="mini-dot yellow"></div><div class="mini-dot green"></div>
+        </div>
+        <div class="mini-browser-content">
+          <div class="mini-page" style="opacity: 0.6;">
+            <div class="mini-page-line"></div><div class="mini-page-line"></div><div class="mini-page-line"></div>
+            <div class="mini-page-line"></div><div class="mini-page-line"></div><div class="mini-page-line"></div><div class="mini-page-line"></div>
+          </div>
+          <div class="mini-overlay glass">
+            <div class="mini-close glass-close"></div>
+            <div class="mini-handle mini-handle-nw glass-h"></div><div class="mini-handle mini-handle-ne glass-h"></div>
+            <div class="mini-handle mini-handle-sw glass-h"></div><div class="mini-handle mini-handle-se glass-h"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="feature-badges">
     <div class="feature-badge">🔒 プライバシー保護</div>
-    <div class="feature-badge">⏱️ タイマー付き</div>
-    <div class="feature-badge">↔️ リサイズ可能</div>
+    <div class="feature-badge">🎨 3テーマ切替</div>
+    <div class="feature-badge">↔️ リサイズ &amp; ドラッグ</div>
+    <div class="feature-badge">💾 設定記憶</div>
   </div>
 
-  <div class="watermark">Screen Shade</div>
+  <div class="watermark">スクリーンカーテン</div>
 </body>
 </html>

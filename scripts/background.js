@@ -2,6 +2,7 @@ importScripts("/scripts/actions.js");
 
 let state = {
   theme: "light",
+  glassBlur: 5,
 };
 
 // ---------- Message Handler ----------
@@ -11,8 +12,8 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     return true; // 非同期 sendResponse のため
   }
 
-  // リセットを content script に中継
-  if (request.action === Actions.RESET_PREFS) {
+  // リセット / blur 更新を content script に中継
+  if (request.action === Actions.RESET_PREFS || request.action === Actions.UPDATE_BLUR) {
     forwardToActiveTab(request);
     return false;
   }
@@ -20,6 +21,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 
 async function handleShowOverlay(request) {
   state.theme = request.data?.theme ?? "light";
+  state.glassBlur = request.data?.glassBlur ?? 5;
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id) return;
@@ -53,7 +55,7 @@ async function handleShowOverlay(request) {
   // content script へオーバーレイ表示指示
   chrome.tabs.sendMessage(tabId, {
     action: Actions.SHOW_OVERLAY_CS,
-    data: { theme: state.theme },
+    data: { theme: state.theme, glassBlur: state.glassBlur },
   });
 }
 

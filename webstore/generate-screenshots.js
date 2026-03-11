@@ -1,4 +1,5 @@
 // Chrome Web Store用のスクリーンショット画像を自動生成するスクリプト
+// 1枚目は事前加工済みの実スクリーンショット、残りはHTMLテンプレートからPuppeteerで生成
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
@@ -7,8 +8,15 @@ const path = require('path');
 const TEMPLATE_DIR = __dirname;
 const OUTPUT_DIR = path.join(__dirname, 'images');
 
-// 生成する画像の各設定項目（入力パス、出力名、サイズ、タイプ）
-const IMAGE_CONFIGS = [
+// 事前加工済みのメインスクリーンショット（レターボックス済み 1280x800）
+const MAIN_SCREENSHOT = {
+  source: path.join(OUTPUT_DIR, 'screenshot-main-1280x800.png'),
+  output: '00-screenshot-main-1280x800.png',
+  type: 'copy'
+};
+
+// HTMLテンプレートから生成する画像
+const HTML_CONFIGS = [
   // スクリーンショット：1280x800
   {
     input: path.join(TEMPLATE_DIR, '01-popup-ui.html'),
@@ -102,6 +110,17 @@ async function main() {
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
+  // 1枚目: 事前加工済みのメインスクリーンショットをコピー
+  const mainOutputPath = path.join(OUTPUT_DIR, MAIN_SCREENSHOT.output);
+  if (fs.existsSync(MAIN_SCREENSHOT.source)) {
+    fs.copyFileSync(MAIN_SCREENSHOT.source, mainOutputPath);
+    console.log(`✅ コピー完了: ${mainOutputPath} (メインスクリーンショット)`);
+  } else {
+    console.warn(`⚠️ メインスクリーンショットが見つかりません: ${MAIN_SCREENSHOT.source}`);
+    console.warn('   先に screenshot-main-1280x800.png を webstore/images/ に配置してください。');
+  }
+
+  // 残りの画像をHTMLテンプレートからPuppeteerで生成
   const browser = await puppeteer.launch({
     headless: 'new',
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -109,7 +128,7 @@ async function main() {
   });
 
   try {
-    for (const config of IMAGE_CONFIGS) {
+    for (const config of HTML_CONFIGS) {
       const outputPath = path.join(OUTPUT_DIR, config.output);
       await generateScreenshot(browser, config.input, outputPath, config.width, config.height);
     }

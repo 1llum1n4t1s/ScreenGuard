@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Screen Shade",
-  "description": "ページを覆い、準備ができたときにコンテンツを表示します。",
+  "name": "スクリーンカーテン",
+  "description": "ページをオーバーレイで覆い隠します。3テーマ対応、ドラッグ移動・リサイズ可能。",
   "version": "1.0.0",
   "action": {
     "default_icon": {
@@ -9,7 +9,7 @@
       "48": "images/icon-48.png",
       "128": "images/icon-128.png"
     },
-    "default_title": "Screen Shade",
+    "default_title": "スクリーンカーテン",
     "default_popup": "popup.html"
   },
   "icons": {

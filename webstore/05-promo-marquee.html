@@ -7,11 +7,7 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       width: 1400px;
@@ -33,13 +29,11 @@
       overflow: hidden;
       z-index: 0;
     }
-
     .circle {
       position: absolute;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255,255,255,0.06);
     }
-
     .circle1 { width: 350px; height: 350px; top: -100px; left: -100px; }
     .circle2 { width: 280px; height: 280px; bottom: -80px; right: -80px; }
     .circle3 { width: 180px; height: 180px; top: 40%; left: 45%; opacity: 0.5; }
@@ -51,26 +45,20 @@
       flex: 1;
       max-width: 600px;
     }
-
-    .logo {
-      font-size: 56px;
-      margin-bottom: 16px;
-    }
-
+    .logo { font-size: 56px; margin-bottom: 16px; }
     .main-title {
       font-size: 48px;
       font-weight: 900;
       margin-bottom: 16px;
-      text-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      text-shadow: 0 6px 20px rgba(0,0,0,0.3);
       letter-spacing: 1px;
       line-height: 1.2;
     }
-
     .subtitle {
       font-size: 20px;
       opacity: 0.95;
       margin-bottom: 28px;
-      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      text-shadow: 0 4px 12px rgba(0,0,0,0.2);
       font-weight: 400;
       line-height: 1.5;
     }
@@ -81,24 +69,20 @@
       flex-wrap: wrap;
       margin-bottom: 24px;
     }
-
     .badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255,255,255,0.2);
       backdrop-filter: blur(10px);
       padding: 8px 16px;
       border-radius: 20px;
       font-size: 13px;
       font-weight: 600;
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255,255,255,0.25);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-
-    .badge-icon {
-      font-size: 16px;
-    }
+    .badge-icon { font-size: 16px; }
 
     .content-right {
       position: relative;
@@ -109,32 +93,26 @@
     }
 
     .feature-card {
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255,255,255,0.12);
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255,255,255,0.2);
       border-radius: 16px;
       padding: 20px 24px;
       width: 360px;
       color: white;
     }
-
     .feature-header {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-bottom: 8px;
     }
-
-    .feature-icon {
-      font-size: 28px;
-    }
-
+    .feature-icon { font-size: 28px; }
     .feature-title {
       font-size: 18px;
       font-weight: 700;
       letter-spacing: 0.5px;
     }
-
     .feature-description {
       font-size: 13px;
       opacity: 0.9;
@@ -143,46 +121,16 @@
 
     .version-badge {
       position: absolute;
-      top: 24px;
-      right: 24px;
-      background: rgba(255, 255, 255, 0.2);
+      top: 24px; right: 24px;
+      background: rgba(255,255,255,0.2);
       backdrop-filter: blur(10px);
       padding: 8px 20px;
       border-radius: 20px;
       font-size: 13px;
       font-weight: 700;
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255,255,255,0.25);
       color: white;
       letter-spacing: 1px;
-    }
-
-    .stats-banner {
-      display: flex;
-      gap: 32px;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(20px);
-      padding: 16px 32px;
-      border-radius: 40px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .stat-item {
-      text-align: center;
-    }
-
-    .stat-number {
-      font-size: 24px;
-      font-weight: 900;
-      display: block;
-      margin-bottom: 2px;
-      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .stat-label {
-      font-size: 11px;
-      opacity: 0.9;
-      font-weight: 600;
-      letter-spacing: 0.5px;
     }
   </style>
 </head>
@@ -197,67 +145,40 @@
 
   <div class="content-left">
     <div class="logo">🛡️</div>
-    <h1 class="main-title">Screen Shade</h1>
+    <h1 class="main-title">スクリーンカーテン</h1>
     <p class="subtitle">ページを覆い隠し、<br>準備ができたときにコンテンツを表示</p>
 
     <div class="badges-container">
-      <div class="badge">
-        <span class="badge-icon">🖱️</span>
-        <span>ワンクリック</span>
-      </div>
-      <div class="badge">
-        <span class="badge-icon">⏱️</span>
-        <span>自動タイマー</span>
-      </div>
-      <div class="badge">
-        <span class="badge-icon">↔️</span>
-        <span>リサイズ</span>
-      </div>
-      <div class="badge">
-        <span class="badge-icon">🔒</span>
-        <span>プライバシー</span>
-      </div>
-    </div>
-
-    <div class="stats-banner">
-      <div class="stat-item">
-        <span class="stat-number">🖱️</span>
-        <span class="stat-label">ワンクリック操作</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">8方向</span>
-        <span class="stat-label">リサイズ対応</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">⏱️</span>
-        <span class="stat-label">自動非表示</span>
-      </div>
+      <div class="badge"><span class="badge-icon">🎨</span><span>3テーマ</span></div>
+      <div class="badge"><span class="badge-icon">↔️</span><span>リサイズ</span></div>
+      <div class="badge"><span class="badge-icon">🖱️</span><span>ドラッグ移動</span></div>
+      <div class="badge"><span class="badge-icon">💾</span><span>設定記憶</span></div>
     </div>
   </div>
 
   <div class="content-right">
     <div class="feature-card">
       <div class="feature-header">
-        <span class="feature-icon">🛡️</span>
-        <h3 class="feature-title">画面シェード</h3>
+        <span class="feature-icon">🎨</span>
+        <h3 class="feature-title">3つのテーマ</h3>
       </div>
-      <p class="feature-description">ワンクリックでページ全体をオーバーレイで覆い隠します</p>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-header">
-        <span class="feature-icon">⏱️</span>
-        <h3 class="feature-title">タイマー機能</h3>
-      </div>
-      <p class="feature-description">指定した時間後に自動でオーバーレイを非表示にします</p>
+      <p class="feature-description">Light / Dark / Glass テーマを切り替え。Glassはぼかし強度を調整可能</p>
     </div>
 
     <div class="feature-card">
       <div class="feature-header">
         <span class="feature-icon">↔️</span>
-        <h3 class="feature-title">自由なリサイズ</h3>
+        <h3 class="feature-title">自由な配置</h3>
       </div>
-      <p class="feature-description">8方向のハンドルでオーバーレイサイズを自在に調整</p>
+      <p class="feature-description">ドラッグで移動、8方向のハンドルでサイズを自在に調整</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-header">
+        <span class="feature-icon">💾</span>
+        <h3 class="feature-title">設定の自動記憶</h3>
+      </div>
+      <p class="feature-description">位置・サイズ・テーマを自動保存。次回も同じ状態で表示</p>
     </div>
   </div>
 </body>

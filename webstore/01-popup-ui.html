@@ -5,11 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Screenshot 1 - Popup UI</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       width: 1280px;
@@ -23,6 +19,18 @@
       overflow: hidden;
     }
 
+    .caption {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* ブラウザモックアップ */
     .browser-mockup {
       width: 920px;
       height: 600px;
@@ -43,17 +51,8 @@
       gap: 8px;
     }
 
-    .browser-dots {
-      display: flex;
-      gap: 6px;
-    }
-
-    .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-    }
-
+    .browser-dots { display: flex; gap: 6px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
     .dot.red { background: #ff5f57; }
     .dot.yellow { background: #ffbd2e; }
     .dot.green { background: #28ca42; }
@@ -115,104 +114,126 @@
       font-size: 14px;
     }
 
-    /* Extension Popup */
+    /* ポップアップモック */
     .extension-popup {
       position: absolute;
       top: 55px;
       right: 40px;
-      width: 280px;
-      background: #f8f9fa;
-      border-radius: 8px;
+      width: 260px;
+      background: #fff;
+      border-radius: 10px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-      border: 1px solid #dee2e6;
+      border: 1px solid #e0e0e0;
       overflow: hidden;
     }
 
-    .popup-header {
-      background: linear-gradient(135deg, #2c3e50, #3498db);
-      padding: 14px 16px;
-      color: white;
-      text-align: center;
-    }
+    .popup-body { padding: 14px 16px; }
 
-    .popup-title {
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-    }
-
-    .popup-body {
-      padding: 16px;
-    }
-
-    .btn-show-overlay {
-      width: 100%;
-      padding: 12px;
-      background: linear-gradient(180deg, #6c757d, #5a6268);
-      color: white;
-      border: 1px solid #555;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      margin-bottom: 14px;
-    }
-
-    .timer-section {
-      background: white;
-      border: 1px solid #e9ecef;
-      border-radius: 8px;
-      padding: 12px;
-    }
-
-    .timer-toggle {
+    /* テーマセレクタ */
+    .theme-selector {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      font-size: 13px;
-      color: #495057;
-    }
-
-    .timer-toggle input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      accent-color: #3498db;
-    }
-
-    .timer-inputs {
-      display: flex;
-      align-items: center;
       gap: 6px;
       justify-content: center;
+      margin-bottom: 12px;
+    }
+    .theme-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #666;
+      background: #fff;
+      border: 1.5px solid #ddd;
+      border-radius: 6px;
+    }
+    .theme-btn.selected {
+      border-color: #5b8def;
+      color: #333;
+      background: #eef4ff;
+      box-shadow: 0 0 0 1px rgba(91,141,239,0.2);
+    }
+    .theme-swatch {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid #ccc;
+    }
+    .swatch-light { background: #f0f0f0; }
+    .swatch-dark { background: #2a2a2e; border-color: #555; }
+    .swatch-glass {
+      background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(200,200,255,0.3));
+      border-color: #aab;
     }
 
-    .timer-input {
-      width: 48px;
-      height: 32px;
-      border: 1px solid #ced4da;
-      border-radius: 4px;
+    /* ぼかし設定 */
+    .blur-setting {
+      margin-bottom: 12px;
+      padding: 8px 10px;
+      background: #f8f9fb;
+      border-radius: 6px;
+      border: 1px solid #e8e8e8;
+    }
+    .blur-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .blur-value { font-weight: 600; color: #5b8def; }
+    .blur-range {
+      width: 100%;
+      height: 4px;
+      -webkit-appearance: none;
+      background: #ddd;
+      border-radius: 2px;
+      outline: none;
+    }
+    .blur-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #5b8def;
+      border: none;
+    }
+
+    /* ボタン */
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-primary {
+      flex: 1;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      background: linear-gradient(#fff 5%, #f5f5f5 100%);
+      border: 1px solid #d4d4d4;
+      border-radius: 6px;
       text-align: center;
-      font-size: 14px;
-      color: #495057;
-      background: white;
     }
-
-    .timer-label {
-      font-size: 12px;
-      color: #6c757d;
+    .btn-reset {
+      padding: 7px 12px;
+      font-size: 11px;
+      color: #888;
+      background: #f8f8f8;
+      border: 1px solid #ddd;
+      border-radius: 6px;
     }
 
     .popup-arrow {
       position: absolute;
       top: 50px;
-      right: 320px;
+      right: 305px;
       font-size: 36px;
       color: rgba(255, 255, 255, 0.6);
       animation: bounce 2s ease-in-out infinite;
     }
-
     @keyframes bounce {
       0%, 100% { transform: translateX(0); }
       50% { transform: translateX(10px); }
@@ -227,17 +248,6 @@
       color: rgba(255, 255, 255, 0.3);
       font-weight: 600;
       letter-spacing: 1px;
-    }
-
-    .caption {
-      position: absolute;
-      top: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 18px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
     }
   </style>
 </head>
@@ -256,7 +266,7 @@
     <div class="browser-content">
       <div class="page-content">
         <h1 class="page-title">今日のニュース記事</h1>
-        <p class="page-text">ここにページの内容が表示されています。Screen Shade を使えば、ワンクリックでページ全体を覆い隠すことができます。</p>
+        <p class="page-text">ここにページの内容が表示されています。スクリーンカーテンを使えば、ワンクリックでページ全体を覆い隠すことができます。</p>
         <p class="page-text">プレゼン中の画面切り替えや、離席時のプライバシー保護に最適です。</p>
         <div class="page-image-placeholder">画像プレースホルダー</div>
       </div>
@@ -264,28 +274,25 @@
       <div class="popup-arrow">→</div>
 
       <div class="extension-popup">
-        <div class="popup-header">
-          <div class="popup-title">Screen Shade</div>
-        </div>
         <div class="popup-body">
-          <div class="btn-show-overlay">Show Overlay</div>
-          <div class="timer-section">
-            <label class="timer-toggle">
-              <input type="checkbox" checked />
-              <span>自動非表示:</span>
-            </label>
-            <div class="timer-inputs">
-              <div class="timer-input">3</div>
-              <span class="timer-label">分</span>
-              <div class="timer-input">0</div>
-              <span class="timer-label">秒</span>
-            </div>
+          <div class="theme-selector">
+            <div class="theme-btn"><span class="theme-swatch swatch-light"></span>Light</div>
+            <div class="theme-btn"><span class="theme-swatch swatch-dark"></span>Dark</div>
+            <div class="theme-btn selected"><span class="theme-swatch swatch-glass"></span>Glass</div>
+          </div>
+          <div class="blur-setting">
+            <div class="blur-label"><span>ぼかし強度</span><span class="blur-value">5px</span></div>
+            <input type="range" class="blur-range" min="1" max="20" value="5" />
+          </div>
+          <div class="action-buttons">
+            <div class="btn-primary">オーバーレイを表示</div>
+            <div class="btn-reset">リセット</div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="watermark">Screen Shade</div>
+  <div class="watermark">スクリーンカーテン</div>
 </body>
 </html>
