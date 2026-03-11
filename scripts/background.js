@@ -26,6 +26,13 @@ async function handleShowOverlay(request) {
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id) return;
+
+  // chrome://, edge://, about: などの特殊ページにはスクリプトを注入できない
+  const url = tab.url ?? "";
+  if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("file://")) {
+    return;
+  }
+
   const tabId = tab.id;
 
   // 既にスクリプト注入済みか確認
