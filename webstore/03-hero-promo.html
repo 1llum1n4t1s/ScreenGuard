@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Screenshot 3 - Hero Promo</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 1280px;
+      height: 800px;
+      background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 60px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .decorative-circles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .circle1 { width: 400px; height: 400px; top: -120px; left: -120px; }
+    .circle2 { width: 300px; height: 300px; bottom: -100px; right: -100px; }
+    .circle3 { width: 200px; height: 200px; top: 50%; left: 50%; opacity: 0.5; }
+
+    .content-left {
+      position: relative;
+      z-index: 1;
+      color: white;
+      flex: 1;
+      max-width: 550px;
+    }
+
+    .icon-large {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    .main-title {
+      font-size: 48px;
+      font-weight: 900;
+      margin-bottom: 16px;
+      text-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      letter-spacing: 1px;
+      line-height: 1.3;
+    }
+
+    .subtitle {
+      font-size: 20px;
+      opacity: 0.95;
+      margin-bottom: 32px;
+      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      opacity: 0.95;
+    }
+
+    .feature-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .content-right {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ミニブラウザモックアップ */
+    .mini-browser {
+      width: 480px;
+      height: 340px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .mini-browser-header {
+      height: 28px;
+      background: #f1f3f5;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 5px;
+    }
+
+    .mini-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .mini-dot.red { background: #ff5f57; }
+    .mini-dot.yellow { background: #ffbd2e; }
+    .mini-dot.green { background: #28ca42; }
+
+    .mini-browser-content {
+      position: relative;
+      height: calc(100% - 28px);
+      background: white;
+    }
+
+    /* ミニブラウザ内の薄いコンテンツ */
+    .mini-page {
+      padding: 16px;
+      opacity: 0.1;
+    }
+
+    .mini-page-line {
+      height: 6px;
+      background: #333;
+      border-radius: 3px;
+      margin-bottom: 8px;
+    }
+
+    .mini-page-line:nth-child(1) { width: 60%; height: 10px; }
+    .mini-page-line:nth-child(2) { width: 90%; }
+    .mini-page-line:nth-child(3) { width: 75%; }
+    .mini-page-line:nth-child(4) { width: 85%; }
+    .mini-page-line:nth-child(5) { width: 40%; height: 9px; margin-top: 16px; }
+    .mini-page-line:nth-child(6) { width: 80%; }
+    .mini-page-line:nth-child(7) { width: 70%; }
+
+    /* ミニオーバーレイ */
+    .mini-overlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      background: #e4e4e4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mini-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      width: 18px;
+      height: 18px;
+      background: #e74c3c;
+      border-radius: 3px;
+    }
+
+    .mini-timer {
+      font-size: 28px;
+      color: #515173;
+      font-weight: 300;
+    }
+
+    .mini-handle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #bfbdbd;
+      border-radius: 1px;
+    }
+
+    .mini-handle-nw { top: 0; left: 0; }
+    .mini-handle-ne { top: 0; right: 0; }
+    .mini-handle-sw { bottom: 0; left: 0; }
+    .mini-handle-se { bottom: 0; right: 0; }
+
+    .version-badge {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: white;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+  <div class="decorative-circles">
+    <div class="circle circle1"></div>
+    <div class="circle circle2"></div>
+    <div class="circle circle3"></div>
+  </div>
+
+  <div class="version-badge">v1.0.0</div>
+
+  <div class="content-left">
+    <div class="icon-large">🛡️</div>
+    <h1 class="main-title">Screen Shade</h1>
+    <p class="subtitle">ページを覆い隠し、<br>準備ができたら表示する</p>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-icon">🖱️</div>
+        <span>ワンクリックでオーバーレイ表示</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">⏱️</div>
+        <span>タイマーで自動非表示</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">↔️</div>
+        <span>8方向リサイズ対応</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔒</div>
+        <span>プレゼン・離席時に最適</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-right">
+    <div class="mini-browser">
+      <div class="mini-browser-header">
+        <div class="mini-dot red"></div>
+        <div class="mini-dot yellow"></div>
+        <div class="mini-dot green"></div>
+      </div>
+      <div class="mini-browser-content">
+        <div class="mini-page">
+          <div class="mini-page-line"></div>
+          <div class="mini-page-line"></div>
+          <div class="mini-page-line"></div>
+          <div class="mini-page-line"></div>
+          <div class="mini-page-line"></div>
+          <div class="mini-page-line"></div>
+          <div class="mini-page-line"></div>
+        </div>
+        <div class="mini-overlay">
+          <div class="mini-close"></div>
+          <div class="mini-timer">3:00</div>
+          <div class="mini-handle mini-handle-nw"></div>
+          <div class="mini-handle mini-handle-ne"></div>
+          <div class="mini-handle mini-handle-sw"></div>
+          <div class="mini-handle mini-handle-se"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

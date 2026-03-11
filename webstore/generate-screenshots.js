@@ -3,29 +3,29 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
 
-// 出力ディレクトリのパス
-const ROOT_DIR = path.join(__dirname, '..');
-const OUTPUT_DIR = path.join(ROOT_DIR, 'webstore-images');
+// ディレクトリパス
+const TEMPLATE_DIR = __dirname;
+const OUTPUT_DIR = path.join(__dirname, 'images');
 
 // 生成する画像の各設定項目（入力パス、出力名、サイズ、タイプ）
 const IMAGE_CONFIGS = [
   // スクリーンショット：1280x800
   {
-    input: path.join(ROOT_DIR, 'webstore-screenshots/01-popup-ui.html'),
+    input: path.join(TEMPLATE_DIR, '01-popup-ui.html'),
     output: '01-popup-ui-1280x800.png',
     width: 1280,
     height: 800,
     type: 'screenshot'
   },
   {
-    input: path.join(ROOT_DIR, 'webstore-screenshots/02-overlay-demo.html'),
+    input: path.join(TEMPLATE_DIR, '02-overlay-demo.html'),
     output: '02-overlay-demo-1280x800.png',
     width: 1280,
     height: 800,
     type: 'screenshot'
   },
   {
-    input: path.join(ROOT_DIR, 'webstore-screenshots/03-hero-promo.html'),
+    input: path.join(TEMPLATE_DIR, '03-hero-promo.html'),
     output: '03-hero-promo-1280x800.png',
     width: 1280,
     height: 800,
@@ -34,7 +34,7 @@ const IMAGE_CONFIGS = [
 
   // プロモーション タイル（小）：440x280
   {
-    input: path.join(ROOT_DIR, 'webstore-screenshots/04-promo-small.html'),
+    input: path.join(TEMPLATE_DIR, '04-promo-small.html'),
     output: 'promo-small-440x280.png',
     width: 440,
     height: 280,
@@ -43,7 +43,7 @@ const IMAGE_CONFIGS = [
 
   // マーキー プロモーション タイル：1400x560
   {
-    input: path.join(ROOT_DIR, 'webstore-screenshots/05-promo-marquee.html'),
+    input: path.join(TEMPLATE_DIR, '05-promo-marquee.html'),
     output: 'promo-marquee-1400x560.png',
     width: 1400,
     height: 560,

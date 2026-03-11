@@ -5,7 +5,7 @@
   "description": "Chrome extension to shade/cover page content with a resizable overlay",
   "scripts": {
     "generate-icons": "node scripts/generate-icons.js",
-    "generate-screenshots": "node scripts/generate-screenshots.js",
+    "generate-screenshots": "node webstore/generate-screenshots.js",
     "build": "npm run generate-icons && npm run generate-screenshots"
   },
   "devDependencies": {
