@@ -24,11 +24,5 @@
     "activeTab",
     "scripting",
     "storage"
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["css/content.css"],
-      "matches": ["<all_urls>"]
-    }
   ]
 }

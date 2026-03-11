@@ -78,8 +78,8 @@ async function generateScreenshot(browser, htmlPath, outputPath, width, height) 
       timeout: 30000
     });
 
-    // レンダリング完了を待機
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // レンダリング完了を待機（ローカルファイルのため短めに設定）
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     await page.screenshot({
       path: outputPath,
@@ -128,10 +128,11 @@ async function main() {
   });
 
   try {
-    for (const config of HTML_CONFIGS) {
+    // 各ページは独立しているため並列生成
+    await Promise.all(HTML_CONFIGS.map(config => {
       const outputPath = path.join(OUTPUT_DIR, config.output);
-      await generateScreenshot(browser, config.input, outputPath, config.width, config.height);
-    }
+      return generateScreenshot(browser, config.input, outputPath, config.width, config.height);
+    }));
   } finally {
     await browser.close();
   }

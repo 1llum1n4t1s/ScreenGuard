@@ -4,32 +4,30 @@
   if (window.__screenShadeRunning === true) return true;
   window.__screenShadeRunning = true;
 
-  const STORAGE_KEY = "shadePrefs";
-  const DEFAULT_BLUR = 5;
+  const DEFAULT_MARGIN = 15;
+  const MIN_SIZE = 40;
 
   // ---------- State ----------
   let overlayEl = null;
-  let currentTheme = "light";
-  let currentBlur = DEFAULT_BLUR;
+  let currentTheme = Themes.LIGHT;
+  let currentBlur = BlurConfig.DEFAULT;
 
   // ---------- Message Listener ----------
   chrome.runtime.onMessage.addListener((request) => {
     if (request.action === Actions.SHOW_OVERLAY_CS) {
       onShowCommand(request.data.theme, request.data.glassBlur);
-    }
-    if (request.action === Actions.UPDATE_BLUR) {
+    } else if (request.action === Actions.UPDATE_BLUR) {
       currentBlur = clampBlur(request.data?.glassBlur);
       applyBlur();
-    }
-    if (request.action === Actions.RESET_PREFS) {
-      chrome.storage.local.remove(STORAGE_KEY);
+    } else if (request.action === Actions.RESET_PREFS) {
+      chrome.storage.local.remove(StorageKeys.PREFS);
     }
   });
 
   // ---------- Show / Close ----------
   function onShowCommand(theme, glassBlur) {
     // ポップアップで選択されたテーマを常に優先
-    currentTheme = theme ?? "light";
+    currentTheme = theme ?? Themes.LIGHT;
     currentBlur = clampBlur(glassBlur);
 
     if (!overlayEl) {
@@ -42,17 +40,10 @@
     }
   }
 
-  /** blur 値を有効範囲に収める */
-  function clampBlur(v) {
-    const n = Number(v);
-    if (!Number.isFinite(n)) return DEFAULT_BLUR;
-    return Math.max(1, Math.min(20, Math.round(n)));
-  }
-
   /** Glass テーマの blur をインラインスタイルで適用 */
   function applyBlur() {
     if (!overlayEl) return;
-    if (currentTheme === "glass") {
+    if (currentTheme === Themes.GLASS) {
       const val = `blur(${currentBlur}px) saturate(180%)`;
       overlayEl.style.setProperty("-webkit-backdrop-filter", val, "important");
       overlayEl.style.setProperty("backdrop-filter", val, "important");
@@ -75,7 +66,7 @@
   function savePrefs() {
     if (!overlayEl) return;
     chrome.storage.local.set({
-      [STORAGE_KEY]: {
+      [StorageKeys.PREFS]: {
         theme: currentTheme,
         top: parseFloat(overlayEl.style.top),
         left: parseFloat(overlayEl.style.left),
@@ -86,8 +77,8 @@
   }
 
   function loadPrefsAndApply() {
-    chrome.storage.local.get(STORAGE_KEY, (result) => {
-      const prefs = result[STORAGE_KEY];
+    chrome.storage.local.get(StorageKeys.PREFS, (result) => {
+      const prefs = result[StorageKeys.PREFS];
       if (!prefs || !overlayEl) return;
 
       // テーマはポップアップで選択されたものを優先するため復元しない
@@ -103,6 +94,9 @@
         overlayEl.style.width = `${prefs.width}px`;
         overlayEl.style.height = `${prefs.height}px`;
       }
+
+      // 位置・サイズ復元後にテーマを含めて保存
+      savePrefs();
     });
   }
 
@@ -113,12 +107,11 @@
     overlayEl.dataset.theme = currentTheme;
 
     // 明示的に top/left/width/height で位置指定（bottom/right は使わない）
-    const margin = 15;
     overlayEl.style.cssText = `
-      top: ${margin}px !important;
-      left: ${margin}px !important;
-      width: ${window.innerWidth - margin * 2}px !important;
-      height: ${window.innerHeight - margin * 2}px !important;
+      top: ${DEFAULT_MARGIN}px !important;
+      left: ${DEFAULT_MARGIN}px !important;
+      width: ${window.innerWidth - DEFAULT_MARGIN * 2}px !important;
+      height: ${window.innerHeight - DEFAULT_MARGIN * 2}px !important;
     `;
 
     // 閉じるボタン
@@ -145,11 +138,8 @@
     // Glass テーマの blur を適用
     applyBlur();
 
-    // 保存された位置・サイズを読み込む（テーマは復元しない）
+    // 保存された位置・サイズを読み込む（コールバック内で savePrefs を呼ぶ）
     loadPrefsAndApply();
-
-    // テーマを含めて保存
-    savePrefs();
   }
 
   // ---------- Drag Logic (Pointer Events) ----------
@@ -175,10 +165,11 @@
     dragOrigTop = parseFloat(overlayEl.style.top);
     dragOrigLeft = parseFloat(overlayEl.style.left);
     overlayEl.setPointerCapture(e.pointerId);
-    overlayEl.style.cursor = "grabbing !important";
+    overlayEl.style.setProperty("cursor", "grabbing", "important");
 
     overlayEl.addEventListener("pointermove", onDragMove);
     overlayEl.addEventListener("pointerup", onDragEnd);
+    overlayEl.addEventListener("pointercancel", onDragEnd);
   }
 
   function onDragMove(e) {
@@ -195,7 +186,7 @@
     isDragging = false;
     if (overlayEl) {
       overlayEl.releasePointerCapture(e.pointerId);
-      overlayEl.style.cursor = "";
+      overlayEl.style.setProperty("cursor", "grab", "important");
     }
     cleanupDrag();
     savePrefs();
@@ -205,6 +196,7 @@
     if (overlayEl) {
       overlayEl.removeEventListener("pointermove", onDragMove);
       overlayEl.removeEventListener("pointerup", onDragEnd);
+      overlayEl.removeEventListener("pointercancel", onDragEnd);
     }
   }
 
@@ -231,6 +223,7 @@
 
     document.addEventListener("pointermove", onResizeMove);
     document.addEventListener("pointerup", onResizeEnd);
+    document.addEventListener("pointercancel", onResizeEnd);
   }
 
   function onResizeMove(e) {
@@ -243,8 +236,6 @@
     let left = startLeft;
     let width = startWidth;
     let height = startHeight;
-
-    const MIN_SIZE = 40;
 
     // 北（上辺）: top を動かし height を逆方向に変える
     if (resizeDir.includes("n")) {
@@ -285,5 +276,6 @@
   function cleanupResize() {
     document.removeEventListener("pointermove", onResizeMove);
     document.removeEventListener("pointerup", onResizeEnd);
+    document.removeEventListener("pointercancel", onResizeEnd);
   }
 })();
