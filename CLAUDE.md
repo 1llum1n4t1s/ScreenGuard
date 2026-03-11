@@ -4,55 +4,64 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Screen Shade is a Chrome Extension (Manifest V3) that covers page content with a resizable, draggable overlay. Supports 3 themes (Light/Dark/Glass blur) and persists overlay position/size/theme across sessions via `chrome.storage.local`. The extension is localized in Japanese.
+スクリーンカーテン (Screen Curtain) は Chrome 拡張機能 (Manifest V3)。ページ上にリサイズ・ドラッグ可能なオーバーレイを表示して内容を覆い隠す。3テーマ (Light/Dark/Glass blur) 対応。オーバーレイの位置・サイズ・テーマは `chrome.storage.local` で自動保存・復元される。UI は日本語。
 
 ## Build Commands
 
 ```bash
-npm run build                # Generate icons + screenshots
-npm run generate-icons       # SVG → PNG icons (16, 48, 128px) via sharp
-npm run generate-screenshots # HTML templates → PNG store images via Puppeteer
+npm run build                # アイコン + スクリーンショット一括生成
+npm run generate-icons       # icons/icon.svg → images/icon-{16,48,128}.png (sharp)
+npm run generate-screenshots # webstore/*.html → webstore/images/*.png (Puppeteer)
 ```
 
-No test framework is configured. No linter is configured.
+テストフレームワーク・リンターは未導入。動作確認は Chrome に拡張機能を読み込んで手動テスト。
 
 ## Architecture
 
-Three components communicate via `chrome.runtime` message passing. Message action constants are defined in `scripts/actions.js` (shared by all three).
+3つのコンポーネントが `chrome.runtime` メッセージパッシングで連携する。アクション定数は `scripts/actions.js` で定義（`SHOW_OVERLAY`, `SHOW_OVERLAY_CS`, `RESET_PREFS`, `UPDATE_BLUR`）。
 
 ```
 Popup (popup.html/js/css)
   ──SHOW_OVERLAY──▶  Background (scripts/background.js)
-                       │ injects scripts/CSS into tab, then:
+                       │ scripts/content.js + actions.js + css/content.css を注入後:
                        ──SHOW_OVERLAY_CS──▶  Content Script (scripts/content.js)
   ──RESET_PREFS──▶   Background ──forward──▶  Content Script
+  ──UPDATE_BLUR──▶   Background ──forward──▶  Content Script
 ```
 
 ### Popup (`popup.html`, `popup.js`, `popup.css`)
-User interface (260px wide). Theme selector (Light/Dark/Glass) and reset button for position/size. Sends `SHOW_OVERLAY` with `{theme}` to background, then closes. Restores last-used theme from `chrome.storage.local`.
+テーマ選択 (Light/Dark/Glass)、Glass 選択時のみぼかし強度スライダー (1-20px) を表示。位置リセットボタンあり。`SHOW_OVERLAY` に `{theme, glassBlur}` を載せて background へ送信後、ポップアップを閉じる。最後のテーマ・blur 値は `chrome.storage.local` から復元。
 
 ### Background (`scripts/background.js`)
-Service worker. Stores theme state, injects `content.js` + `actions.js` + `css/content.css` into the active tab on first use (checks `window.__screenShadeRunning` to avoid re-injection), then sends `SHOW_OVERLAY_CS` with theme to the content script. Forwards `RESET_PREFS` to active tab. Skips injection on `chrome://`, `edge://`, `about:` pages.
+Service worker。テーマ・blur のステートを保持。アクティブタブへ content script + CSS を動的注入（`window.__screenShadeRunning` フラグで二重注入防止）。`chrome://`, `edge://`, `about:` ページではスキップ。`RESET_PREFS` / `UPDATE_BLUR` はアクティブタブへ中継。
 
 ### Content Script (`scripts/content.js`)
-IIFE-wrapped. Creates `#screenShadeOverlay` (z-index: 2147483647) with close button, 8 resize handles, and drag-to-move. Uses Pointer Events API with `setPointerCapture` for both resize and drag. Theme is applied via `data-theme` attribute. Overlay position/size are saved to `chrome.storage.local` on resize/move end, and restored on next creation. Theme always comes from popup selection (not storage).
+IIFE でラップ。`#screenShadeOverlay` (z-index: 2147483647) を生成。閉じるボタン、8方向リサイズハンドル、ドラッグ移動を Pointer Events API (`setPointerCapture`) で実装。テーマは `data-theme` 属性で切替。Glass テーマの backdrop-filter はインラインスタイルで動的適用。位置・サイズは resize/move 終了時に `chrome.storage.local` へ保存し、次回作成時に復元。テーマはポップアップ選択を常に優先（storage からは復元しない）。
 
 ### Styling (`css/content.css`)
-All rules use `!important` to override page styles. Overlay uses explicit `top/left/width/height` positioning (no `bottom/right`). Resize handles: corner (16×16px) and edge (8px thickness). Close button uses CSS pseudo-elements for the × mark.
+全ルールに `!important` を使用してページスタイルを上書き。overlay は `top/left/width/height` の明示指定（`bottom/right` は未使用）。リサイズハンドル: 角 16×16px / 辺 8px。閉じるボタンは CSS 疑似要素で × を描画。
 
 ## Key Files
 
 | File | Purpose |
 |------|---------|
-| `manifest.json` | MV3 config; permissions: `activeTab`, `scripting`, `storage` |
-| `scripts/actions.js` | Frozen action constants shared across all scripts |
-| `scripts/background.js` | Service worker: state, script injection, message forwarding |
-| `scripts/content.js` | Overlay DOM creation, resize, drag, persistence |
-| `popup.js` | Popup UI logic, theme selection, reset |
-| `css/content.css` | Overlay styles with `!important` overrides |
-| `icons/icon.svg` | Source icon (512×512); PNGs generated to `images/` |
-| `webstore-screenshots/*.html` | HTML templates rendered to `webstore-images/` by Puppeteer |
+| `manifest.json` | MV3 設定; permissions: `activeTab`, `scripting`, `storage` |
+| `scripts/actions.js` | `Object.freeze` されたアクション定数 (全スクリプト共有) |
+| `scripts/background.js` | Service worker: ステート管理、スクリプト注入、メッセージ中継 |
+| `scripts/content.js` | オーバーレイ DOM 生成、リサイズ、ドラッグ、設定永続化 |
+| `popup.js` | ポップアップ UI: テーマ選択、blur スライダー、リセット |
+| `css/content.css` | オーバーレイスタイル (`!important` で上書き) |
+| `icons/icon.svg` | ソースアイコン (512×512); PNG は `images/` に生成 |
+| `webstore/` | ストア申請用: HTML テンプレート、生成画像、掲載情報テキスト |
+| `privacy-policy.md` | プライバシーポリシー (GitHub Pages で公開) |
 
 ## Store Asset Generation
 
-Icon SVG source at `icons/icon.svg` is converted to PNGs by `scripts/generate-icons.js` (sharp). Screenshot HTML templates in `webstore-screenshots/` are rendered to PNGs by `scripts/generate-screenshots.js` (Puppeteer) with exact viewport dimensions matching Chrome Web Store specs (1280×800, 440×280, 1400×560).
+`icons/icon.svg` → sharp で PNG 変換 (`scripts/generate-icons.js`)。`webstore/*.html` → Puppeteer でスクリーンショット PNG 生成 (`webstore/generate-screenshots.js`)。1枚目のメインスクリーンショットは手動作成済み (`webstore/images/00-screenshot-main-1280x800.png`) でコピーのみ。Chrome Web Store 画像サイズ: スクリーンショット 1280×800、プロモ小 440×280、マーキー 1400×560。
+
+## Important Patterns
+
+- **`popup.js` と `content.js` 両方に `clampBlur()` が存在する** — blur 値の検証ロジックが重複しているため、変更時は両方を更新すること。
+- **content script の注入判定** — `window.__screenShadeRunning` グローバルフラグで管理。background.js で `executeScript` → `func` 実行して確認。
+- **位置指定は top/left/width/height のみ** — `bottom` や `right` は使わない設計。リサイズロジックもこの前提で動いている。
+- **`actions.js` は `importScripts` (background) と `executeScript` (注入) の2経路で読み込まれる** — ES modules ではなく従来のスクリプト形式。
