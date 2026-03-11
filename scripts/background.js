@@ -3,6 +3,7 @@ importScripts("/scripts/actions.js");
 let state = {
   isTimeoutEnabled: false,
   timeout: null,
+  theme: "light",
 };
 
 // ---------- Message Handler ----------
@@ -21,6 +22,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 async function handleShowOverlay(request) {
   state.isTimeoutEnabled = request.data?.isTimeoutEnabled ?? false;
   state.timeout = request.data?.timeout ?? null;
+  state.theme = request.data?.theme ?? "light";
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id) return;
@@ -50,6 +52,7 @@ async function handleShowOverlay(request) {
     data: {
       isTimeoutEnabled: state.isTimeoutEnabled,
       timeout: state.timeout,
+      theme: state.theme,
     },
   });
 }

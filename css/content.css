@@ -1,4 +1,4 @@
-/* ===== Overlay ===== */
+/* ===== Overlay (共通) ===== */
 #screenShadeOverlay {
   position: fixed !important;
   top: 15px !important;
@@ -6,27 +6,80 @@
   right: 15px !important;
   left: 15px !important;
   z-index: 2147483647 !important;
-  background-color: #e4e4e4 !important;
   box-sizing: border-box !important;
+  border-radius: 12px !important;
+  cursor: grab !important;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+/* ===== Light テーマ ===== */
+#screenShadeOverlay[data-theme="light"] {
+  background-color: #f0f0f0 !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ===== Dark テーマ ===== */
+#screenShadeOverlay[data-theme="dark"] {
+  background-color: #2a2a2e !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ===== Glass テーマ ===== */
+#screenShadeOverlay[data-theme="glass"] {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
 
 /* ===== Close Button ===== */
 #shader-close {
   position: absolute !important;
-  right: 25px !important;
-  top: 20px !important;
-  width: 32px !important;
-  height: 32px !important;
-  background-color: #e74c3c !important;
-  border: 1px solid #999 !important;
-  border-radius: 5px !important;
+  right: 16px !important;
+  top: 16px !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
   cursor: pointer !important;
-  transition: background-color 0.2s ease !important;
+  transition: all 0.2s ease !important;
   z-index: 2 !important;
+  border: none !important;
 }
 
-#shader-close:hover {
-  background-color: #ff8944 !important;
+/* Light テーマの閉じるボタン */
+#screenShadeOverlay[data-theme="light"] #shader-close {
+  background-color: rgba(0, 0, 0, 0.12) !important;
+}
+#screenShadeOverlay[data-theme="light"] #shader-close:hover {
+  background-color: #e74c3c !important;
+}
+
+/* Dark テーマの閉じるボタン */
+#screenShadeOverlay[data-theme="dark"] #shader-close {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+#screenShadeOverlay[data-theme="dark"] #shader-close:hover {
+  background-color: #e74c3c !important;
+}
+
+/* Glass テーマの閉じるボタン */
+#screenShadeOverlay[data-theme="glass"] #shader-close {
+  background-color: rgba(0, 0, 0, 0.15) !important;
+}
+#screenShadeOverlay[data-theme="glass"] #shader-close:hover {
+  background-color: #e74c3c !important;
 }
 
 /* × マーク（CSS疑似要素） */
@@ -37,10 +90,26 @@
   display: block !important;
   margin: auto !important;
   inset: 0 !important;
-  width: 20px !important;
+  width: 14px !important;
   height: 0 !important;
-  border-top: 3px solid rgba(0, 0, 0, 0.5) !important;
+  border-top: 2px solid rgba(0, 0, 0, 0.5) !important;
   transform-origin: center !important;
+  transition: border-color 0.2s ease !important;
+}
+
+#screenShadeOverlay[data-theme="dark"] #shader-close::before,
+#screenShadeOverlay[data-theme="dark"] #shader-close::after {
+  border-top-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+#screenShadeOverlay[data-theme="glass"] #shader-close::before,
+#screenShadeOverlay[data-theme="glass"] #shader-close::after {
+  border-top-color: rgba(0, 0, 0, 0.6) !important;
+}
+
+#shader-close:hover::before,
+#shader-close:hover::after {
+  border-top-color: #fff !important;
 }
 
 #shader-close::before {
@@ -57,11 +126,26 @@
   left: 50% !important;
   top: 50% !important;
   transform: translate(-50%, -50%) !important;
-  font-size: 50px !important;
+  font-size: 42px !important;
+  font-weight: 200 !important;
   font-family: -apple-system, "Segoe UI", sans-serif !important;
-  color: #515173 !important;
+  letter-spacing: 2px !important;
   pointer-events: none !important;
   user-select: none !important;
+  opacity: 0.4 !important;
+}
+
+#screenShadeOverlay[data-theme="light"] #shader-timeout-label {
+  color: #333 !important;
+}
+
+#screenShadeOverlay[data-theme="dark"] #shader-timeout-label {
+  color: #ccc !important;
+}
+
+#screenShadeOverlay[data-theme="glass"] #shader-timeout-label {
+  color: #222 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3) !important;
 }
 
 /* ===== Resize Handles (共通) ===== */
@@ -114,8 +198,44 @@
   position: absolute !important;
   width: 10px !important;
   height: 10px !important;
-  background-color: #bfbdbd !important;
-  border-radius: 2px !important;
+  border-radius: 3px !important;
+  transition: background-color 0.2s ease !important;
+}
+
+/* Light テーマのハンドル */
+#screenShadeOverlay[data-theme="light"] .shader-handle-nw::after,
+#screenShadeOverlay[data-theme="light"] .shader-handle-ne::after,
+#screenShadeOverlay[data-theme="light"] .shader-handle-sw::after,
+#screenShadeOverlay[data-theme="light"] .shader-handle-se::after {
+  background-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+#screenShadeOverlay[data-theme="light"] .shader-handle:hover::after {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Dark テーマのハンドル */
+#screenShadeOverlay[data-theme="dark"] .shader-handle-nw::after,
+#screenShadeOverlay[data-theme="dark"] .shader-handle-ne::after,
+#screenShadeOverlay[data-theme="dark"] .shader-handle-sw::after,
+#screenShadeOverlay[data-theme="dark"] .shader-handle-se::after {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+#screenShadeOverlay[data-theme="dark"] .shader-handle:hover::after {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Glass テーマのハンドル */
+#screenShadeOverlay[data-theme="glass"] .shader-handle-nw::after,
+#screenShadeOverlay[data-theme="glass"] .shader-handle-ne::after,
+#screenShadeOverlay[data-theme="glass"] .shader-handle-sw::after,
+#screenShadeOverlay[data-theme="glass"] .shader-handle-se::after {
+  background-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+#screenShadeOverlay[data-theme="glass"] .shader-handle:hover::after {
+  background-color: rgba(0, 0, 0, 0.3) !important;
 }
 
 .shader-handle-nw::after { top: 0 !important; left: 0 !important; }

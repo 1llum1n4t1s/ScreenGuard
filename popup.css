@@ -14,6 +14,62 @@ body {
   padding: 14px 16px;
 }
 
+/* ---------- Theme Selector ---------- */
+.theme-selector {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.theme-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #666;
+  background: #fff;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.theme-btn:hover {
+  border-color: #aaa;
+}
+
+.theme-btn.selected {
+  border-color: #5b8def;
+  color: #333;
+  background: #eef4ff;
+  box-shadow: 0 0 0 1px #5b8def33;
+}
+
+.theme-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+}
+
+.theme-btn-light .theme-swatch {
+  background: #f0f0f0;
+}
+
+.theme-btn-dark .theme-swatch {
+  background: #2a2a2e;
+  border-color: #555;
+}
+
+.theme-btn-glass .theme-swatch {
+  background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(200,200,255,0.3));
+  border-color: #aab;
+}
+
 /* ---------- Show Overlay Button ---------- */
 .show-overlay-wrapper {
   margin-bottom: 14px;

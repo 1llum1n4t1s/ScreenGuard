@@ -5,6 +5,7 @@
   window.__screenShadeRunning = true;
 
   const TIMER_INTERVAL_MS = 1000;
+  const STORAGE_KEY = "shadePrefs";
 
   // ---------- State ----------
   let overlayEl = null;
@@ -12,11 +13,16 @@
   let isTimeoutEnabled = false;
   let remainingMs = 0;
   let timerIntervalId = null;
+  let currentTheme = "light";
 
   // ---------- Message Listener ----------
   chrome.runtime.onMessage.addListener((request) => {
     if (request.action === Actions.SHOW_OVERLAY_CS) {
-      onShowCommand(request.data.isTimeoutEnabled, request.data.timeout);
+      onShowCommand(
+        request.data.isTimeoutEnabled,
+        request.data.timeout,
+        request.data.theme
+      );
     }
   });
 
@@ -45,14 +51,19 @@
   }
 
   // ---------- Show / Close ----------
-  function onShowCommand(enabled, timeout) {
+  function onShowCommand(enabled, timeout, theme) {
     isTimeoutEnabled = enabled;
     remainingMs = timeout ?? 0;
+    currentTheme = theme ?? "light";
 
     if (!overlayEl) {
       createOverlay();
-    } else if (!isTimeoutEnabled && timerLabelEl) {
-      timerLabelEl.textContent = "";
+    } else {
+      // テーマ変更のみ
+      overlayEl.dataset.theme = currentTheme;
+      if (!isTimeoutEnabled && timerLabelEl) {
+        timerLabelEl.textContent = "";
+      }
     }
 
     if (isTimeoutEnabled && remainingMs > 0) {
@@ -65,6 +76,7 @@
   function closeOverlay() {
     stopTimer();
     cleanupResize();
+    cleanupDrag();
     if (overlayEl) {
       overlayEl.remove();
       overlayEl = null;
@@ -72,10 +84,54 @@
     }
   }
 
+  // ---------- Persistence ----------
+  function savePrefs() {
+    if (!overlayEl) return;
+    const rect = overlayEl.getBoundingClientRect();
+    chrome.storage.local.set({
+      [STORAGE_KEY]: {
+        theme: currentTheme,
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+      },
+    });
+  }
+
+  function loadPrefsAndApply() {
+    chrome.storage.local.get(STORAGE_KEY, (result) => {
+      const prefs = result[STORAGE_KEY];
+      if (!prefs || !overlayEl) return;
+
+      // テーマ復元
+      if (prefs.theme) {
+        currentTheme = prefs.theme;
+        overlayEl.dataset.theme = currentTheme;
+      }
+
+      // 位置・サイズ復元
+      if (
+        typeof prefs.top === "number" &&
+        typeof prefs.left === "number" &&
+        typeof prefs.width === "number" &&
+        typeof prefs.height === "number"
+      ) {
+        overlayEl.style.top = `${prefs.top}px`;
+        overlayEl.style.left = `${prefs.left}px`;
+        overlayEl.style.right = "auto";
+        overlayEl.style.bottom = "auto";
+        overlayEl.style.width = `${prefs.width}px`;
+        overlayEl.style.height = `${prefs.height}px`;
+      }
+    });
+  }
+
   // ---------- Create Overlay ----------
   function createOverlay() {
     overlayEl = document.createElement("div");
     overlayEl.id = "screenShadeOverlay";
+    overlayEl.dataset.theme = currentTheme;
 
     // 閉じるボタン
     const closeBtn = document.createElement("i");
@@ -98,11 +154,17 @@
       overlayEl.appendChild(handle);
     }
 
+    // ドラッグ移動（overlay本体で開始、ハンドル/ボタンは除外）
+    overlayEl.addEventListener("pointerdown", onDragStart);
+
     if (isTimeoutEnabled && remainingMs > 0) {
       updateTimerLabel();
     }
 
     document.body.appendChild(overlayEl);
+
+    // 保存された設定を読み込む
+    loadPrefsAndApply();
   }
 
   // ---------- Timer Label ----------
@@ -112,7 +174,61 @@
     const min = Math.floor(totalSec / 60);
     const sec = totalSec % 60;
     const secStr = sec.toString().padStart(2, "0");
-    timerLabelEl.textContent = min > 0 ? `${min} min ${secStr} sec` : `${sec} sec`;
+    timerLabelEl.textContent =
+      min > 0 ? `${min}:${secStr}` : `${sec}`;
+  }
+
+  // ---------- Drag Logic (Pointer Events) ----------
+  let isDragging = false;
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let dragStartRect = null;
+
+  function onDragStart(e) {
+    // ハンドルや閉じるボタン上ではドラッグしない
+    if (
+      e.target.classList.contains("shader-handle") ||
+      e.target.id === "shader-close"
+    ) {
+      return;
+    }
+
+    e.preventDefault();
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    dragStartRect = overlayEl.getBoundingClientRect();
+    overlayEl.style.cursor = "grabbing";
+
+    document.addEventListener("pointermove", onDragMove);
+    document.addEventListener("pointerup", onDragEnd);
+  }
+
+  function onDragMove(e) {
+    if (!isDragging || !overlayEl || !dragStartRect) return;
+
+    const dx = e.clientX - dragStartX;
+    const dy = e.clientY - dragStartY;
+
+    overlayEl.style.top = `${dragStartRect.top + dy}px`;
+    overlayEl.style.left = `${dragStartRect.left + dx}px`;
+    overlayEl.style.right = "auto";
+    overlayEl.style.bottom = "auto";
+  }
+
+  function onDragEnd() {
+    isDragging = false;
+    if (overlayEl) {
+      overlayEl.style.cursor = "";
+    }
+    cleanupDrag();
+    savePrefs();
+  }
+
+  function cleanupDrag() {
+    document.removeEventListener("pointermove", onDragMove);
+    document.removeEventListener("pointerup", onDragEnd);
+    dragStartRect = null;
   }
 
   // ---------- Resize Logic (Pointer Events) ----------
@@ -178,6 +294,7 @@
 
   function onResizeEnd() {
     cleanupResize();
+    savePrefs();
   }
 
   function cleanupResize() {

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Screen Shade is a Chrome Extension (Manifest V3) that covers page content with a resizable gray overlay. It supports an optional countdown timer that auto-hides the overlay. The extension is localized in Japanese.
+Screen Shade is a Chrome Extension (Manifest V3) that covers page content with a resizable, draggable overlay. Supports 3 themes (Light/Dark/Glass blur), optional countdown timer for auto-hide, and persists overlay position/size/theme across sessions via `chrome.storage.local`. The extension is localized in Japanese.
 
 ## Build Commands
 
@@ -29,13 +29,13 @@ Popup (popup.html/js/css)
 ```
 
 ### Popup (`popup.html`, `popup.js`, `popup.css`)
-User interface (260px wide). Collects timeout settings (minutes/seconds) with input validation (clamps range, rejects zero timeout), sends `SHOW_OVERLAY` with calculated milliseconds to background, then closes.
+User interface (260px wide). Theme selector (Light/Dark/Glass), timeout settings (minutes/seconds) with input validation. Sends `SHOW_OVERLAY` with `{isTimeoutEnabled, timeout, theme}` to background, then closes. Restores last-used theme from `chrome.storage.local`.
 
 ### Background (`scripts/background.js`)
-Service worker. Stores timeout state, injects `content.js` + `actions.js` + `css/content.css` into the active tab on first use (checks `window.__screenShadeRunning` to avoid re-injection), then sends `SHOW_OVERLAY_CS` to the content script. No persistent timers — goes idle when not processing messages.
+Service worker. Stores timeout/theme state, injects `content.js` + `actions.js` + `css/content.css` into the active tab on first use (checks `window.__screenShadeRunning` to avoid re-injection), then sends `SHOW_OVERLAY_CS` with theme to the content script. Goes idle when not processing messages.
 
 ### Content Script (`scripts/content.js`)
-IIFE-wrapped. Creates `#screenShadeOverlay` (z-index: 2147483647) with close button, timer label, and 8 resize handles. Uses Pointer Events API for resize. Timer runs locally via `setInterval` (1s) — no cross-process heartbeat. Overlay closes when timer reaches 0. Resize event listeners are cleaned up on overlay close.
+IIFE-wrapped. Creates `#screenShadeOverlay` (z-index: 2147483647) with close button, timer label, 8 resize handles, and drag-to-move. Uses Pointer Events API for both resize and drag. Theme is applied via `data-theme` attribute. Timer runs locally via `setInterval` (1s). Overlay position/size/theme are saved to `chrome.storage.local` on resize/move end, and restored on next creation.
 
 ### Styling (`css/content.css`)
 All rules use `!important` to override page styles. Overlay has fixed positioning with 15px inset margins. Resize handles: corner (16×16px) and edge (8px thickness). Close button uses CSS pseudo-elements for the × mark.
