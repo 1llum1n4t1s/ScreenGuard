@@ -65,6 +65,13 @@
   z-index: 2 !important;
   border: none !important;
   background-color: var(--shade-close-bg) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#screenShadeOverlay:hover #shader-close {
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 #shader-close:hover {
