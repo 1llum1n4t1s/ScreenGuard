@@ -1,9 +1,12 @@
 importScripts("/scripts/actions.js");
 
-let state = {
+const INJECTABLE_PROTOCOLS = Object.freeze(["http:", "https:", "file:"]);
+
+// イミュータブルなステート管理
+let state = Object.freeze({
   theme: Themes.LIGHT,
   glassBlur: BlurConfig.DEFAULT,
-};
+});
 
 // ---------- Message Handler ----------
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
@@ -22,15 +25,18 @@ async function getActiveTab() {
 }
 
 async function handleShowOverlay(request) {
-  state.theme = request.data?.theme ?? Themes.LIGHT;
-  state.glassBlur = request.data?.glassBlur ?? BlurConfig.DEFAULT;
+  state = Object.freeze({
+    theme: request.data?.theme ?? Themes.LIGHT,
+    glassBlur: request.data?.glassBlur ?? BlurConfig.DEFAULT,
+  });
 
   const tab = await getActiveTab();
   if (!tab?.id) return;
 
-  // chrome://, edge://, about: などの特殊ページにはスクリプトを注入できない
-  const url = tab.url ?? "";
-  if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("file://")) {
+  // スクリプト注入可能なプロトコルのみ許可（chrome://, edge://, about: 等は除外）
+  try {
+    if (!INJECTABLE_PROTOCOLS.includes(new URL(tab.url ?? "").protocol)) return;
+  } catch {
     return;
   }
 

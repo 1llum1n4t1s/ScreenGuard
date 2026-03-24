@@ -67,6 +67,13 @@
   background-color: var(--shade-close-bg) !important;
   opacity: 0 !important;
   pointer-events: none !important;
+  /* <button> のデフォルトスタイルをリセット */
+  padding: 0 !important;
+  margin: 0 !important;
+  font: inherit !important;
+  outline: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
 }
 
 #screenShadeOverlay:hover #shader-close {

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "スクリーンカーテン",
   "description": "ページをオーバーレイで覆い隠します。3テーマ対応、ドラッグ移動・リサイズ可能。",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "action": {
     "default_icon": {
       "16": "images/icon-16.png",

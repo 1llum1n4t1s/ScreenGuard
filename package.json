@@ -1,6 +1,6 @@
 {
   "name": "screen-curtain",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "type": "commonjs",
   "description": "Chrome extension to shade/cover page content with a resizable overlay",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "puppeteer": "^24.37.5",
-    "sharp": "^0.33.0"
+    "sharp": "^0.34.5"
   },
   "keywords": [
     "chrome-extension",

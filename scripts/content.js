@@ -20,7 +20,9 @@
       currentBlur = clampBlur(request.data?.glassBlur);
       applyBlur();
     } else if (request.action === Actions.RESET_PREFS) {
-      chrome.storage.local.remove(StorageKeys.PREFS);
+      // popup.js と同じく PREFS と GLASS_BLUR の両方を削除
+      chrome.storage.local.remove([StorageKeys.PREFS, StorageKeys.GLASS_BLUR]);
+      resetOverlayPosition();
     }
   });
 
@@ -53,6 +55,34 @@
     }
   }
 
+  /** オーバーレイの位置・サイズを一括設定 */
+  function applyPosition({ top, left, width, height }) {
+    if (!overlayEl) return;
+    overlayEl.style.top = `${top}px`;
+    overlayEl.style.left = `${left}px`;
+    overlayEl.style.width = `${width}px`;
+    overlayEl.style.height = `${height}px`;
+  }
+
+  /** 表示領域の中央に配置する座標を計算 */
+  function centerPosition(w, h) {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const cw = Math.min(w, vw - DEFAULT_MARGIN * 2);
+    const ch = Math.min(h, vh - DEFAULT_MARGIN * 2);
+    return {
+      top: Math.round((vh - ch) / 2),
+      left: Math.round((vw - cw) / 2),
+      width: cw,
+      height: ch,
+    };
+  }
+
+  /** リセット: 表示領域の中央に 300×300 で再配置 */
+  function resetOverlayPosition() {
+    applyPosition(centerPosition(300, 300));
+  }
+
   function closeOverlay() {
     cleanupResize();
     cleanupDrag();
@@ -76,26 +106,31 @@
     });
   }
 
+  /** オーバーレイが表示領域内に十分見えているか判定し、範囲外なら中央に移動 */
+  const VISIBLE_THRESHOLD = 100; // 閉じるボタン・リサイズハンドルが操作可能な最低限の表示量
+  function ensureVisible(top, left, width, height) {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const visibleX = Math.min(left + width, vw) - Math.max(left, 0);
+    const visibleY = Math.min(top + height, vh) - Math.max(top, 0);
+    const isVisible =
+      visibleX >= Math.min(VISIBLE_THRESHOLD, width) &&
+      visibleY >= Math.min(VISIBLE_THRESHOLD, height);
+
+    return isVisible ? { top, left, width, height } : centerPosition(width, height);
+  }
+
   function loadPrefsAndApply() {
     chrome.storage.local.get(StorageKeys.PREFS, (result) => {
       const prefs = result[StorageKeys.PREFS];
       if (!prefs || !overlayEl) return;
 
       // テーマはポップアップで選択されたものを優先するため復元しない
-      // 位置・サイズのみ復元
-      if (
-        typeof prefs.top === "number" &&
-        typeof prefs.left === "number" &&
-        typeof prefs.width === "number" &&
-        typeof prefs.height === "number"
-      ) {
-        overlayEl.style.top = `${prefs.top}px`;
-        overlayEl.style.left = `${prefs.left}px`;
-        overlayEl.style.width = `${prefs.width}px`;
-        overlayEl.style.height = `${prefs.height}px`;
+      const { top, left, width, height } = prefs;
+      if ([top, left, width, height].every((v) => typeof v === "number")) {
+        applyPosition(ensureVisible(top, left, width, height));
       }
 
-      // 位置・サイズ復元後にテーマを含めて保存
       savePrefs();
     });
   }
@@ -114,9 +149,11 @@
       height: ${window.innerHeight - DEFAULT_MARGIN * 2}px !important;
     `;
 
-    // 閉じるボタン
-    const closeBtn = document.createElement("i");
+    // 閉じるボタン（セマンティクス・アクセシビリティ対応）
+    const closeBtn = document.createElement("button");
     closeBtn.id = "shader-close";
+    closeBtn.type = "button";
+    closeBtn.setAttribute("aria-label", "オーバーレイを閉じる");
     closeBtn.addEventListener("click", closeOverlay);
     overlayEl.appendChild(closeBtn);
 
@@ -148,6 +185,8 @@
   let dragStartY = 0;
   let dragOrigTop = 0;
   let dragOrigLeft = 0;
+  let dragWidth = 0;
+  let dragHeight = 0;
 
   function onDragStart(e) {
     // ハンドルや閉じるボタン上ではドラッグしない
@@ -164,6 +203,9 @@
     dragStartY = e.clientY;
     dragOrigTop = parseFloat(overlayEl.style.top);
     dragOrigLeft = parseFloat(overlayEl.style.left);
+    // ドラッグ開始時にサイズをキャッシュ（毎フレームの parseFloat を回避）
+    dragWidth = parseFloat(overlayEl.style.width);
+    dragHeight = parseFloat(overlayEl.style.height);
     overlayEl.setPointerCapture(e.pointerId);
     overlayEl.style.setProperty("cursor", "grabbing", "important");
 
@@ -177,9 +219,16 @@
 
     const dx = e.clientX - dragStartX;
     const dy = e.clientY - dragStartY;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
 
-    overlayEl.style.top = `${dragOrigTop + dy}px`;
-    overlayEl.style.left = `${dragOrigLeft + dx}px`;
+    // 画面内に VISIBLE_THRESHOLD 分は残るよう制限
+    const minVisible = Math.min(VISIBLE_THRESHOLD, MIN_SIZE);
+    const newLeft = Math.max(minVisible - dragWidth, Math.min(vw - minVisible, dragOrigLeft + dx));
+    const newTop = Math.max(minVisible - dragHeight, Math.min(vh - minVisible, dragOrigTop + dy));
+
+    overlayEl.style.top = `${newTop}px`;
+    overlayEl.style.left = `${newLeft}px`;
   }
 
   function onDragEnd(e) {
