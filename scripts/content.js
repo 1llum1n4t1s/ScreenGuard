@@ -38,6 +38,15 @@
       // テーマ・ぼかし変更
       overlayEl.dataset.theme = currentTheme;
       applyBlur();
+      // 画面外に出ていたら中央に再配置
+      applyPosition(
+        ensureVisible(
+          parseFloat(overlayEl.style.top),
+          parseFloat(overlayEl.style.left),
+          parseFloat(overlayEl.style.width),
+          parseFloat(overlayEl.style.height),
+        ),
+      );
       savePrefs();
     }
   }
@@ -55,13 +64,13 @@
     }
   }
 
-  /** オーバーレイの位置・サイズを一括設定 */
+  /** オーバーレイの位置・サイズを一括設定（!important でページCSS干渉を防止） */
   function applyPosition({ top, left, width, height }) {
     if (!overlayEl) return;
-    overlayEl.style.top = `${top}px`;
-    overlayEl.style.left = `${left}px`;
-    overlayEl.style.width = `${width}px`;
-    overlayEl.style.height = `${height}px`;
+    overlayEl.style.setProperty("top", `${top}px`, "important");
+    overlayEl.style.setProperty("left", `${left}px`, "important");
+    overlayEl.style.setProperty("width", `${width}px`, "important");
+    overlayEl.style.setProperty("height", `${height}px`, "important");
   }
 
   /** 表示領域の中央に配置する座標を計算 */
@@ -141,13 +150,8 @@
     overlayEl.id = "screenShadeOverlay";
     overlayEl.dataset.theme = currentTheme;
 
-    // 明示的に top/left/width/height で位置指定（bottom/right は使わない）
-    overlayEl.style.cssText = `
-      top: ${DEFAULT_MARGIN}px !important;
-      left: ${DEFAULT_MARGIN}px !important;
-      width: ${window.innerWidth - DEFAULT_MARGIN * 2}px !important;
-      height: ${window.innerHeight - DEFAULT_MARGIN * 2}px !important;
-    `;
+    // リセットと同じ 300×300 中央配置で初期表示
+    applyPosition(centerPosition(300, 300));
 
     // 閉じるボタン（セマンティクス・アクセシビリティ対応）
     const closeBtn = document.createElement("button");
@@ -227,8 +231,8 @@
     const newLeft = Math.max(minVisible - dragWidth, Math.min(vw - minVisible, dragOrigLeft + dx));
     const newTop = Math.max(minVisible - dragHeight, Math.min(vh - minVisible, dragOrigTop + dy));
 
-    overlayEl.style.top = `${newTop}px`;
-    overlayEl.style.left = `${newLeft}px`;
+    overlayEl.style.setProperty("top", `${newTop}px`, "important");
+    overlayEl.style.setProperty("left", `${newLeft}px`, "important");
   }
 
   function onDragEnd(e) {
@@ -311,10 +315,10 @@
       width = Math.max(MIN_SIZE, startWidth + dx);
     }
 
-    overlayEl.style.top = `${top}px`;
-    overlayEl.style.left = `${left}px`;
-    overlayEl.style.width = `${width}px`;
-    overlayEl.style.height = `${height}px`;
+    overlayEl.style.setProperty("top", `${top}px`, "important");
+    overlayEl.style.setProperty("left", `${left}px`, "important");
+    overlayEl.style.setProperty("width", `${width}px`, "important");
+    overlayEl.style.setProperty("height", `${height}px`, "important");
   }
 
   function onResizeEnd() {

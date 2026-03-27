@@ -154,25 +154,3 @@
 .shader-handle-e  { right: 0 !important; cursor: e-resize !important; }
 .shader-handle-w  { left: 0 !important; cursor: w-resize !important; }
 
-/* ハンドルのビジュアルインジケータ（角のみ） */
-.shader-handle-nw::after,
-.shader-handle-ne::after,
-.shader-handle-sw::after,
-.shader-handle-se::after {
-  content: "" !important;
-  position: absolute !important;
-  width: 10px !important;
-  height: 10px !important;
-  border-radius: 3px !important;
-  background-color: var(--shade-handle-bg) !important;
-  transition: background-color 0.2s ease !important;
-}
-
-.shader-handle:hover::after {
-  background-color: var(--shade-handle-hover) !important;
-}
-
-.shader-handle-nw::after { top: 0 !important; left: 0 !important; }
-.shader-handle-ne::after { top: 0 !important; right: 0 !important; }
-.shader-handle-sw::after { bottom: 0 !important; left: 0 !important; }
-.shader-handle-se::after { bottom: 0 !important; right: 0 !important; }
