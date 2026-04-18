@@ -1,4 +1,4 @@
-importScripts("/scripts/actions.js");
+importScripts("/src/lib/actions.js");
 
 const INJECTABLE_PROTOCOLS = Object.freeze(["http:", "https:", "file:"]);
 
@@ -53,11 +53,11 @@ async function handleShowOverlay(request) {
     await Promise.all([
       chrome.scripting.executeScript({
         target: { tabId },
-        files: ["scripts/actions.js", "scripts/content.js"],
+        files: ["src/lib/actions.js", "src/content/content.js"],
       }),
       chrome.scripting.insertCSS({
         target: { tabId },
-        files: ["css/content.css"],
+        files: ["src/content/content.css"],
       }),
     ]);
   }
