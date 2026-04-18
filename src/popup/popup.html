@@ -6,6 +6,7 @@
 </head>
 <body>
   <div class="popup-container">
+    <!-- data-theme の値は src/lib/actions.js の Themes 定数と同期すること -->
     <div class="theme-selector">
       <button type="button" class="theme-btn theme-btn-light selected" data-theme="light" title="Light">
         <span class="theme-swatch"></span>Light
@@ -33,7 +34,7 @@
       </button>
     </div>
   </div>
-  <script src="scripts/actions.js"></script>
+  <script src="../lib/actions.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

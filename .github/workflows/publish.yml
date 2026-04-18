@@ -14,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: リポジトリをチェックアウト
-        uses: actions/checkout@v5
+        # SHA 固定でサプライチェーン攻撃耐性を確保（タグはミュータブル）
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: バージョンを取得
         id: version
@@ -36,12 +37,15 @@ jobs:
           echo "✅ ブランチ名と manifest バージョン一致: $expected"
 
       - name: Node セットアップ
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: 依存インストール
-        run: npm ci || npm install
+      - name: 依存インストール（lockfile 厳密一致のみ許可）
+        # lockfile 不整合時の暗黙の `npm install` フォールバックを禁止
+        # 失敗したら lockfile を手動更新してから再実行すること
+        run: npm ci
 
       - name: アイコン生成
         run: node scripts/generate-icons.js
@@ -58,8 +62,10 @@ jobs:
           CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
           CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
           CWS_EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+        # npm ci で devDeps に固定した chrome-webstore-upload-cli を使用
+        # （`npx --yes @3` 実行時の patch 版サプライチェーン攻撃を回避）
         run: |
-          npx --yes chrome-webstore-upload-cli@3 upload \
+          npx --no-install chrome-webstore-upload-cli upload \
             --source screen-curtain.zip \
             --extension-id "$CWS_EXTENSION_ID" \
             --client-id "$CWS_CLIENT_ID" \

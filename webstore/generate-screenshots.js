@@ -73,13 +73,14 @@ async function generateScreenshot(browser, htmlPath, outputPath, width, height) 
     });
 
     const absolutePath = path.resolve(htmlPath);
+    // ローカル file:// はネットワーク接続が無いため networkidle0 は不適切
     await page.goto(`file://${absolutePath}`, {
-      waitUntil: 'networkidle0',
+      waitUntil: 'load',
       timeout: 30000
     });
 
-    // レンダリング完了を待機（ローカルファイルのため短めに設定）
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // フォントロード完了まで待機（固定 sleep よりも安定）
+    await page.evaluate(() => document.fonts?.ready).catch(() => {});
 
     await page.screenshot({
       path: outputPath,

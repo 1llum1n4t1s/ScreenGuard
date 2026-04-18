@@ -18,19 +18,15 @@ async function generateIcons() {
   // imagesディレクトリの作成（recursive は既存でも安全）
   fs.mkdirSync(iconsDir, { recursive: true });
 
-  // 各サイズのPNGを並列生成
+  // 各サイズのPNGを並列生成（失敗時は外側の catch へ伝播させて CI を fail させる）
   await Promise.all(sizes.map(async (size) => {
     const outputPath = path.join(iconsDir, `icon-${size}.png`);
-    try {
-      await sharp(svgPath)
-        .resize(size, size)
-        .png()
-        .toFile(outputPath);
+    await sharp(svgPath)
+      .resize(size, size)
+      .png()
+      .toFile(outputPath);
 
-      console.log(`✅ ${size}x${size} アイコンを生成しました: ${path.basename(outputPath)}`);
-    } catch (error) {
-      console.error(`❌ ${size}x${size} アイコンの生成に失敗しました:`, error.message);
-    }
+    console.log(`✅ ${size}x${size} アイコンを生成しました: ${path.basename(outputPath)}`);
   }));
 
   console.log('\n🎉 アイコン生成が完了しました！');

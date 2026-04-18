@@ -13,11 +13,22 @@ const Themes = Object.freeze({
   GLASS: "glass",
 });
 
+/** @readonly 許可テーマ allowlist（外部メッセージ検証用） */
+const THEME_ALLOWLIST = Object.freeze(new Set(Object.values(Themes)));
+
 /** @readonly ぼかし設定 */
 const BlurConfig = Object.freeze({
   DEFAULT: 5,
   MIN: 1,
   MAX: 20,
+});
+
+/** @readonly 寸法・レイアウト定数（content.js と popup.js で共有） */
+const Dimensions = Object.freeze({
+  DEFAULT_SIZE: 300,       // リセット・初期表示時のサイズ
+  DEFAULT_MARGIN: 15,      // 中央配置時の最小マージン
+  MIN_SIZE: 40,            // リサイズの最小値
+  VISIBLE_THRESHOLD: 100,  // 画面外判定の最低表示量
 });
 
 /** @readonly ストレージキー */
@@ -31,4 +42,9 @@ function clampBlur(v) {
   const n = Number(v);
   if (!Number.isFinite(n)) return BlurConfig.DEFAULT;
   return Math.max(BlurConfig.MIN, Math.min(BlurConfig.MAX, Math.round(n)));
+}
+
+/** テーマ文字列を allowlist で検証、不正値は LIGHT にフォールバック */
+function sanitizeTheme(v) {
+  return THEME_ALLOWLIST.has(v) ? v : Themes.LIGHT;
 }
