@@ -34,6 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
   $blurRange.value = String(BlurConfig.DEFAULT);
   $blurValue.textContent = `${BlurConfig.DEFAULT}px`;
 
+  /** スライダーの fill 量を CSS カスタムプロパティに同期（visual fill bar 用） */
+  function syncBlurFill(value) {
+    const pct = ((value - BlurConfig.MIN) / (BlurConfig.MAX - BlurConfig.MIN)) * 100;
+    $blurRange.style.setProperty("--blur-pct", String(pct));
+  }
+  syncBlurFill(BlurConfig.DEFAULT);
+
   let selectedTheme = Themes.LIGHT;
   let glassBlur = BlurConfig.DEFAULT;
 
@@ -51,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     $blurRange.value = glassBlur;
     $blurValue.textContent = `${glassBlur}px`;
+    syncBlurFill(glassBlur);
   });
 
   // ---------- Theme Events ----------
@@ -88,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
     glassBlur = clampBlur($blurRange.value);
     $blurRange.value = glassBlur;
     $blurValue.textContent = `${glassBlur}px`;
+    syncBlurFill(glassBlur);
     saveBlurDebounced(glassBlur);
     const tabId = await getTargetTabId();
     sendBlurDebounced(glassBlur, tabId);

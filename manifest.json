@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "スクリーンカーテン",
   "description": "ページをオーバーレイで覆い隠します。3テーマ対応、ドラッグ移動・リサイズ可能。",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "homepage_url": "https://github.com/1llum1n4t1s/ScreenGuard",
   "action": {
     "default_icon": {

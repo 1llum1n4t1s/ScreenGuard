@@ -1,102 +1,305 @@
+/*
+ * ScreenGuard popup — "夜窓のカーテン" editorial。
+ *
+ * 設計判断:
+ *   - フォント: IBM Plex Sans JP (woff2 ローカル) を全面採用。
+ *     和文・欧文・モノスペースまで一貫させ、雑誌のような落ち着いた読み心地。
+ *   - ライト/ダーク: ブラウザの prefers-color-scheme: dark に追従。
+ *     ライト = 雪白の朝窓。ダーク = 墨夜のシェード越しに射す月光。
+ *     構造・余白・モーションは共通、トークンだけ差し替え。
+ *   - アクセント: ライトは深インディゴ #2f4a7c（カーテンの陰影に滲む夜空の色）。
+ *     ダークは月光寄りに彩度・明度を上げた #8aa3d6（夜空に浮く青）。
+ *   - レイアウト: 幅 280px。タイトル帯 → テーマセレクター → blur → アクションの縦リズム。
+ *     上端に細いインクのアクセント帯（雑誌の小口飾り）+ 左端に番号付きラベル。
+ *   - テーマスウォッチは "オーバーレイの見た目" を表す独立シンボルなので、
+ *     popup の light/dark とは無関係に常に固定の見た目を保つ（ユーザー認知を壊さないため）。
+ */
+
+@font-face {
+  font-family: "IBM Plex Sans JP";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/IBMPlexSansJP-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans JP";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("fonts/IBMPlexSansJP-SemiBold.woff2") format("woff2");
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
-  font: 13px/1.6 -apple-system, "Segoe UI", sans-serif;
-  color: #222;
-  width: 260px;
+:root {
+  --ink: #1a1d24;
+  --ink-soft: #565c69;
+  --ink-faint: #9aa0ad;
+  --paper: #fbfcfe;        /* カード背景: 雪白 */
+  --paper-deep: #eef1f6;   /* 画面最外: わずかに藍を含む白 */
+  --paper-card: #ffffff;   /* 強調カード */
+  --rule: #dfe3ec;
+  --rule-soft: #ecf0f7;
+  --rule-strong: #b9c2d4;
+  --accent: #2f4a7c;        /* 深インディゴ */
+  --accent-deep: #1f3460;
+  --accent-soft: #e6ecf6;
+  --warn: #c0494a;
+  --warn-soft: #fbecec;
+  --shadow-knob: 0 1px 3px rgba(31, 52, 96, 0.25);
+  --shadow-card: 0 1px 0 rgba(31, 52, 96, 0.04);
+  --shadow-press: 0 1px 0 rgba(0, 0, 0, 0.05);
+
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 12px;
+
+  --font-sans:
+    "IBM Plex Sans JP", "Hiragino Sans", "Noto Sans JP",
+    "Segoe UI", system-ui, sans-serif;
+  --font-mono:
+    "IBM Plex Mono", "SFMono-Regular", "Cascadia Mono",
+    "JetBrains Mono", Consolas, monospace;
 }
 
+/*
+ * ダーク追従: ブラウザ / OS の prefers-color-scheme: dark に従ってトークンを上書き。
+ * 配色: 墨黒（微藍寄り）に月光のような明るい青を散らす。
+ *   - 真っ黒 #000 を避け、わずかに藍紺を含むことで accent と和ませる。
+ *   - accent #2f4a7c は HSL ≈ (216°, 45%, 33%)。暗背景では沈むので
+ *     色相を保ったまま明度・彩度を上げて (218°, 47%, 70%) ≈ #8aa3d6 に持ち上げる。
+ *   - 本文色は純白 #fff を避け、わずかに青を残した #e6e9f1 でフリッカーを抑える。
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e6e9f1;
+    --ink-soft: #a7adbe;
+    --ink-faint: #6a6f7e;
+    --paper: #1c1f29;
+    --paper-deep: #11131b;
+    --paper-card: #232734;
+    --rule: #353a48;
+    --rule-soft: #2a2e3c;
+    --rule-strong: #4a5165;
+    --accent: #8aa3d6;
+    --accent-deep: #b1c2e6;
+    --accent-soft: #232c44;
+    --warn: #e07b7c;
+    --warn-soft: #3a2326;
+    --shadow-knob: 0 1px 3px rgba(0, 0, 0, 0.55);
+    --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.02);
+    --shadow-press: 0 1px 0 rgba(0, 0, 0, 0.5);
+  }
+}
+
+html, body {
+  background: var(--paper-deep);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink);
+  width: 280px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- Shell ---------- */
 .popup-container {
-  padding: 14px 16px;
+  background: var(--paper);
+  padding: 16px 16px 14px;
+  position: relative;
+}
+
+/* 上端に細いインクのアクセント帯（雑誌の小口飾り） */
+.popup-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 16px;
+  right: 16px;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    var(--accent) 0,
+    var(--accent) 28px,
+    var(--ink) 28px,
+    var(--ink) 30px,
+    transparent 30px
+  );
+}
+
+/* 番号付きラベル（"01 — テーマ" のような editorial な小見出し） */
+.section-label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--accent-deep);
+  padding: 14px 2px 6px;
+}
+
+.section-label::before {
+  content: attr(data-no);
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+
+.section-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+  margin-left: 4px;
+  align-self: center;
+}
+
+/* 一番最初のラベルは上 padding を詰める（アクセント帯と近接させる） */
+.popup-container > .section-label:first-of-type {
+  padding-top: 8px;
 }
 
 /* ---------- Theme Selector ---------- */
 .theme-selector {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 6px;
-  justify-content: center;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 }
 
 .theme-btn {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 5px 10px;
-  font-size: 11px;
-  font-weight: 500;
-  color: #666;
-  background: #fff;
-  border: 1.5px solid #ddd;
-  border-radius: 6px;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 4px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  background: var(--paper-card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: all 0.15s;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    color 140ms ease,
+    transform 140ms ease;
 }
 
 .theme-btn:hover {
-  border-color: #aaa;
+  border-color: var(--rule-strong);
+  color: var(--ink);
+}
+
+.theme-btn:active {
+  transform: scale(0.98);
 }
 
 .theme-btn.selected {
-  border-color: #5b8def;
-  color: #333;
-  background: #eef4ff;
-  box-shadow: 0 0 0 1px #5b8def33;
+  border-color: var(--accent);
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent);
 }
 
+.theme-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/*
+ * テーマスウォッチは「オーバーレイ自身の見た目」を表すシンボル。
+ * popup の light/dark に左右されず常に固定の色を維持する（ユーザー認知を一定に保つ）。
+ */
 .theme-swatch {
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  flex-shrink: 0;
 }
 
 .theme-btn-light .theme-swatch {
-  background: #f0f0f0;
+  background: #f4f4f6;
 }
 
 .theme-btn-dark .theme-swatch {
   background: #2a2a2e;
-  border-color: #555;
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .theme-btn-glass .theme-swatch {
-  background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(200,200,255,0.3));
-  border-color: #aab;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(180, 200, 230, 0.45)),
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.4) 0 2px,
+      transparent 2px 4px
+    );
+  border-color: rgba(80, 100, 140, 0.28);
 }
 
 /* ---------- Blur Setting ---------- */
 .blur-setting {
   display: none;
-  margin-bottom: 12px;
-  padding: 8px 10px;
-  background: #f8f9fb;
-  border-radius: 6px;
-  border: 1px solid #e8e8e8;
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--paper-card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
 }
 
 .blur-setting.visible {
   display: block;
+  animation: blurReveal 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@keyframes blurReveal {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .blur-label {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-  color: #666;
-  margin-bottom: 4px;
+  align-items: baseline;
+  font-size: 10.5px;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
+}
+
+.blur-label > span:first-child {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 9.5px;
+  font-weight: 600;
 }
 
 .blur-value {
+  font-family: var(--font-mono);
   font-weight: 600;
-  color: #5b8def;
-  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-deep);
+  font-size: 11.5px;
 }
 
 #blurRange {
@@ -104,77 +307,152 @@ body {
   height: 4px;
   -webkit-appearance: none;
   appearance: none;
-  background: #ddd;
+  background: linear-gradient(
+    to right,
+    var(--accent) 0,
+    var(--accent) calc((var(--blur-pct, 0)) * 1%),
+    var(--rule) calc((var(--blur-pct, 0)) * 1%),
+    var(--rule) 100%
+  );
   border-radius: 2px;
   outline: none;
   cursor: pointer;
+  transition: background 60ms linear;
 }
 
 #blurRange::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: #5b8def;
-  border: none;
+  background: var(--accent);
+  border: 2px solid var(--paper-card);
   cursor: pointer;
-  transition: transform 0.1s;
+  box-shadow: var(--shadow-knob);
+  transition: transform 120ms ease, background 120ms ease;
 }
 
 #blurRange::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
+  transform: scale(1.15);
+  background: var(--accent-deep);
+}
+
+#blurRange:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* ---------- Action Buttons ---------- */
 .action-buttons {
   display: flex;
   gap: 8px;
-  justify-content: center;
-  align-items: center;
+  align-items: stretch;
+  margin-top: 14px;
 }
 
 .btn-primary {
   flex: 1;
-  padding: 7px 16px;
-  font-size: 13px;
+  position: relative;
+  padding: 10px 14px;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
   font-weight: 600;
-  color: #555;
-  background: linear-gradient(#fff 5%, #f5f5f5 100%);
-  border: 1px solid #d4d4d4;
-  border-radius: 6px;
+  letter-spacing: 0.04em;
+  color: var(--paper);
+  background: var(--accent);
+  border: 1px solid var(--accent-deep);
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: background 0.15s;
+  transition:
+    background 140ms ease,
+    transform 90ms ease,
+    box-shadow 140ms ease;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    var(--shadow-card);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(#f5f5f5 5%, #fff 100%);
+  background: var(--accent-deep);
 }
 
 .btn-primary:active {
   transform: translateY(1px);
+  box-shadow: var(--shadow-press);
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  /*
+   * ダークでは accent が明るい青になるので、その上に白文字を載せると眩しい。
+   * 暗インクを文字に置き、ボタン自身を「光るチップ」として扱う。
+   */
+  .btn-primary {
+    color: var(--paper-deep);
+    border-color: transparent;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 1px 0 rgba(0, 0, 0, 0.4);
+  }
+  .btn-primary:hover {
+    background: var(--accent-deep);
+  }
 }
 
 .btn-reset {
-  padding: 7px 12px;
+  padding: 10px 12px;
+  font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 500;
-  color: #888;
-  background: #f8f8f8;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  background: var(--paper-card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: all 0.15s;
+  transition:
+    color 140ms ease,
+    border-color 140ms ease,
+    background 140ms ease,
+    transform 90ms ease;
   white-space: nowrap;
 }
 
 .btn-reset:hover {
-  color: #e74c3c;
-  border-color: #e74c3c;
-  background: #fef5f5;
+  color: var(--warn);
+  border-color: var(--warn);
+  background: var(--warn-soft);
+}
+
+.btn-reset:active {
+  transform: translateY(1px);
+}
+
+.btn-reset:focus-visible {
+  outline: 2px solid var(--warn);
+  outline-offset: 2px;
 }
 
 .btn-reset:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: not-allowed;
+  color: var(--ink-faint);
+  border-color: var(--rule);
+  background: var(--paper-card);
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

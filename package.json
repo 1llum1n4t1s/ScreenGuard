@@ -1,6 +1,6 @@
 {
   "name": "screen-curtain",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "type": "commonjs",
   "description": "Chrome extension to shade/cover page content with a resizable overlay",
   "homepage": "https://github.com/1llum1n4t1s/ScreenGuard",

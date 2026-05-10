@@ -2,29 +2,32 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
+  <meta name="color-scheme" content="light dark" />
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
   <div class="popup-container">
     <!-- data-theme の値は src/lib/actions.js の Themes 定数と同期すること -->
+    <div class="section-label" data-no="01">テーマ</div>
     <div class="theme-selector">
       <button type="button" class="theme-btn theme-btn-light selected" data-theme="light" title="Light">
-        <span class="theme-swatch"></span>Light
+        <span class="theme-swatch" aria-hidden="true"></span>Light
       </button>
       <button type="button" class="theme-btn theme-btn-dark" data-theme="dark" title="Dark">
-        <span class="theme-swatch"></span>Dark
+        <span class="theme-swatch" aria-hidden="true"></span>Dark
       </button>
       <button type="button" class="theme-btn theme-btn-glass" data-theme="glass" title="Glass">
-        <span class="theme-swatch"></span>Glass
+        <span class="theme-swatch" aria-hidden="true"></span>Glass
       </button>
     </div>
     <div class="blur-setting" id="blurSetting">
-      <label class="blur-label">
+      <label class="blur-label" for="blurRange">
         <span>ぼかし強度</span>
         <span class="blur-value" id="blurValue">5px</span>
       </label>
       <input type="range" id="blurRange" min="1" max="20" value="5" />
     </div>
+    <div class="section-label" data-no="02">アクション</div>
     <div class="action-buttons">
       <button type="button" id="showOverlay" class="btn-primary">
         オーバーレイを表示

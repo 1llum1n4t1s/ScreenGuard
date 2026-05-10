@@ -80,7 +80,8 @@ CSS 文字列を `window.__screenShadeStyles` に置くだけの JS モジュー
 - **位置指定は top/left/width/height のみ** — `bottom` や `right` は使わない設計。リサイズロジックもこの前提で動いている。
 - **`actions.js` は `importScripts` (background) と `executeScript` (注入) と `<script>` (popup) の3経路で読み込まれる** — ES modules ではなく従来のスクリプト形式。popup からは `../lib/actions.js` という相対パスで読み込む（`src/popup/` からの相対）。
 - **`content-styles.js` は window.__screenShadeStyles という string グローバルを置くだけの副作用モジュール** — content.js の `createOverlay()` が shadow root 内の `<style>` textContent に流し込む。fetch / runtime.getURL を使わず JS 文字列化することで async 初期化を回避。CSS ハイライトは失うが、shadow 境界越しの CSS 配送としては最も単純。
-- **画面外オーバーレイの自動補正** — `ensureVisible()` が保存座標の復元時に画面外判定（`Dimensions.VISIBLE_THRESHOLD=100px`）を行い、範囲外なら `centerPosition()` で中央に再配置。ドラッグ中も `onDragMove()` 内で同閾値による移動制限あり。`ResizeObserver` がビューポート変化時にも自動補正を発火させる。
+- **画面外オーバーレイの自動補正** — `ensureVisible()` が保存座標の復元時に画面外判定（`Dimensions.VISIBLE_THRESHOLD=100px`）を行い、範囲外なら `centerPosition()` で中央に再配置。ドラッグ中も `onDragMove()` 内で同閾値による移動制限あり。
+- **ビューポート変化時の中央追従** — `ResizeObserver` がビューポート変化を検知すると、`prevViewportW/H` との差分の半分だけ overlay の `top/left` を移動させて「中心-中心の相対位置」を保つ。中央配置レイアウトのコンテンツ（動画プレイヤー等）と同じ動きで追従させる狙い。drag/resize 操作中はスキップするが `prevViewport*` 自体は常に更新し、操作終了直後に「操作中の viewport delta」が一気に効くのを防ぐ。最後に `ensureVisible()` を通すので極端な縮小では従来どおり中央スナップに落ちる。連続発火するため savePrefs は `savePrefsDebounced()`（300ms）経由で間引く（drag/resize 終了時の `savePrefs()` は引き続き即時保存）。
 - **位置操作ヘルパー** — `applyPosition()` でオーバーレイの top/left/width/height を一括設定、`centerPosition(w, h)` で中央配置座標を計算。リセットや ensureVisible から共通利用される。
 - **PointerCapture は drag と resize の両方で取得** — ウィンドウ外移動・Alt+Tab・タッチキャンセル時にも `pointerup/cancel` が確実に届くように、ハンドル要素側で capture する。リスナーも capture した要素に紐付けて document グローバル登録を避ける。
 - **SPA / ビューポート / フルスクリーン対応** — `MutationObserver` が `document.body` の childList を監視して overlay 切り離しを検知、`ResizeObserver` が `documentElement` を監視、`fullscreenchange` で overlay を fullscreen 要素配下へ付け替える。

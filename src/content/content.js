@@ -17,6 +17,12 @@
   let currentBlur = BlurConfig.DEFAULT;
   let resizeObs = null;
   let mutationObs = null;
+  // 中央追従: 直近に観測した viewport サイズ。createOverlay で初期化し、
+  // ResizeObserver で diff/2 だけ overlay を移動して中心-中心の相対位置を保つ。
+  let prevViewportW = 0;
+  let prevViewportH = 0;
+  // ResizeObserver 起因の savePrefs を間引くタイマー
+  let savePrefsTimer = null;
 
   // IIFE 初期化成功が確定してからフラグを立てる（失敗時の永続ロックを避ける）
   try {
@@ -127,6 +133,13 @@
     });
   }
 
+  // ResizeObserver による中央追従からの save は連続発火するので debounce。
+  // ユーザー操作起点の savePrefs（drag/resize 終了時）は即時で OK。
+  function savePrefsDebounced() {
+    clearTimeout(savePrefsTimer);
+    savePrefsTimer = setTimeout(savePrefs, 300);
+  }
+
   function ensureVisible(top, left, width, height) {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
@@ -174,10 +187,32 @@
     if (typeof ResizeObserver === "function") {
       resizeObs = new ResizeObserver(() => {
         if (!overlayEl) return;
-        // drag/resize 中は pointer 入力を優先。observer が ensureVisible で snap すると
+
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const dw = vw - prevViewportW;
+        const dh = vh - prevViewportH;
+        // 操作中も viewport は変わり得る（DevTools dock 等）。prev は常に更新して
+        // 「操作中の viewport 変化」が操作終了直後に一気に効かないようにする。
+        prevViewportW = vw;
+        prevViewportH = vh;
+
+        // drag/resize 中は pointer 入力を優先。observer が overlay を動かすと
         // ユーザーの手元から overlay を奪ってしまうためスキップ。
         if (isDragging || resizeActive) return;
-        applyPosition(ensureVisibleFromElement());
+        if (dw === 0 && dh === 0) return;
+
+        // 中心-中心の相対位置追従: viewport delta の半分だけ overlay を移動。
+        // 中央配置レイアウトのコンテンツ（動画プレイヤー等）と同じ動きで追従する。
+        const curTop = parseFloat(overlayEl.style.top);
+        const curLeft = parseFloat(overlayEl.style.left);
+        const curWidth = parseFloat(overlayEl.style.width);
+        const curHeight = parseFloat(overlayEl.style.height);
+        const newTop = curTop + dh / 2;
+        const newLeft = curLeft + dw / 2;
+        // 極端に縮められた場合に備えて既存の画面外補正を最後に通す。
+        applyPosition(ensureVisible(newTop, newLeft, curWidth, curHeight));
+        savePrefsDebounced();
       });
       resizeObs.observe(document.documentElement);
     }
@@ -298,6 +333,10 @@
     parent.appendChild(host);
 
     applyBlur();
+    // ResizeObserver の中央追従は「前回観測した viewport」との差分を使うので、
+    // observer 起動前に baseline を必ず初期化しておく。
+    prevViewportW = window.innerWidth;
+    prevViewportH = window.innerHeight;
     installObservers();
     loadPrefsAndApply();
   }
