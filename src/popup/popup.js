@@ -105,11 +105,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------- Show Overlay ----------
   $btn.addEventListener("click", async () => {
     const tabId = await getTargetTabId();
-    chrome.runtime.sendMessage({
-      action: Actions.SHOW_OVERLAY,
-      tabId,
-      data: { theme: selectedTheme, glassBlur: clampBlur(glassBlur) },
-    }).catch(() => {});
+    // background の処理完了（sendResponse）を待ってから閉じる。
+    // 待たずに window.close() すると、SW が休止していた場合に
+    // 起動待ちの間にポップアップごとメッセージが破棄され、初回クリックが
+    // 無反応になる（2回目は SW が起きているため成功する）。
+    try {
+      await chrome.runtime.sendMessage({
+        action: Actions.SHOW_OVERLAY,
+        tabId,
+        data: { theme: selectedTheme, glassBlur: clampBlur(glassBlur) },
+      });
+    } catch (err) {
+      console.error("[ScreenGuard] sendMessage failed:", err);
+    }
     window.close();
   });
 

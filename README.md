@@ -23,8 +23,8 @@
 ## 開発
 
 ```bash
-npm install
-npm run build   # アイコン + ストア用スクリーンショットを生成
+pnpm install
+pnpm run build   # アイコン + ストア用スクリーンショットを生成
 ```
 
 Chrome で `chrome://extensions` を開き、「パッケージ化されていない拡張機能を読み込む」からプロジェクトフォルダを選択して動作確認できます。

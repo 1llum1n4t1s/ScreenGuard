@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Codex (ChatGPT) and other coding agents working in this repository.
 
 ## Project Overview
 
@@ -9,9 +9,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build Commands
 
 ```bash
-npm run build                # アイコン + スクリーンショット一括生成
-npm run generate-icons       # icons/icon.svg → icons/icon-{16,48,128}.png (sharp)
-npm run generate-screenshots # webstore/*.html → webstore/images/*.png (Puppeteer)
+pnpm run build                # アイコン + スクリーンショット一括生成
+pnpm run generate-icons       # icons/icon.svg → icons/icon-{16,48,128}.png (sharp)
+pnpm run generate-screenshots # webstore/*.html → webstore/images/*.png (Puppeteer)
 ```
 
 テストフレームワーク・リンターは未導入。動作確認は Chrome で `chrome://extensions` を開き、「パッケージ化されていない拡張機能を読み込む」からプロジェクトルートを選択して手動テスト。JS の構文だけ確認したい時は `node --check <file>` が使える（chrome API 未定義エラーは parse 段階では出ない）。
@@ -22,7 +22,7 @@ npm run generate-screenshots # webstore/*.html → webstore/images/*.png (Puppet
 - `manifest.json` — Chrome 拡張機能のバージョン
 - `package.json` — npm パッケージのバージョン
 
-`package-lock.json` は `npm install` 時に自動同期される。
+`pnpm-lock.yaml` は `pnpm install` 時に自動同期される。
 
 ## Architecture
 
@@ -66,7 +66,7 @@ CSS 文字列を `window.__screenShadeStyles` に置くだけの JS モジュー
 | `icons/icon.svg` | ソースアイコン (512×512); PNG は `icons/` に生成 |
 | `webstore/` | ストア申請用: HTML テンプレート、生成画像、掲載情報テキスト |
 | `docs/privacy-policy.md` | プライバシーポリシー (GitHub Pages で公開) |
-| `.github/workflows/publish.yml` | Chrome Web Store 自動公開。Actions は SHA 固定、`npm ci` 厳密、devDep の CLI 使用 |
+| `.github/workflows/publish.yml` | Chrome Web Store 自動公開。Actions は SHA 固定、`pnpm install --frozen-lockfile` 厳密、devDep の CLI 使用 |
 
 ## Store Asset Generation
 
@@ -102,6 +102,6 @@ Chrome Web Store への自動公開は **`release/x.y.z` ブランチへの push
 ## CI / Supply Chain
 
 - Actions は **コミット SHA 固定**（タグはミュータブルなので不可）
-- `npm ci` のみを使用。`npm ci || npm install` のようなフォールバックは**禁止**（lockfile bypass の温床）
-- Chrome Web Store CLI は `devDependencies` に固定バージョンで記載し、CI では `npx --no-install` で local node_modules の版を使用（`npx --yes @patch` の patch 版乗っ取りを回避）
+- `pnpm install --frozen-lockfile` のみを使用。lockfile を書き換えるフォールバックは**禁止**（lockfile bypass の温床）
+- Chrome Web Store CLI は `devDependencies` に固定バージョンで記載し、CI では `pnpm exec` で local node_modules の版を使用（`npx --yes @patch` の patch 版乗っ取りを回避）
 - CI で OAuth refresh_token 等の CWS 資格情報は GitHub Actions Secrets (`CWS_CLIENT_ID`/`CWS_CLIENT_SECRET`/`CWS_REFRESH_TOKEN`/`CWS_EXTENSION_ID`) 経由でのみ渡す。ワークフロー内で `echo` やログに出さないこと。

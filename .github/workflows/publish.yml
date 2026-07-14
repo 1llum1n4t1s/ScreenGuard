@@ -36,16 +36,21 @@ jobs:
           fi
           echo "✅ ブランチ名と manifest バージョン一致: $expected"
 
+      - name: pnpm セットアップ
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1  # v4
+        with:
+          version: 11
+
       - name: Node セットアップ
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.4.0
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: 依存インストール（lockfile 厳密一致のみ許可）
-        # lockfile 不整合時の暗黙の `npm install` フォールバックを禁止
+        # lockfile 不整合時の暗黙の install フォールバックを禁止
         # 失敗したら lockfile を手動更新してから再実行すること
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: アイコン生成
         run: node scripts/generate-icons.js
@@ -62,10 +67,10 @@ jobs:
           CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
           CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
           CWS_EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
-        # npm ci で devDeps に固定した chrome-webstore-upload-cli を使用
+        # pnpm install で devDeps に固定した chrome-webstore-upload-cli を使用
         # （`npx --yes @3` 実行時の patch 版サプライチェーン攻撃を回避）
         run: |
-          npx --no-install chrome-webstore-upload-cli upload \
+          pnpm exec chrome-webstore-upload-cli upload \
             --source screen-curtain.zip \
             --extension-id "$CWS_EXTENSION_ID" \
             --client-id "$CWS_CLIENT_ID" \
