@@ -70,7 +70,7 @@ jobs:
         # pnpm install で devDeps に固定した chrome-webstore-upload-cli を使用
         # （`npx --yes @3` 実行時の patch 版サプライチェーン攻撃を回避）
         run: |
-          pnpm exec chrome-webstore-upload-cli upload \
+          pnpm exec chrome-webstore-upload upload \
             --source screen-curtain.zip \
             --extension-id "$CWS_EXTENSION_ID" \
             --client-id "$CWS_CLIENT_ID" \
