@@ -1,6 +1,6 @@
-# AGENTS.md
+# CLAUDE.md
 
-This file provides guidance to Codex (ChatGPT) and other coding agents working in this repository.
+This file provides guidance to Claude Code and other coding agents working in this repository.
 
 ## Project Overview
 
@@ -43,7 +43,7 @@ Popup (src/popup/popup.{html,js,css})
 テーマ選択 (Light/Dark/Glass)、Glass 選択時のみぼかし強度スライダー (`BlurConfig.MIN`〜`BlurConfig.MAX`) を表示。位置リセットボタンあり。`chrome.tabs.query` で自身で tabId を解決し、`SHOW_OVERLAY` に `{tabId, data: {theme, glassBlur}}` を載せて background へ送信後、ポップアップを閉じる。`UPDATE_BLUR` の sendMessage も 80ms デバウンスで連打を間引く。最後のテーマ・blur 値は `chrome.storage.local` から復元。popup.html の `<script src="../lib/actions.js">` は popup からの相対パスであることに注意。
 
 ### Background (`src/background/background.js`)
-Service worker。`importScripts("/src/lib/actions.js")` で定数をロード。`Object.freeze` でイミュータブル管理されたステート（theme, glassBlur）を保持。`onMessage` で `sender.id === chrome.runtime.id` を検証して外部メッセージを拒否。`request.tabId` を優先、次にキャッシュ、最後に `chrome.tabs.query` の順で対象タブを解決（アクティブタブ曖昧性を回避）。`handleShowOverlay` は `.catch` で reject を捕捉して `sendResponse({ok:false})` を返す。URL のプロトコルが `http:`, `https:`, `file:` 以外のページではスキップ（chrome://, edge://, about: 等）。`UPDATE_BLUR` は `state.glassBlur` も同時更新（SSoT 維持）。
+Service worker。`importScripts("/src/lib/actions.js")` で定数をロード。`Object.freeze` でイミュータブル管理されたステート（theme, glassBlur）を保持。`onMessage` で `sender.id === chrome.runtime.id` を検証して外部メッセージを拒否。`request.tabId` を優先、次にキャッシュ、最後に `chrome.tabs.query` の順で対象タブを解決（アクティブタブ曖昧性を回避）。`handleShowOverlay` は `.catch` で reject を捕捉して `sendResponse({ok:false})` を返す。対象ページは URL のプロトコルが `http:`, `https:`, `file:` のときのみ処理し、それ以外（chrome://, edge://, about: 等）はスキップする。`UPDATE_BLUR` は `state.glassBlur` も同時更新（SSoT 維持）。
 
 ### Content Script (`src/content/content.js`)
 IIFE でラップ。**Shadow DOM 構成**: `#screenShadeHost` (z-index: 2147483647, `all: initial` 等の inline !important 防御付き) を `document.body` 直下に配置し、`attachShadow({ mode: "closed" })` で closed shadow root を作成。shadow 内に `<style>`（`window.__screenShadeStyles` から流し込み）と `.overlay` を置く。ページ CSS は shadow 境界で遮断されるため `.overlay` 以下のスタイルに `!important` は不要。ページ JS は host から `.shadowRoot` アクセス不可。閉じるボタン（`<button class="close">` + `aria-label`）、8方向リサイズハンドル（`.handle-{n,ne,e,...}`）、ドラッグ移動を Pointer Events API (`setPointerCapture`) で実装。**drag と resize の両方で PointerCapture を取得** してウィンドウ外移動時のリスナーリークを防ぐ。`ResizeObserver` でビューポート変化時に `ensureVisible` を再適用、`MutationObserver` で SPA による host 除去を検知して参照をリセット。`fullscreenchange` でフルスクリーン要素配下へ host を付け替え。テーマは `sanitizeTheme` で allowlist 検証してから `.overlay[data-theme]` で切替。位置・サイズは resize/move 終了時に `chrome.storage.local` へ保存し、次回作成時に復元。テーマはポップアップ選択を常に優先（storage からは復元しない）。
@@ -85,7 +85,7 @@ CSS 文字列を `window.__screenShadeStyles` に置くだけの JS モジュー
 - **位置操作ヘルパー** — `applyPosition()` でオーバーレイの top/left/width/height を一括設定、`centerPosition(w, h)` で中央配置座標を計算。リセットや ensureVisible から共通利用される。
 - **PointerCapture は drag と resize の両方で取得** — ウィンドウ外移動・Alt+Tab・タッチキャンセル時にも `pointerup/cancel` が確実に届くように、ハンドル要素側で capture する。リスナーも capture した要素に紐付けて document グローバル登録を避ける。
 - **SPA / ビューポート / フルスクリーン対応** — `MutationObserver` が `document.body` の childList を監視して overlay 切り離しを検知、`ResizeObserver` が `documentElement` を監視、`fullscreenchange` で overlay を fullscreen 要素配下へ付け替える。
-- **外部通信ゼロは設計不変条件** — この拡張は `fetch` / `XMLHttpRequest` / `sendBeacon` / `WebSocket` を一切使わない。README で明示されたユーザー約束であり、telemetry・analytics・外部 API 呼び出しの追加はユーザーの明示承認なしに行わないこと。`permissions` に `host_permissions` を足す提案も同様に要承認。
+- **外部通信ゼロは設計不変条件** — この拡張は `fetch` / `XMLHttpRequest` / `sendBeacon` / `WebSocket` を一切使わない。README で明示されたユーザー約束なので、telemetry・analytics・外部 API 呼び出しの追加はユーザーの明示承認を得てから行う。`permissions` に `host_permissions` を足す提案も同様に要承認。
 
 ## Storage Keys
 
@@ -93,7 +93,7 @@ CSS 文字列を `window.__screenShadeStyles` に置くだけの JS モジュー
 - **`PREFS`** (`shadePrefs`) — オーバーレイの位置・サイズ・テーマ。content.js で保存、loadPrefsAndApply で復元。
 - **`GLASS_BLUR`** (`glassBlur`) — ぼかし強度。popup.js のスライダー操作時に保存。
 
-**リセット時のキー削除は popup.js の責務に一本化** — `popup.js` の RESET_PREFS ハンドラが `[PREFS, GLASS_BLUR]` を `chrome.storage.local.remove` した上で `RESET_PREFS` を background に送信する。`content.js` 側は表示のリセット（`resetOverlayPosition`）のみを担当し、storage 削除は行わない（二重削除の排除）。
+**リセット時のキー削除は popup.js の責務に一本化** — `popup.js` の RESET_PREFS ハンドラが `[PREFS, GLASS_BLUR]` を `chrome.storage.local.remove` した上で `RESET_PREFS` を background に送信する。`content.js` 側は表示のリセット（`resetOverlayPosition`）のみを担当し、storage 削除は popup.js に任せる（二重削除の排除）。
 
 ## Release Workflow
 
@@ -101,7 +101,7 @@ Chrome Web Store への自動公開は **`release/x.y.z` ブランチへの push
 
 ## CI / Supply Chain
 
-- Actions は **コミット SHA 固定**（タグはミュータブルなので不可）
-- `pnpm install --frozen-lockfile` のみを使用。lockfile を書き換えるフォールバックは**禁止**（lockfile bypass の温床）
+- Actions は **コミット SHA 固定**（タグはミュータブルなので、SHA でピン留めする）
+- `pnpm install --frozen-lockfile` のみを使用する。lockfile を書き換えるフォールバックは使わない（lockfile bypass の温床になるため）。
 - Chrome Web Store CLI は `devDependencies` に固定バージョンで記載し、CI では `pnpm exec` で local node_modules の版を使用（`npx --yes @patch` の patch 版乗っ取りを回避）
-- CI で OAuth refresh_token 等の CWS 資格情報は GitHub Actions Secrets (`CWS_CLIENT_ID`/`CWS_CLIENT_SECRET`/`CWS_REFRESH_TOKEN`/`CWS_EXTENSION_ID`) 経由でのみ渡す。ワークフロー内で `echo` やログに出さないこと。
+- CI で OAuth refresh_token 等の CWS 資格情報は GitHub Actions Secrets (`CWS_CLIENT_ID`/`CWS_CLIENT_SECRET`/`CWS_REFRESH_TOKEN`/`CWS_EXTENSION_ID`) 経由でのみ渡す。ワークフロー内で `echo` やログには出さない。
