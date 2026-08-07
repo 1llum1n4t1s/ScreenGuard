@@ -446,6 +446,27 @@ body {
   background: var(--paper-card);
 }
 
+/* ---------- Status / Error ---------- */
+/*
+ * 注入不可ページ（chrome:// 等）や content script への到達失敗を伝える帯。
+ * ここが無いと popup が黙って閉じるだけになり、ユーザーには「押しても何も起きない」に見える。
+ */
+.status-error {
+  display: block;
+  margin-top: 10px;
+  padding: 8px 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--warn);
+  background: var(--warn-soft);
+  border: 1px solid var(--warn);
+  border-radius: var(--radius-sm);
+}
+
+.status-error[hidden] {
+  display: none;
+}
+
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -28,6 +28,7 @@
   try {
     installMessageListener();
     installFullscreenWatcher();
+    installKeyboardWatcher();
     window.__screenShadeRunning = true;
   } catch (err) {
     console.error("[ScreenGuard] init failed:", err);
@@ -90,8 +91,12 @@
   function centerPosition(w, h) {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    const cw = Math.min(w, vw - DEFAULT_MARGIN * 2);
-    const ch = Math.min(h, vh - DEFAULT_MARGIN * 2);
+    // ビューポートが MIN_SIZE + マージン*2 を下回ると、マージンを引いた結果が
+    // MIN_SIZE 未満（さらに小さいと負）になる。ensureVisible 経由で ResizeObserver からも
+    // 呼ばれるため、放置するとウィンドウを縮めるたびに overlay が縮んで savePrefs で永続化され、
+    // ウィンドウを戻しても復元されない（閉じるボタンごと潰れて操作不能になる）。下限で止める。
+    const cw = Math.max(MIN_SIZE, Math.min(w, vw - DEFAULT_MARGIN * 2));
+    const ch = Math.max(MIN_SIZE, Math.min(h, vh - DEFAULT_MARGIN * 2));
     return {
       top: Math.round((vh - ch) / 2),
       left: Math.round((vw - cw) / 2),
@@ -103,6 +108,9 @@
   function resetOverlayPosition() {
     if (!overlayEl) return;
     // storage 削除は popup.js の責務。ここで savePrefs すると直前の remove を即座に上書きしてしまうため呼ばない。
+    // ResizeObserver 由来の debounce 保存が未発火のまま残っていると、popup の remove 完了後に
+    // 古い位置を書き戻してリセットが無かったことになるので、ここで取り消す。
+    clearTimeout(savePrefsTimer);
     applyPosition(centerPosition(DEFAULT_SIZE, DEFAULT_SIZE));
   }
 
@@ -170,13 +178,18 @@
       const prefs = result[StorageKeys.PREFS];
       if (!prefs || !overlayEl) return;
 
-      const { top, left, width, height } = prefs;
-      if (![top, left, width, height].every((v) => Number.isFinite(v))) return;
+      const { top, left } = prefs;
+      if (![top, left, prefs.width, prefs.height].every((v) => Number.isFinite(v))) return;
+
+      // 旧バージョンが centerPosition 経由で保存した MIN_SIZE 未満の潰れたサイズを救済する。
+      // 下でクランプ後の値と比較して差があれば savePrefs するので、修正値がそのまま永続化される。
+      const width = Math.max(MIN_SIZE, prefs.width);
+      const height = Math.max(MIN_SIZE, prefs.height);
 
       const corrected = ensureVisible(top, left, width, height);
       applyPosition(corrected);
       if (corrected.top !== top || corrected.left !== left
-          || corrected.width !== width || corrected.height !== height) {
+          || corrected.width !== prefs.width || corrected.height !== prefs.height) {
         savePrefs();
       }
     });
@@ -247,6 +260,21 @@
         parent.appendChild(host);
       }
     });
+  }
+
+  // ---------- キーボード操作 ----------
+  /**
+   * Escape でオーバーレイを閉じる。
+   * 閉じる手段が shadow 内の × ボタンだけだと、ポインタが使いにくい環境で詰むため。
+   * overlay 表示中のみ反応し、非表示時はページ側の Escape 挙動を一切妨げない。
+   */
+  function installKeyboardWatcher() {
+    document.addEventListener("keydown", (e) => {
+      if (!host || e.key !== "Escape") return;
+      e.preventDefault();
+      e.stopPropagation();
+      closeOverlay();
+    }, true);
   }
 
   // ---------- Host 防御 ----------

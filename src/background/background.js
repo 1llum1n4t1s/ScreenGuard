@@ -62,41 +62,82 @@ async function handleShowOverlay(request) {
   });
 
   const tabId = await resolveTabId(request);
-  if (typeof tabId !== "number") return;
+  // 以降の失敗は必ず throw する。早期 return すると listener が ok:true を返してしまい、
+  // popup 側は「成功した」と解釈して黙って閉じるため、ユーザーには無反応にしか見えない。
+  if (typeof tabId !== "number") {
+    throw new Error("対象のタブを特定できませんでした。");
+  }
   cachedTabId = tabId;
 
   // タブ URL のプロトコル検証（chrome://, edge://, about: 等の拡張注入不可領域を除外）
   const tab = await chrome.tabs.get(tabId).catch(() => null);
-  if (!tab?.url) return;
-  try {
-    if (!INJECTABLE_PROTOCOLS.includes(new URL(tab.url).protocol)) return;
-  } catch {
-    return;
+  if (!tab?.url || !isInjectableUrl(tab.url)) {
+    throw new Error("このページでは利用できません。");
   }
 
-  // 既にスクリプト注入済みか確認
+  await ensureInjected(tabId);
+
+  const message = {
+    action: Actions.SHOW_OVERLAY_CS,
+    data: { theme: state.theme, glassBlur: state.glassBlur },
+  };
+
+  // content script へオーバーレイ表示指示
+  try {
+    await chrome.tabs.sendMessage(tabId, message);
+  } catch (err) {
+    // 拡張の更新・再読み込み後は、ページ側に __screenShadeRunning が残ったまま
+    // 旧 content script の受信だけが死ぬことがある。この場合 ensureInjected は
+    // 「注入済み」と判断して素通りするため、リロードするまで永久に無反応になる。
+    // フラグを落として強制的に注入し直し、1 度だけ再送する。
+    console.warn("[ScreenGuard] sendMessage failed, re-injecting:", err);
+    await forceReinject(tabId);
+    await chrome.tabs.sendMessage(tabId, message);
+  }
+}
+
+function isInjectableUrl(url) {
+  try {
+    return INJECTABLE_PROTOCOLS.includes(new URL(url).protocol);
+  } catch {
+    return false;
+  }
+}
+
+/** 未注入なら content script 群を注入する */
+async function ensureInjected(tabId) {
   const [result] = await chrome.scripting.executeScript({
     target: { tabId },
     func: () => window.__screenShadeRunning === true,
   });
+  if (result?.result) return;
+  await injectContentScripts(tabId);
+}
 
-  // 未注入なら content script 群を注入（CSS は shadow root 内で適用するため insertCSS は不要）
-  // actions.js → content-styles.js → content.js の順で window グローバルを揃える
-  if (!result?.result) {
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      files: [
-        "src/lib/actions.js",
-        "src/content/content-styles.js",
-        "src/content/content.js",
-      ],
-    });
-  }
+/** 死んだ content script からの復帰用。フラグと残骸を消してから注入し直す */
+async function forceReinject(tabId) {
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    func: () => {
+      // 旧 script が残した host を先に除去する。放置すると閉じるボタンが効かない
+      // 孤児オーバーレイがページに残り続ける。
+      document.getElementById("screenShadeHost")?.remove();
+      window.__screenShadeRunning = false;
+    },
+  });
+  await injectContentScripts(tabId);
+}
 
-  // content script へオーバーレイ表示指示
-  await chrome.tabs.sendMessage(tabId, {
-    action: Actions.SHOW_OVERLAY_CS,
-    data: { theme: state.theme, glassBlur: state.glassBlur },
+// CSS は shadow root 内で適用するため insertCSS は不要
+// actions.js → content-styles.js → content.js の順で window グローバルを揃える
+function injectContentScripts(tabId) {
+  return chrome.scripting.executeScript({
+    target: { tabId },
+    files: [
+      "src/lib/actions.js",
+      "src/content/content-styles.js",
+      "src/content/content.js",
+    ],
   });
 }
 

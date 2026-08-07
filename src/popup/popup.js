@@ -27,6 +27,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const $blurSetting = document.getElementById("blurSetting");
   const $blurRange = document.getElementById("blurRange");
   const $blurValue = document.getElementById("blurValue");
+  const $error = document.getElementById("statusError");
+
+  /** 失敗理由を popup 内に表示する（popup を閉じずに残すことで無反応に見えるのを防ぐ） */
+  function showError(message) {
+    $error.textContent = message;
+    $error.hidden = false;
+  }
+
+  function clearError() {
+    $error.textContent = "";
+    $error.hidden = true;
+  }
 
   // HTML 側の min/max/value を BlurConfig から動的に上書き（二重管理を一方通行化）
   $blurRange.min = String(BlurConfig.MIN);
@@ -104,19 +116,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------- Show Overlay ----------
   $btn.addEventListener("click", async () => {
+    clearError();
     const tabId = await getTargetTabId();
     // background の処理完了（sendResponse）を待ってから閉じる。
     // 待たずに window.close() すると、SW が休止していた場合に
     // 起動待ちの間にポップアップごとメッセージが破棄され、初回クリックが
     // 無反応になる（2回目は SW が起きているため成功する）。
+    let res;
     try {
-      await chrome.runtime.sendMessage({
+      res = await chrome.runtime.sendMessage({
         action: Actions.SHOW_OVERLAY,
         tabId,
         data: { theme: selectedTheme, glassBlur: clampBlur(glassBlur) },
       });
     } catch (err) {
       console.error("[ScreenGuard] sendMessage failed:", err);
+    }
+    // 注入不可ページや注入失敗は例外ではなく ok:false で返る。
+    // ここで閉じると失敗が一切伝わらないので、閉じずに理由を出す。
+    if (!res?.ok) {
+      showError(res?.error ?? "オーバーレイを表示できませんでした。");
+      return;
     }
     window.close();
   });

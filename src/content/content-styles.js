@@ -62,8 +62,10 @@ window.__screenShadeStyles = `
   z-index: 2;
   border: none;
   background-color: var(--close-bg);
-  opacity: 0;
-  pointer-events: none;
+  /* 既定は常時表示。オーバーレイを閉じる手段はこのボタンだけなので、
+     ホバーを持たない環境（タッチ・ペン）で隠すと閉じられなくなる。 */
+  opacity: 1;
+  pointer-events: auto;
   padding: 0;
   margin: 0;
   font: inherit;
@@ -72,9 +74,26 @@ window.__screenShadeStyles = `
   appearance: none;
 }
 
-.overlay:hover .close {
+/* マウス・トラックパッドのように確実にホバーできる環境でだけ、
+   非ホバー時に隠して覆い面をすっきり見せる。 */
+@media (hover: hover) and (pointer: fine) {
+  .close {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .overlay:hover .close {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* キーボード操作時はホバー環境でも必ず可視化する（.close より詳細度が高いので上の隠蔽に勝つ） */
+.close:focus-visible {
   opacity: 1;
   pointer-events: auto;
+  outline: 2px solid var(--x-color);
+  outline-offset: 2px;
 }
 
 .close:hover {
