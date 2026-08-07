@@ -1,6 +1,6 @@
 // Chrome Web Store用のスクリーンショット画像を自動生成するスクリプト
 // 1枚目は事前加工済みの実スクリーンショット、残りはHTMLテンプレートからPuppeteerで生成
-const puppeteer = require('puppeteer');
+// puppeteer v25 以降は ESM 専用パッケージのため require ではなく dynamic import で読み込む
 const fs = require('fs');
 const path = require('path');
 
@@ -107,6 +107,8 @@ async function generateScreenshot(browser, htmlPath, outputPath, width, height) 
  * メイン処理
  */
 async function main() {
+  const { default: puppeteer } = await import('puppeteer');
+
   console.log('🎨 Chrome Web Store用スクリーンショットを生成中...\n');
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
