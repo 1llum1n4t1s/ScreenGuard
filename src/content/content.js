@@ -55,6 +55,20 @@
     currentTheme = sanitizeTheme(theme);
     currentBlur = clampBlur(glassBlur);
 
+    // body 要素そのものを差し替える SPA（Turbo 等）や document.write では、
+    // MutationObserver が切り離された旧 body を監視し続けるため host の除去を検知できず、
+    // detach された host/overlayEl の参照だけが残る。この状態で下の else へ入ると
+    // 画面に存在しない残骸を更新して終わり、background は sendMessage 成功で ok:true を返すため
+    // ポップアップが黙って閉じ、ユーザーには「押しても何も出ない」としか見えない。
+    if (host && !document.contains(host)) {
+      cleanupResize();
+      cleanupDrag();
+      disconnectObservers();
+      host = null;
+      shadowRoot = null;
+      overlayEl = null;
+    }
+
     if (!host) {
       createOverlay();
     } else {
@@ -175,23 +189,28 @@
         console.error("[ScreenGuard] storage.get failed:", chrome.runtime.lastError);
         return;
       }
+      if (!overlayEl) return;
+      // storage.get は非同期に返る。待っている間にユーザーが overlay を掴んでいた場合、
+      // ここで保存位置を適用すると手元から overlay を奪い、その座標をさらに永続化してしまう。
+      if (isDragging || resizeActive) return;
+
       const prefs = result[StorageKeys.PREFS];
-      if (!prefs || !overlayEl) return;
+      const isValid = prefs
+        && [prefs.top, prefs.left, prefs.width, prefs.height].every((v) => Number.isFinite(v));
 
-      const { top, left } = prefs;
-      if (![top, left, prefs.width, prefs.height].every((v) => Number.isFinite(v))) return;
-
-      // 旧バージョンが centerPosition 経由で保存した MIN_SIZE 未満の潰れたサイズを救済する。
-      // 下でクランプ後の値と比較して差があれば savePrefs するので、修正値がそのまま永続化される。
-      const width = Math.max(MIN_SIZE, prefs.width);
-      const height = Math.max(MIN_SIZE, prefs.height);
-
-      const corrected = ensureVisible(top, left, width, height);
-      applyPosition(corrected);
-      if (corrected.top !== top || corrected.left !== left
-          || corrected.width !== prefs.width || corrected.height !== prefs.height) {
-        savePrefs();
+      if (isValid) {
+        // 旧バージョンが centerPosition 経由で保存した MIN_SIZE 未満の潰れたサイズを救済する。
+        // 末尾の savePrefs で修正後の値がそのまま永続化される。
+        const width = Math.max(MIN_SIZE, prefs.width);
+        const height = Math.max(MIN_SIZE, prefs.height);
+        applyPosition(ensureVisible(prefs.top, prefs.left, width, height));
       }
+
+      // 表示が確定した時点の状態を必ず保存する。ここを「位置補正が起きたときだけ」に
+      // 限定すると、初回表示や補正不要のケースでテーマが保存されず、
+      // 次回ポップアップが PREFS.theme から古いテーマを復元してしまう
+      // （README が謳うテーマ自動保存の契約が破れる）。
+      savePrefs();
     });
   }
 
@@ -242,7 +261,10 @@
           disconnectObservers();
         }
       });
-      mutationObs.observe(document.body, { childList: true, subtree: true });
+        // body ではなく documentElement を監視する。body を監視すると、body 要素ごと
+      // 差し替える SPA で observer が切り離された旧 body に取り残され、host の除去を検知できなくなる。
+      // documentElement + subtree は body 配下の childList を包含するので検知範囲は落ちない。
+      mutationObs.observe(document.documentElement, { childList: true, subtree: true });
     }
   }
 
