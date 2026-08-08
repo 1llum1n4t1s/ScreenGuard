@@ -62,21 +62,32 @@ jobs:
           ls -lh screen-curtain.zip
 
       - name: Chrome Web Store にアップロード & 公開
-        # chrome-webstore-upload-cli v4 は認証情報のフラグ渡しを廃止し、
-        # CLIENT_ID / CLIENT_SECRET / REFRESH_TOKEN / EXTENSION_ID の環境変数のみを読む。
-        # Secrets 名は CWS_* のまま、CLI が要求する変数名へ割り当てる。
+        # pnpm install で devDeps に固定した chrome-webstore-upload-cli を使用
+        # （`npx --yes @4` 実行時の patch 版サプライチェーン攻撃を回避）。
+        # v4 以降は --client-id 等の CLI フラグが廃止され、環境変数 (CLIENT_ID 等) が必須。
+        # PUBLISHER_ID も新規必須項目。コマンド (upload/publish) を省略すると
+        # upload → publish の両方が自動実行される (旧 --auto-publish 相当)。
+        # バイナリ名は `chrome-webstore-upload` (npm パッケージ名 chrome-webstore-upload-cli とは別名)。
         env:
           CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
           REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
           EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
-        # pnpm install で devDeps に固定した chrome-webstore-upload-cli を使用
-        # （`npx --yes @4` 実行時の patch 版サプライチェーン攻撃を回避）
-        #
-        # v4 では `--auto-publish` フラグが廃止され、サブコマンドを省略した場合だけ
-        # アップロード＋公開が実行される（`autoPublish: !command`）。
-        # `upload` を付けるとアップロードのみで公開されないため、コマンドは指定しない。
+          PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
         run: |
+          # 同 version 再 push（release ブランチ再 push 等）では既にアップロード/審査中で
+          # cli が exit 1 になる。これは無害な重複なので warning 化して CI を green に保つ。
+          set +e
           pnpm exec chrome-webstore-upload \
-            --source screen-curtain.zip
+            --source screen-curtain.zip 2>&1 | tee /tmp/cws.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          if [ "$rc" -ne 0 ]; then
+            if grep -qiE "ITEM_NOT_UPDATABLE|pending review|ready to publish|cannot be updated|already (published|exists|uploaded)|currently in review|in_review|version already|DUPLICATE_VERSION" /tmp/cws.log; then
+              echo "::warning::Chrome Web Store に同 version が既にアップロード/公開済み。CI green 化のため exit 0 扱いに変換します"
+            else
+              echo "::error::chrome-webstore-upload が同 version 重複以外の理由で失敗しました (rc=$rc)。ログ確認要"
+              exit "$rc"
+            fi
+          fi
           echo "🎉 Chrome Web Store への公開リクエストを送信したよ〜"
