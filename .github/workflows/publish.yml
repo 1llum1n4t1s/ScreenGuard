@@ -62,19 +62,21 @@ jobs:
           ls -lh screen-curtain.zip
 
       - name: Chrome Web Store にアップロード & 公開
+        # chrome-webstore-upload-cli v4 は認証情報のフラグ渡しを廃止し、
+        # CLIENT_ID / CLIENT_SECRET / REFRESH_TOKEN / EXTENSION_ID の環境変数のみを読む。
+        # Secrets 名は CWS_* のまま、CLI が要求する変数名へ割り当てる。
         env:
-          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
-          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
-          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
-          CWS_EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
         # pnpm install で devDeps に固定した chrome-webstore-upload-cli を使用
-        # （`npx --yes @3` 実行時の patch 版サプライチェーン攻撃を回避）
+        # （`npx --yes @4` 実行時の patch 版サプライチェーン攻撃を回避）
+        #
+        # v4 では `--auto-publish` フラグが廃止され、サブコマンドを省略した場合だけ
+        # アップロード＋公開が実行される（`autoPublish: !command`）。
+        # `upload` を付けるとアップロードのみで公開されないため、コマンドは指定しない。
         run: |
-          pnpm exec chrome-webstore-upload upload \
-            --source screen-curtain.zip \
-            --extension-id "$CWS_EXTENSION_ID" \
-            --client-id "$CWS_CLIENT_ID" \
-            --client-secret "$CWS_CLIENT_SECRET" \
-            --refresh-token "$CWS_REFRESH_TOKEN" \
-            --auto-publish
+          pnpm exec chrome-webstore-upload \
+            --source screen-curtain.zip
           echo "🎉 Chrome Web Store への公開リクエストを送信したよ〜"
