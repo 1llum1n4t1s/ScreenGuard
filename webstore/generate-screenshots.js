@@ -131,11 +131,11 @@ async function main() {
   });
 
   try {
-    // 各ページは独立しているため並列生成
-    await Promise.all(HTML_CONFIGS.map(config => {
+    // Puppeteer のページ作成・終了が競合しないよう、テンプレートごとに直列生成する。
+    for (const config of HTML_CONFIGS) {
       const outputPath = path.join(OUTPUT_DIR, config.output);
-      return generateScreenshot(browser, config.input, outputPath, config.width, config.height);
-    }));
+      await generateScreenshot(browser, config.input, outputPath, config.width, config.height);
+    }
   } finally {
     await browser.close();
   }
