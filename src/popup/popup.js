@@ -3,10 +3,18 @@
 /** デバウンスヘルパー */
 function debounce(fn, ms) {
   let id;
-  return (...args) => {
+  const debounced = (...args) => {
     clearTimeout(id);
-    id = setTimeout(() => fn(...args), ms);
+    id = setTimeout(() => {
+      id = undefined;
+      fn(...args);
+    }, ms);
   };
+  debounced.cancel = () => {
+    clearTimeout(id);
+    id = undefined;
+  };
+  return debounced;
 }
 
 /** popup から見たアクティブタブの tabId を取得（activeTab 権限で動作） */
@@ -55,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let selectedTheme = Themes.LIGHT;
   let glassBlur = BlurConfig.DEFAULT;
+  let resetInProgress = false;
 
   // ---------- Restore Settings ----------
   chrome.storage.local.get([StorageKeys.PREFS, StorageKeys.GLASS_BLUR], (result) => {
@@ -105,12 +114,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }, 80);
 
   $blurRange.addEventListener("input", async () => {
+    if (resetInProgress) return;
     glassBlur = clampBlur($blurRange.value);
     $blurRange.value = glassBlur;
     $blurValue.textContent = `${glassBlur}px`;
     syncBlurFill(glassBlur);
     saveBlurDebounced(glassBlur);
     const tabId = await getTargetTabId();
+    if (resetInProgress) return;
     sendBlurDebounced(glassBlur, tabId);
   });
 
@@ -143,11 +154,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------- Reset Prefs ----------
   $reset.addEventListener("click", async () => {
+    resetInProgress = true;
+    saveBlurDebounced.cancel();
+    sendBlurDebounced.cancel();
+
     // storage の削除は popup 側のみ（content.js は画面のリセットのみを担当）
     try {
       await chrome.storage.local.remove([StorageKeys.PREFS, StorageKeys.GLASS_BLUR]);
     } catch (err) {
       console.error("[ScreenGuard] storage.remove failed:", err);
+      resetInProgress = false;
+      showError("設定をリセットできませんでした。もう一度お試しください。");
+      return;
     }
     const tabId = await getTargetTabId();
     chrome.runtime.sendMessage({ action: Actions.RESET_PREFS, tabId }).catch(() => {});

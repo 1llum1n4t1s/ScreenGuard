@@ -121,7 +121,7 @@ async function forceReinject(tabId) {
     func: () => {
       // 旧 script が残した host を先に除去する。放置すると閉じるボタンが効かない
       // 孤児オーバーレイがページに残り続ける。
-      document.getElementById("screenShadeHost")?.remove();
+      document.querySelectorAll("#screenShadeHost").forEach((host) => host.remove());
       window.__screenShadeRunning = false;
     },
   });

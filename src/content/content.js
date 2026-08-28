@@ -337,6 +337,10 @@
 
   // ---------- Create Overlay ----------
   function createOverlay() {
+    // 拡張の更新・再読み込み後は、旧 isolated world が作った closed shadow host だけが
+    // DOM に残ることがある。新しい world から内部へ触れないため、作成前に全残骸を除去する。
+    document.querySelectorAll("#screenShadeHost").forEach((staleHost) => staleHost.remove());
+
     host = document.createElement("div");
     host.id = "screenShadeHost";
     applyHostDefense();
