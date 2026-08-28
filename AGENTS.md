@@ -16,7 +16,7 @@ pnpm run generate-screenshots # webstore/*.html → webstore/images/*.png (Puppe
 
 テストフレームワーク・リンターは未導入。動作確認は Chrome で `chrome://extensions` を開き、「パッケージ化されていない拡張機能を読み込む」からプロジェクトルートを選択して手動テスト。JS の構文だけ確認したい時は `node --check <file>` が使える（chrome API 未定義エラーは parse 段階では出ない）。
 
-`generate-screenshots` はテンプレート単位の例外をログへ出して処理を続けるため、終了コード 0 だけで成功判定しない。出力に `❌ エラー` がないことと、期待する全画像が生成されていることを確認する。
+`generate-screenshots` はテンプレート単位の例外をログへ出して処理を続けるため、終了コード 0 だけで成功判定しない。出力に `❌ エラー` がないことと、期待する全画像が生成されていることを確認する。テンプレートは1つの Puppeteer browser 内で直列生成すること。page の作成・終了を `Promise.all` などで並列化すると、全画像の生成後も browser 終了がハングし得る。
 
 ## Version Management
 
@@ -44,13 +44,13 @@ Popup (src/popup/popup.{html,js,css})
 ### Popup (`src/popup/popup.html`, `popup.js`, `popup.css`)
 テーマ選択 (Light/Dark/Glass)、Glass 選択時のみぼかし強度スライダー (`BlurConfig.MIN`〜`BlurConfig.MAX`) を表示。位置リセットボタンあり。`chrome.tabs.query` で自身で tabId を解決し、`SHOW_OVERLAY` に `{tabId, data: {theme, glassBlur}}` を載せて background へ送信。**応答の `ok` を検査し、`ok:true` のときだけポップアップを閉じる**。失敗時は閉じずに `#statusError`（`role="alert"`、`.status-error` の warn 配色）へ background が返した理由を表示する（閉じてしまうと「押しても何も起きない」に見えるため）。`UPDATE_BLUR` の sendMessage も 80ms デバウンスで連打を間引く。最後のテーマ・blur 値は `chrome.storage.local` から復元。popup.html の `<script src="../lib/actions.js">` は popup からの相対パスであることに注意。
 
-ポップアップ末尾の `<kagayoi-support-footer product-id="screen-guard">` は、ローカル同梱した `src/shared/kagayoi-support-popup.js` と `kagayoi-support-footer.js` を使う。問い合わせ操作時だけ `https://support.kagayoi.com` へメール確認とチケット作成を行い、部品を読み込めない場合は Web のサポート窓口へフォールバックする。
+ポップアップ末尾の `<kagayoi-support-footer product-id="screen-guard">` は、ローカル同梱した `src/shared/kagayoi-support-popup.js`、`kagayoi-support-footer.js` と3つの `kagayoi-support-*.css` を一組で使う。CSS は各 Web Component の Shadow DOM 内から `<link rel="stylesheet">` で読み込む。問い合わせダイアログは表示中だけ外側 document のスクロールを固定し、終了・切断時に inline style とスクロール位置を復元する。問い合わせ操作時だけ `https://support.kagayoi.com` へメール確認とチケット作成を行い、部品を読み込めない場合は Web のサポート窓口へフォールバックする。
 
 ### Background (`src/background/background.js`)
-Service worker。`importScripts("/src/lib/actions.js")` で定数をロード。`Object.freeze` でイミュータブル管理されたステート（theme, glassBlur）を保持。`onMessage` で `sender.id === chrome.runtime.id` を検証して外部メッセージを拒否。`request.tabId` を優先、次にキャッシュ、最後に `chrome.tabs.query` の順で対象タブを解決（アクティブタブ曖昧性を回避）。`handleShowOverlay` は `.catch` で reject を捕捉して `sendResponse({ok:false, error})` を返す。対象ページは URL のプロトコルが `http:`, `https:`, `file:` のときのみ処理し、それ以外（chrome://, edge://, about: 等）は**日本語メッセージ付きで throw する**（早期 return すると listener が `ok:true` を返して popup が黙って閉じ、無反応と区別できなくなるため）。`chrome.tabs.sendMessage` が失敗した場合は `forceReinject`（`#screenShadeHost` を除去 → `__screenShadeRunning=false` → 再注入）で 1 度だけ復帰を試みる。`UPDATE_BLUR` は `state.glassBlur` も同時更新（SSoT 維持）。
+Service worker。`importScripts("/src/lib/actions.js")` で定数をロード。`Object.freeze` でイミュータブル管理されたステート（theme, glassBlur）を保持。`onMessage` で `sender.id === chrome.runtime.id` を検証して外部メッセージを拒否。`request.tabId` を優先、次にキャッシュ、最後に `chrome.tabs.query` の順で対象タブを解決（アクティブタブ曖昧性を回避）。`handleShowOverlay` は `.catch` で reject を捕捉して `sendResponse({ok:false, error})` を返す。対象ページは URL のプロトコルが `http:`, `https:`, `file:` のときのみ処理し、それ以外（chrome://, edge://, about: 等）は**日本語メッセージ付きで throw する**（早期 return すると listener が `ok:true` を返して popup が黙って閉じ、無反応と区別できなくなるため）。`chrome.tabs.sendMessage` が失敗した場合は `forceReinject`（全ての `#screenShadeHost` を除去 → `__screenShadeRunning=false` → 再注入）で 1 度だけ復帰を試みる。`UPDATE_BLUR` は `state.glassBlur` も同時更新（SSoT 維持）。
 
 ### Content Script (`src/content/content.js`)
-IIFE でラップ。**Shadow DOM 構成**: `#screenShadeHost` (z-index: 2147483647, `all: initial` 等の inline !important 防御付き) を `document.body` 直下に配置し、`attachShadow({ mode: "closed" })` で closed shadow root を作成。shadow 内に `<style>`（`window.__screenShadeStyles` から流し込み）と `.overlay` を置く。ページ CSS は shadow 境界で遮断されるため `.overlay` 以下のスタイルに `!important` は不要。ページ JS は host から `.shadowRoot` アクセス不可。閉じるボタン（`<button class="close">` + `aria-label`）、8方向リサイズハンドル（`.handle-{n,ne,e,...}`）、ドラッグ移動を Pointer Events API (`setPointerCapture`) で実装。**drag と resize の両方で PointerCapture を取得** してウィンドウ外移動時のリスナーリークを防ぐ。`ResizeObserver` でビューポート変化時に `ensureVisible` を再適用、`MutationObserver` で SPA による host 除去を検知して参照をリセット。`fullscreenchange` でフルスクリーン要素配下へ host を付け替え。テーマは `sanitizeTheme` で allowlist 検証してから `.overlay[data-theme]` で切替。位置・サイズは resize/move 終了時に `chrome.storage.local` へ保存し、次回作成時に復元。テーマはポップアップ選択を常に優先（storage からは復元しない）。
+IIFE でラップ。**Shadow DOM 構成**: `createOverlay()` は拡張更新後に残った孤立 host を含む全ての `#screenShadeHost` を生成前に除去し、同時に1つだけ存在する状態を保つ。新しい host (z-index: 2147483647, `all: initial` 等の inline !important 防御付き) を `document.body` 直下に配置し、`attachShadow({ mode: "closed" })` で closed shadow root を作成。shadow 内に `<style>`（`window.__screenShadeStyles` から流し込み）と `.overlay` を置く。ページ CSS は shadow 境界で遮断されるため `.overlay` 以下のスタイルに `!important` は不要。ページ JS は host から `.shadowRoot` アクセス不可。閉じるボタン（`<button class="close">` + `aria-label`）、8方向リサイズハンドル（`.handle-{n,ne,e,...}`）、ドラッグ移動を Pointer Events API (`setPointerCapture`) で実装。**drag と resize の両方で PointerCapture を取得** してウィンドウ外移動時のリスナーリークを防ぐ。`ResizeObserver` でビューポート変化時に `ensureVisible` を再適用、`MutationObserver` で SPA による host 除去を検知して参照をリセット。`fullscreenchange` でフルスクリーン要素配下へ host を付け替え。テーマは `sanitizeTheme` で allowlist 検証してから `.overlay[data-theme]` で切替。位置・サイズは resize/move 終了時に `chrome.storage.local` へ保存し、次回作成時に復元。テーマはポップアップ選択を常に優先（storage からは復元しない）。
 
 ### Styling (`src/content/content-styles.js`)
 CSS 文字列を `window.__screenShadeStyles` に置くだけの JS モジュール。content.js が shadow root 内の `<style>` 要素に流し込む。**shadow root 内のため `!important` 不要**、selector も `#screenShadeOverlay` ではなく `.overlay` / `.close` / `.handle-*` といった短い class ベース。overlay は `top/left/width/height` の明示指定（`bottom/right` は未使用）。リサイズハンドル: 角 16×16px / 辺 8px。`chrome.scripting.insertCSS` は shadow root に届かないため使用しない。
@@ -69,6 +69,7 @@ CSS 文字列を `window.__screenShadeStyles` に置くだけの JS モジュー
 | `src/popup/popup.css` | ポップアップスタイル |
 | `src/shared/kagayoi-support-popup.js` | メール確認とチケット作成を行う問い合わせ Web Components |
 | `src/shared/kagayoi-support-footer.js` | 問い合わせ導線とストア評価導線を提供する共通フッター |
+| `src/shared/kagayoi-support-{popup,footer,form}.css` | 問い合わせ Web Components が各 Shadow DOM 内から読み込むローカル同梱スタイル |
 | `icons/icon.svg` | ソースアイコン (512×512); PNG は `icons/` に生成 |
 | `webstore/` | ストア申請用: HTML テンプレート、生成画像、掲載情報テキスト |
 | `docs/privacy-policy.md` | プライバシーポリシー (GitHub Pages で公開) |
@@ -101,7 +102,7 @@ CSS 文字列を `window.__screenShadeStyles` に置くだけの JS モジュー
 - **`PREFS`** (`shadePrefs`) — オーバーレイの位置・サイズ・テーマ。content.js で保存、loadPrefsAndApply で復元。
 - **`GLASS_BLUR`** (`glassBlur`) — ぼかし強度。popup.js のスライダー操作時に保存。
 
-**リセット時のキー削除は popup.js の責務に一本化** — `popup.js` の RESET_PREFS ハンドラが `[PREFS, GLASS_BLUR]` を `chrome.storage.local.remove` した上で `RESET_PREFS` を background に送信する。`content.js` 側は表示のリセット（`resetOverlayPosition`）のみを担当し、storage 削除は popup.js に任せる（二重削除の排除）。ただし `resetOverlayPosition` は先頭で **`clearTimeout(savePrefsTimer)`** を行う: ResizeObserver 由来の debounce 保存（300ms）が未発火のまま残っていると、popup の `remove` 完了後にタイマーが発火して古い位置を書き戻し、リセットが無かったことになる。
+**リセット時のキー削除は popup.js の責務に一本化** — `popup.js` の RESET_PREFS ハンドラは `resetInProgress` を立て、保留中の blur 保存・送信 debounce を両方 cancel してから `[PREFS, GLASS_BLUR]` を `chrome.storage.local.remove` し、成功後に `RESET_PREFS` を background へ送信する。`content.js` 側は表示のリセット（`resetOverlayPosition`）のみを担当し、storage 削除は popup.js に任せる（二重削除の排除）。ただし `resetOverlayPosition` は先頭で **`clearTimeout(savePrefsTimer)`** を行う: ResizeObserver 由来の debounce 保存（300ms）が未発火のまま残っていると、popup の `remove` 完了後にタイマーが発火して古い位置を書き戻し、リセットが無かったことになる。
 
 ## Release Workflow
 

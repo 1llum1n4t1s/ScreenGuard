@@ -15,7 +15,7 @@ ScreenGuard（スクリーンカーテン）は Manifest V3 の Chrome 拡張機
 | コンポーネント | 主なファイル | 責務と境界 |
 | --- | --- | --- |
 | Popup | `src/popup/popup.html`, `popup.js`, `popup.css` | テーマ・ぼかし強度・位置リセットの操作、対象 tabId の解決、background への要求、失敗表示 |
-| Shared support UI | `src/shared/kagayoi-support-popup.js`, `kagayoi-support-footer.js` | 問い合わせダイアログ、メール確認、Kagayoi Support へのチケット作成、ストア評価導線 |
+| Shared support UI | `src/shared/kagayoi-support-{popup,footer}.js`, `kagayoi-support-{popup,footer,form}.css` | 問い合わせダイアログ、メール確認、Kagayoi Support へのチケット作成、ストア評価導線、Shadow DOM 内の表示 |
 | Background service worker | `src/background/background.js` | 内部メッセージの検証、対象タブ解決、スクリプト注入、content script への中継、再注入による復旧 |
 | Content script | `src/content/content.js` | closed Shadow DOM 内のオーバーレイ生成、移動・リサイズ・終了操作、SPA・フルスクリーン・ビューポート変化への追従、設定保存 |
 | Content styles | `src/content/content-styles.js` | Shadow DOM へ同期注入する CSS 文字列を `window.__screenShadeStyles` として提供 |
@@ -29,8 +29,8 @@ ScreenGuard（スクリーンカーテン）は Manifest V3 の Chrome 拡張機
 1. Popup が `chrome.tabs.query` で tabId を取得し、`SHOW_OVERLAY` と選択テーマ・ぼかし強度を background へ送ります。
 2. Background は送信元 extension ID、tabId、対象 URL の protocol を検証します。
 3. 未注入なら `actions.js`、`content-styles.js`、`content.js` の順に `chrome.scripting.executeScript` で注入します。
-4. Background が `SHOW_OVERLAY_CS` を content script へ送り、content script がオーバーレイを生成または更新します。
-5. content script への送信が失敗した場合、background は既存 host と実行フラグを除去して一度だけ再注入します。
+4. Background が `SHOW_OVERLAY_CS` を content script へ送り、content script がオーバーレイを生成または更新します。新規生成時は全ての既存 host を先に除去し、1つだけ生成します。
+5. content script への送信が失敗した場合、background は全ての既存 host と実行フラグを除去して一度だけ再注入します。
 
 Popup は background の `{ ok: true }` を確認したときだけ閉じます。注入不能な URL や実行エラーは日本語の理由を Popup に返し、無反応と区別します。
 
@@ -38,22 +38,24 @@ Popup は background の `{ ok: true }` を確認したときだけ閉じます�
 
 - `shadePrefs` は content script が位置、サイズ、テーマを `chrome.storage.local` へ保存します。
 - `glassBlur` は Popup がスライダー値を保存し、80 ms のデバウンスで `UPDATE_BLUR` を送ります。
-- リセットは Popup が両 key を削除した後に `RESET_PREFS` を送り、content script は表示位置の初期化だけを担当します。
+- リセットは Popup が保留中の blur 保存・送信を cancel してから両 key を削除し、`RESET_PREFS` を送ります。content script は保留中の位置保存を cancel し、表示位置の初期化だけを担当します。
 - ResizeObserver 由来の保存は300 msでデバウンスし、手動操作終了時は即時保存します。
 
 ### 問い合わせ
 
-1. Popup 内の `kagayoi-support-footer` が、ローカル同梱された問い合わせダイアログを開きます。
+1. Popup 内の `kagayoi-support-footer` が、ローカル同梱された問い合わせダイアログを開きます。各 Web Component の CSS は Shadow DOM 内の `<link rel="stylesheet">` から読み込みます。
 2. 利用者が送信操作をすると、メールアドレスを `/api/auth/request` へ送り、確認コードで `/api/auth/verify` を行います。
 3. 取得した Bearer token で `/api/tickets` へ問い合わせ内容、製品ID、拡張バージョン、ロケールを送ります。
 4. extension 向けフォームは認証 session を `window.localStorage` に保存します。HTTP cookie は使わず、request は `credentials: "omit"` です。
+
+ダイアログ表示中は外側 document のスクロールを固定し、ダイアログ内だけをスクロール領域にします。終了または component 切断時に、外側の inline style と元のスクロール位置を復元します。
 
 問い合わせ以外のオーバーレイ処理、設定保存、閲覧ページの処理は外部へ送信しません。閲覧ページの内容も問い合わせ payload へ含めません。
 
 ### ビルドと公開
 
 - `pnpm run generate-icons` は `icons/icon.svg` から3サイズの PNG を生成します。
-- `pnpm run generate-screenshots` は `webstore/*.html` からストア画像を生成します。Puppeteer は開発用生成処理だけで、拡張の実行時には含まれません。
+- `pnpm run generate-screenshots` は `webstore/*.html` を1つの Puppeteer browser 内で直列処理してストア画像を生成します。page lifecycle の並列競合を避けるためで、Puppeteer は開発用生成処理だけで拡張の実行時には含まれません。
 - `release/x.y.z` への push だけが公開 workflow を起動し、branch 名と `manifest.json` の version 一致を検証します。
 - workflow は SHA 固定の Actions、frozen lockfile、固定版のローカル CWS CLI を使います。
 
@@ -65,6 +67,7 @@ Popup は background の `{ ok: true }` を確認したときだけ閉じます�
 - 注入対象は `http:`, `https:`, `file:` に限定し、制限ページでは明示的な失敗を返します。
 - `actions.js` は module 化せず、Popup の `<script>`、background の `importScripts`、content 注入の3経路で同じ契約を共有します。
 - host は inline `!important` の防御、実 UI は closed Shadow DOM でページ CSS・JS から分離します。host へ `contain`、`filter`、`perspective`、`backdrop-filter` を追加しません。
+- `#screenShadeHost` は生成時と再注入時に全候補を除去し、ページ内に同時に1つだけ存在させます。
 - オーバーレイ位置は `top`, `left`, `width`, `height` だけで表し、drag と resize の双方で PointerCapture を取得します。
 - 閉じる手段は × ボタンと Escape の2系統を維持し、Escape は表示中だけページから横取りします。
 - `manifest.json` と `package.json` の製品 version は同時に更新します。
@@ -78,5 +81,5 @@ Popup は background の `{ ok: true }` を確認したときだけ閉じます�
 | CSS を JavaScript 文字列として先行注入 | Shadow root へ同期的かつ確実にスタイルを渡せる | CSS 単体ファイルより編集時のハイライトが弱い |
 | runtime 共通契約を従来 script に集約 | Popup、service worker、content 注入の3経路で同じ値検証を再利用できる | ES module の import graph は使えない |
 | 設定を `chrome.storage.local` に保存 | アカウント同期や外部サービスなしで再表示時に復元できる | 端末・Chrome profile をまたいだ同期は行わない |
-| 問い合わせ UI をローカル Web Components として共有 | Kagayoi 製品間で同じ入力・認証契約を再利用し、MV3 CSPを守る | Support API origin の明示的な host permission が必要 |
+| 問い合わせ UI をローカル Web Components と外部 CSS として共有 | Kagayoi 製品間で入力・認証・表示契約を再利用し、MV3 CSP を守りながらスタイルを個別の Shadow DOM へ閉じ込める | Support API の host permission、JS・CSS の一括同梱、終了時の外側 document のスクロール復元が必要 |
 | release branch を公開トリガーにする | version と公開操作を branch 名で明示的に結び付ける | `main` への通常 push だけでは公開されない |
