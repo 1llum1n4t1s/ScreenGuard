@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code and other coding agents working in this repository.
+このファイルは、このリポジトリで作業するコーディングエージェント向けの作業規約です。現行アーキテクチャと設計判断の正本は [DESIGN.md](DESIGN.md)、利用者向けの説明は [README.md](README.md) を参照してください。
 
 ## Project Overview
 
@@ -16,6 +16,8 @@ pnpm run generate-screenshots # webstore/*.html → webstore/images/*.png (Puppe
 
 テストフレームワーク・リンターは未導入。動作確認は Chrome で `chrome://extensions` を開き、「パッケージ化されていない拡張機能を読み込む」からプロジェクトルートを選択して手動テスト。JS の構文だけ確認したい時は `node --check <file>` が使える（chrome API 未定義エラーは parse 段階では出ない）。
 
+`generate-screenshots` はテンプレート単位の例外をログへ出して処理を続けるため、終了コード 0 だけで成功判定しない。出力に `❌ エラー` がないことと、期待する全画像が生成されていることを確認する。
+
 ## Version Management
 
 バージョン番号は以下の2ファイルに記載されており、**必ず同時に更新**すること:
@@ -26,7 +28,7 @@ pnpm run generate-screenshots # webstore/*.html → webstore/images/*.png (Puppe
 
 ## Architecture
 
-3つのコンポーネントが `chrome.runtime` メッセージパッシングで連携する。アクション定数・共通定数は `src/lib/actions.js` で定義（`Actions`, `Themes`, `BlurConfig`, `Dimensions`, `StorageKeys`, `clampBlur`, `sanitizeTheme`）。
+オーバーレイ本体は3つのコンポーネントが `chrome.runtime` メッセージパッシングで連携する。アクション定数・共通定数は `src/lib/actions.js` で定義（`Actions`, `Themes`, `BlurConfig`, `Dimensions`, `StorageKeys`, `clampBlur`, `sanitizeTheme`）。全体の責務とデータフローは [DESIGN.md](DESIGN.md) を正本とする。
 
 ```
 Popup (src/popup/popup.{html,js,css})
@@ -42,6 +44,8 @@ Popup (src/popup/popup.{html,js,css})
 ### Popup (`src/popup/popup.html`, `popup.js`, `popup.css`)
 テーマ選択 (Light/Dark/Glass)、Glass 選択時のみぼかし強度スライダー (`BlurConfig.MIN`〜`BlurConfig.MAX`) を表示。位置リセットボタンあり。`chrome.tabs.query` で自身で tabId を解決し、`SHOW_OVERLAY` に `{tabId, data: {theme, glassBlur}}` を載せて background へ送信。**応答の `ok` を検査し、`ok:true` のときだけポップアップを閉じる**。失敗時は閉じずに `#statusError`（`role="alert"`、`.status-error` の warn 配色）へ background が返した理由を表示する（閉じてしまうと「押しても何も起きない」に見えるため）。`UPDATE_BLUR` の sendMessage も 80ms デバウンスで連打を間引く。最後のテーマ・blur 値は `chrome.storage.local` から復元。popup.html の `<script src="../lib/actions.js">` は popup からの相対パスであることに注意。
 
+ポップアップ末尾の `<kagayoi-support-footer product-id="screen-guard">` は、ローカル同梱した `src/shared/kagayoi-support-popup.js` と `kagayoi-support-footer.js` を使う。問い合わせ操作時だけ `https://support.kagayoi.com` へメール確認とチケット作成を行い、部品を読み込めない場合は Web のサポート窓口へフォールバックする。
+
 ### Background (`src/background/background.js`)
 Service worker。`importScripts("/src/lib/actions.js")` で定数をロード。`Object.freeze` でイミュータブル管理されたステート（theme, glassBlur）を保持。`onMessage` で `sender.id === chrome.runtime.id` を検証して外部メッセージを拒否。`request.tabId` を優先、次にキャッシュ、最後に `chrome.tabs.query` の順で対象タブを解決（アクティブタブ曖昧性を回避）。`handleShowOverlay` は `.catch` で reject を捕捉して `sendResponse({ok:false, error})` を返す。対象ページは URL のプロトコルが `http:`, `https:`, `file:` のときのみ処理し、それ以外（chrome://, edge://, about: 等）は**日本語メッセージ付きで throw する**（早期 return すると listener が `ok:true` を返して popup が黙って閉じ、無反応と区別できなくなるため）。`chrome.tabs.sendMessage` が失敗した場合は `forceReinject`（`#screenShadeHost` を除去 → `__screenShadeRunning=false` → 再注入）で 1 度だけ復帰を試みる。`UPDATE_BLUR` は `state.glassBlur` も同時更新（SSoT 維持）。
 
@@ -55,7 +59,7 @@ CSS 文字列を `window.__screenShadeStyles` に置くだけの JS モジュー
 
 | File | Purpose |
 |------|---------|
-| `manifest.json` | MV3 設定; permissions: `activeTab`, `scripting`, `storage`; `content_security_policy` 明示 |
+| `manifest.json` | MV3 設定; permissions: `activeTab`, `scripting`, `storage`; 問い合わせ専用の `https://support.kagayoi.com/*`; `content_security_policy` 明示 |
 | `src/lib/actions.js` | `Object.freeze` された定数群（`Actions`/`Themes`/`BlurConfig`/`Dimensions`/`StorageKeys`）と共通ユーティリティ（`clampBlur`/`sanitizeTheme`）|
 | `src/background/background.js` | Service worker: イミュータブルステート管理、スクリプト注入、メッセージ中継、tabId キャッシュ、sender 検証 |
 | `src/content/content.js` | Shadow DOM 化したオーバーレイ生成、リサイズ、ドラッグ、画面外補正、SPA 対応、フルスクリーン対応、設定永続化 |
@@ -63,9 +67,12 @@ CSS 文字列を `window.__screenShadeStyles` に置くだけの JS モジュー
 | `src/popup/popup.html` | ポップアップ UI（`<script src="../lib/actions.js">` で相対ロード）|
 | `src/popup/popup.js` | ポップアップ UI: テーマ選択、blur スライダー、リセット、tabId 解決 |
 | `src/popup/popup.css` | ポップアップスタイル |
+| `src/shared/kagayoi-support-popup.js` | メール確認とチケット作成を行う問い合わせ Web Components |
+| `src/shared/kagayoi-support-footer.js` | 問い合わせ導線とストア評価導線を提供する共通フッター |
 | `icons/icon.svg` | ソースアイコン (512×512); PNG は `icons/` に生成 |
 | `webstore/` | ストア申請用: HTML テンプレート、生成画像、掲載情報テキスト |
 | `docs/privacy-policy.md` | プライバシーポリシー (GitHub Pages で公開) |
+| `DESIGN.md` | 現行アーキテクチャ、責務境界、データフロー、設計判断の正本 |
 | `.github/workflows/publish.yml` | Chrome Web Store 自動公開。Actions は SHA 固定、`pnpm install --frozen-lockfile` 厳密、devDep の CLI 使用 |
 
 ## Store Asset Generation
@@ -86,7 +93,7 @@ CSS 文字列を `window.__screenShadeStyles` に置くだけの JS モジュー
 - **閉じる手段は必ず 2 系統確保する** — オーバーレイを消す UI は shadow 内の × ボタンだけなので、ホバー前提にすると閉じられない環境が生まれる。`.close` は既定で常時表示にし、`@media (hover: hover) and (pointer: fine)` の環境でだけ非ホバー時に隠す。`.close:focus-visible`（`.close` より詳細度が高い）でキーボード時は必ず可視化する。加えて `installKeyboardWatcher()` が document の keydown を capture で拾い、**overlay 表示中のみ** Escape で `closeOverlay()` する（非表示時はページ側の Escape を一切妨げない）。
 - **PointerCapture は drag と resize の両方で取得** — ウィンドウ外移動・Alt+Tab・タッチキャンセル時にも `pointerup/cancel` が確実に届くように、ハンドル要素側で capture する。リスナーも capture した要素に紐付けて document グローバル登録を避ける。
 - **SPA / ビューポート / フルスクリーン対応** — `MutationObserver` が `document.body` の childList を監視して overlay 切り離しを検知、`ResizeObserver` が `documentElement` を監視、`fullscreenchange` で overlay を fullscreen 要素配下へ付け替える。
-- **外部通信ゼロは設計不変条件** — この拡張は `fetch` / `XMLHttpRequest` / `sendBeacon` / `WebSocket` を一切使わない。README で明示されたユーザー約束なので、telemetry・analytics・外部 API 呼び出しの追加はユーザーの明示承認を得てから行う。`permissions` に `host_permissions` を足す提案も同様に要承認。
+- **外部通信の境界を限定する** — オーバーレイ表示、設定保存、利用状況の処理は端末内で完結させる。外部通信は、利用者が問い合わせを送信したときの `https://support.kagayoi.com` へのメール確認・チケット作成だけに限定し、`host_permissions` も同 origin だけを維持する。telemetry・analytics・別の外部 API・追加 host permission が必要な場合は、実装前にユーザーの明示承認を得る。MV3 で実行する JavaScript は引き続きローカル同梱し、リモート JavaScript を実行しない。
 
 ## Storage Keys
 
