@@ -9,7 +9,8 @@
 ## Build Commands
 
 ```bash
-pnpm run build                # アイコン + スクリーンショット一括生成
+pnpm sync:support             # kagayoi-support-extension → src/shared/ を同期
+pnpm run build                # 共通問い合わせ部品の同期 + アイコン + スクリーンショット一括生成
 pnpm run generate-icons       # icons/icon.svg → icons/icon-{16,48,128}.png (sharp)
 pnpm run generate-screenshots # webstore/*.html → webstore/images/*.png (Puppeteer)
 ```
@@ -44,7 +45,7 @@ Popup (src/popup/popup.{html,js,css})
 ### Popup (`src/popup/popup.html`, `popup.js`, `popup.css`)
 テーマ選択 (Light/Dark/Glass)、Glass 選択時のみぼかし強度スライダー (`BlurConfig.MIN`〜`BlurConfig.MAX`) を表示。位置リセットボタンあり。`chrome.tabs.query` で自身で tabId を解決し、`SHOW_OVERLAY` に `{tabId, data: {theme, glassBlur}}` を載せて background へ送信。**応答の `ok` を検査し、`ok:true` のときだけポップアップを閉じる**。失敗時は閉じずに `#statusError`（`role="alert"`、`.status-error` の warn 配色）へ background が返した理由を表示する（閉じてしまうと「押しても何も起きない」に見えるため）。`UPDATE_BLUR` の sendMessage も 80ms デバウンスで連打を間引く。最後のテーマ・blur 値は `chrome.storage.local` から復元。popup.html の `<script src="../lib/actions.js">` は popup からの相対パスであることに注意。
 
-ポップアップ末尾の `<kagayoi-support-footer product-id="screen-guard">` は、ローカル同梱した `src/shared/kagayoi-support-popup.js`、`kagayoi-support-footer.js` と3つの `kagayoi-support-*.css` を一組で使う。CSS は各 Web Component の Shadow DOM 内から `<link rel="stylesheet">` で読み込む。問い合わせダイアログは表示中だけ外側 document のスクロールを固定し、終了・切断時に inline style とスクロール位置を復元する。問い合わせ操作時だけ `https://support.kagayoi.com` へメール確認とチケット作成を行い、部品を読み込めない場合は Web のサポート窓口へフォールバックする。
+ポップアップ末尾の `<kagayoi-support-footer product-id="screen-guard">` は、ローカル同梱した `src/shared/kagayoi-support-popup.js`、`kagayoi-support-footer.js` と3つの `kagayoi-support-*.css` を一組で使う。これらの正本は固定版の `kagayoi-support-extension` package であり、直接編集せず `pnpm sync:support` で同期して生成差分を commit する。`pnpm run build` の `prebuild` でも同期を検証する。CSS は各 Web Component の Shadow DOM 内から `<link rel="stylesheet">` で読み込む。問い合わせダイアログは表示中だけ外側 document のスクロールを固定し、終了・切断時に inline style とスクロール位置を復元する。問い合わせ操作時だけ `https://support.kagayoi.com` へメール確認とチケット作成を行い、部品を読み込めない場合は Web のサポート窓口へフォールバックする。
 
 ### Background (`src/background/background.js`)
 Service worker。`importScripts("/src/lib/actions.js")` で定数をロード。`Object.freeze` でイミュータブル管理されたステート（theme, glassBlur）を保持。`onMessage` で `sender.id === chrome.runtime.id` を検証して外部メッセージを拒否。`request.tabId` を優先、次にキャッシュ、最後に `chrome.tabs.query` の順で対象タブを解決（アクティブタブ曖昧性を回避）。`handleShowOverlay` は `.catch` で reject を捕捉して `sendResponse({ok:false, error})` を返す。対象ページは URL のプロトコルが `http:`, `https:`, `file:` のときのみ処理し、それ以外（chrome://, edge://, about: 等）は**日本語メッセージ付きで throw する**（早期 return すると listener が `ok:true` を返して popup が黙って閉じ、無反応と区別できなくなるため）。`chrome.tabs.sendMessage` が失敗した場合は `forceReinject`（全ての `#screenShadeHost` を除去 → `__screenShadeRunning=false` → 再注入）で 1 度だけ復帰を試みる。`UPDATE_BLUR` は `state.glassBlur` も同時更新（SSoT 維持）。
