@@ -115,10 +115,6 @@
               <label for="${id}-description">お問い合わせ内容</label>
               <textarea id="${id}-description" name="description" maxlength="10000" required></textarea>
             </div>
-            <div class="trap" aria-hidden="true">
-              <label for="${id}-website">ウェブサイト</label>
-              <input id="${id}-website" name="website" type="text" tabindex="-1" autocomplete="off">
-            </div>
             <div class="verification" hidden>
               <div class="field">
                 <label for="${id}-code">6桁の確認コード</label>
@@ -170,10 +166,6 @@
     async handleSubmit() {
       if (this.busy || !this.productId) return
       if (!this.validateTicketFields()) return
-      if (this.form.elements.website.value) {
-        this.showSuccess("KGS-RECEIVED")
-        return
-      }
       if (!await this.ensureDataCollectionConsent()) return
       const session = this.sessionForCurrentEmail()
       if (session) {
@@ -588,18 +580,22 @@
         if (event.target === this.dialog) this.close()
       })
       this.dialog.addEventListener("close", () => {
-        this.releaseDocumentScrollLock()
-        this.trigger?.focus()
+        this.finishClose()
       })
-      if (this.hasAttribute("open")) queueMicrotask(() => this.open())
+      if (this.hasAttribute("open")) {
+        queueMicrotask(() => {
+          if (this.isConnected) this.open()
+        })
+      }
     }
 
     disconnectedCallback() {
       this.releaseDocumentScrollLock()
     }
 
-    open() {
-      if (!this.dialog || this.dialog.open) return
+    open(returnFocusTo = this.trigger) {
+      if (!this.isConnected || !this.dialog || this.dialog.open) return
+      this.returnFocusTo = returnFocusTo
       this.acquireDocumentScrollLock()
       try {
         if (typeof this.dialog.showModal === "function") this.dialog.showModal()
@@ -615,8 +611,19 @@
       if (!this.dialog?.open) return
       if (typeof this.dialog.close === "function") this.dialog.close()
       else this.dialog.removeAttribute("open")
+      this.finishClose()
+    }
+
+    finishClose() {
+      if (!this.documentScrollLocked) return
       this.releaseDocumentScrollLock()
-      this.trigger?.focus()
+      this.restoreFocus()
+    }
+
+    restoreFocus() {
+      const target = this.returnFocusTo?.isConnected ? this.returnFocusTo : this.trigger
+      target?.focus()
+      this.returnFocusTo = this.trigger
     }
 
     acquireDocumentScrollLock() {
