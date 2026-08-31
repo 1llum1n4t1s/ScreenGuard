@@ -4,3 +4,4 @@ allowBuilds:
   sharp: true
 minimumReleaseAgeExclude:
   - kagayoi-support-extension@1.0.3
+  - kagayoi-support-extension@1.0.5

@@ -3,13 +3,10 @@
 
   const DEFAULT_API_BASE = "https://support.kagayoi.com"
   const SESSION_KEY = "kagayoi-support-session"
+  const API_TIMEOUT_MS = 15_000
   const FORM_STYLESHEET_URL = bundledStylesheetUrl("kagayoi-support-form.css")
   const POPUP_STYLESHEET_URL = bundledStylesheetUrl("kagayoi-support-popup.css")
-  const FIREFOX_CONTACT_DATA_PERMISSIONS = [
-    "personallyIdentifyingInfo",
-    "authenticationInfo",
-    "personalCommunications",
-  ]
+  const FIREFOX_OPTIONAL_CONTACT_DATA_PERMISSIONS = ["personalCommunications"]
   const CHANNELS = new Set(["web", "desktop", "extension", "other"])
   const STORAGE_SCOPES = new Set(["session", "local"])
   const CATEGORIES = [
@@ -66,6 +63,7 @@
       this.attachShadow({ mode: "open" })
       this.instanceId = `kagayoi-support-${++instanceCount}`
       this.codeRequestedFor = ""
+      this.ticketIdempotencyKey = ""
       this.busy = false
     }
 
@@ -226,9 +224,11 @@
 
     async createTicket(accessToken, manageBusy = true) {
       const action = async () => {
+        this.ticketIdempotencyKey ||= crypto.randomUUID()
         const result = await this.api("/api/tickets", {
           method: "POST",
           token: accessToken,
+          idempotencyKey: this.ticketIdempotencyKey,
           body: {
             productId: this.productId,
             customerName: this.form.elements.customerName.value.trim() || null,
@@ -242,6 +242,7 @@
             diagnostics: this.diagnostics,
           },
         })
+        this.ticketIdempotencyKey = ""
         this.showSuccess(result.ticket.reference)
       }
       if (manageBusy) await this.runBusy(action)
@@ -261,7 +262,7 @@
         // submit / resend の user-activated handler 内で最初の非同期 API として呼ぶ。
         // 既に許可済みなら Firefox はプロンプトなしで true を返す。
         const granted = await api.permissions.request({
-          data_collection: FIREFOX_CONTACT_DATA_PERMISSIONS,
+          data_collection: FIREFOX_OPTIONAL_CONTACT_DATA_PERMISSIONS,
         })
         if (granted) return true
         this.setStatus("お問い合わせ情報の送信には Firefox の許可が必要です。", "error")
@@ -274,6 +275,7 @@
     async api(path, options) {
       const headers = { "Content-Type": "application/json" }
       if (options.token) headers.Authorization = `Bearer ${options.token}`
+      if (options.idempotencyKey) headers["Idempotency-Key"] = options.idempotencyKey
       let response
       try {
         response = await fetch(`${this.apiBase}${path}`, {
@@ -281,6 +283,7 @@
           credentials: "omit",
           headers,
           body: JSON.stringify(options.body),
+          signal: AbortSignal.timeout(API_TIMEOUT_MS),
         })
       } catch {
         throw new Error("network")
