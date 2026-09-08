@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://screenguard.kagayoi.com/sitemap.xml
