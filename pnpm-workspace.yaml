@@ -3,5 +3,4 @@ allowBuilds:
   puppeteer: true
   sharp: true
 minimumReleaseAgeExclude:
-  - kagayoi-support-extension@1.0.3
-  - kagayoi-support-extension@1.0.5
+  - '@kagayoi/support-extension@1.0.6'

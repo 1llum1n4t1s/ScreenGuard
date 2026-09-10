@@ -11,9 +11,9 @@ importers:
       chrome-webstore-upload-cli:
         specifier: 4.0.1
         version: 4.0.1
-      kagayoi-support-extension:
-        specifier: 1.0.5
-        version: 1.0.5
+      '@kagayoi/support-extension':
+        specifier: 1.0.6
+        version: 1.0.6
       puppeteer:
         specifier: ^25.10.0
         version: 25.10.0
@@ -258,8 +258,8 @@ packages:
     resolution: {integrity: sha512-Qush0uP+G8ZScpGMZvHUiRfI0YBWuB3gVBYlI0v0vvOJt5FLicco+IkP0a50LqTTQhmts/m6tP5SWE+USyIvcQ==}
     engines: {node: '>=12.20'}
 
-  kagayoi-support-extension@1.0.5:
-    resolution: {integrity: sha512-kUFtbATu2h7cE/9IPV16bC48ADTV7etudKx+wDFwNYmOEUsobsKymD+UhlMbG5yiwdWpxIYYp/FRNy6NGa0iKA==}
+  '@kagayoi/support-extension@1.0.6':
+    resolution: {integrity: sha512-nxQqhZWbfXDrmjDg8dKk4/RU7IUXyTkQ7XlcKwKNLR+srCX+KzsMEPETOsa35vDL4cQ4fWqrxl6rW8ddE/sYDQ==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -516,7 +516,7 @@ snapshots:
 
   junk@4.0.1: {}
 
-  kagayoi-support-extension@1.0.5: {}
+  '@kagayoi/support-extension@1.0.6': {}
 
   lilconfig@3.1.3: {}
 

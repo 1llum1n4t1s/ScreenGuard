@@ -56,7 +56,7 @@ Popup は background の `{ ok: true }` を確認したときだけ閉じます�
 
 - `pnpm run generate-icons` は `icons/icon.svg` から3サイズの PNG を生成します。
 - `pnpm run generate-screenshots` は `webstore/*.html` を1つの Puppeteer browser 内で直列処理してストア画像を生成します。page lifecycle の並列競合を避けるためで、Puppeteer は開発用生成処理だけで拡張の実行時には含まれません。
-- `src/shared/kagayoi-support-*` は固定版の `kagayoi-support-extension` package を正本とするローカル同梱snapshotです。`pnpm sync:support` が package から同期し、`pnpm run build` の `prebuild` でも同じ同期を行うため、拡張の実行時は `node_modules` やリモートJavaScriptに依存しません。
+- `src/shared/kagayoi-support-*` は固定版の `@kagayoi/support-extension` package を正本とするローカル同梱snapshotです。`pnpm sync:support` が package から同期し、`pnpm run build` の `prebuild` でも同じ同期を行うため、拡張の実行時は `node_modules` やリモートJavaScriptに依存しません。
 - `release/x.y.z` への push だけが公開 workflow を起動し、branch 名と `manifest.json` の version 一致を検証します。
 - workflow は SHA 固定の Actions、frozen lockfile、固定版のローカル CWS CLI を使います。
 
