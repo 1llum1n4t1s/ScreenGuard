@@ -8,6 +8,8 @@ Git のバージョン記録・コミット差分と既存の変更履歴をも�
 
 - お問い合わせの重複送信を防ぎ、通信が止まった場合にエラーを案内するよう改善
 
+出典: [版の記録](https://github.com/1llum1n4t1s/ScreenGuard/commit/22d2a7e94ffa12d588a3d816daac5bd3e967163c) / [変更差分](https://github.com/1llum1n4t1s/ScreenGuard/compare/35b632aab2916e480a46f749e73fb52cc6fbe2bc...22d2a7e94ffa12d588a3d816daac5bd3e967163c)。
+
 ## [1.0.17] — Git 記録日: 2026-08-30
 
 - 問い合わせ共通部品を最新版へ同期する
