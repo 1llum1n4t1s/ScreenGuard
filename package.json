@@ -16,9 +16,9 @@
     "build": "pnpm run generate-icons && pnpm run generate-screenshots"
   },
   "devDependencies": {
-    "chrome-webstore-upload-cli": "4.0.1",
     "@kagayoi/support-extension": "1.0.6",
-    "puppeteer": "^25.10.0",
+    "chrome-webstore-upload-cli": "4.0.1",
+    "puppeteer": "^25.11.0",
     "sharp": "^0.35.4"
   },
   "keywords": [
