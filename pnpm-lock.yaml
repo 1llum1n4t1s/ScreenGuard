@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@kagayoi/support-extension':
-        specifier: 1.0.6
-        version: 1.0.6
+        specifier: 1.0.9
+        version: 1.0.9
       chrome-webstore-upload-cli:
         specifier: 4.0.2
         version: 4.0.2
@@ -188,8 +188,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@kagayoi/support-extension@1.0.6':
-    resolution: {integrity: sha512-nxQqhZWbfXDrmjDg8dKk4/RU7IUXyTkQ7XlcKwKNLR+srCX+KzsMEPETOsa35vDL4cQ4fWqrxl6rW8ddE/sYDQ==}
+  '@kagayoi/support-extension@1.0.9':
+    resolution: {integrity: sha512-51zr97JiPTkmmqYJT8NfuqYMnnrUFyIxuyHDNCncENQdvhLhpbIoKcsWIbqy/ThWln5FjCsyPvbTY7eEBcpO2Q==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -223,8 +223,8 @@ packages:
     engines: {node: '>=20'}
     hasBin: true
 
-  chrome-webstore-upload@6.0.0:
-    resolution: {integrity: sha512-wUPi8iwR2KPPPytHY8rstA5tbcLp2r8fMYnqMUIgci1q1A6QFYiyeiyG/aqAj35PzNuCTpZseD1VZ9y1b/Fkmw==}
+  chrome-webstore-upload@6.0.1:
+    resolution: {integrity: sha512-0Bi/SODOHPymx682lZsP947LeczSpH0pt72nHCVfwV3lrllmHkPS5P886+os1inQs/CvJLRCfiS5ulHe9mVmhQ==}
     engines: {node: '>=20'}
 
   chromium-bidi@157.0.8090-0:
@@ -274,8 +274,8 @@ packages:
   mitt@3.0.1:
     resolution: {integrity: sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==}
 
-  modern-tar@0.8.5:
-    resolution: {integrity: sha512-snEhs+6G5Tjd4I7tLCDOaoln2RgE0bD19RzEKgvgK2hZ5VKy3MpLhLTZ2fWpXSTg4K2cyPwp+VHATFJhxfnOeA==}
+  modern-tar@0.8.6:
+    resolution: {integrity: sha512-LYSks0tNVqbtez/9OB0YFP6qLRSqkdAxJWOQpVaR67lNTbj2zNLyYpowkRMia5lXLCZKzxwoxkxH2MbbBR2aEg==}
     engines: {node: '>=18.0.0'}
 
   puppeteer-core@25.14.0:
@@ -353,8 +353,8 @@ packages:
   yazl@3.3.1:
     resolution: {integrity: sha512-BbETDVWG+VcMUle37k5Fqp//7SDOK2/1+T7X8TD96M3D9G8jK5VLUdQVdVjGi8im7FGkazX7kk5hkU8X4L5Bng==}
 
-  zod@4.6.5:
-    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
+  zod@4.6.7:
+    resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
 
 snapshots:
 
@@ -469,11 +469,11 @@ snapshots:
   '@img/sharp-win32-x64@0.35.5':
     optional: true
 
-  '@kagayoi/support-extension@1.0.6': {}
+  '@kagayoi/support-extension@1.0.9': {}
 
   '@puppeteer/browsers@3.2.5':
     dependencies:
-      modern-tar: 0.8.5
+      modern-tar: 0.8.6
       yargs: 18.2.0
 
   ansi-regex@6.4.0: {}
@@ -484,10 +484,10 @@ snapshots:
 
   chrome-webstore-upload-cli@4.0.2:
     dependencies:
-      chrome-webstore-upload: 6.0.0
+      chrome-webstore-upload: 6.0.1
       meow: 12.1.1
 
-  chrome-webstore-upload@6.0.0:
+  chrome-webstore-upload@6.0.1:
     dependencies:
       junk: 4.0.1
       yazl: 3.3.1
@@ -496,7 +496,7 @@ snapshots:
     dependencies:
       devtools-protocol: 0.0.1696802
       mitt: 3.0.1
-      zod: 4.6.5
+      zod: 4.6.7
 
   cliui@9.0.1:
     dependencies:
@@ -524,7 +524,7 @@ snapshots:
 
   mitt@3.0.1: {}
 
-  modern-tar@0.8.5: {}
+  modern-tar@0.8.6: {}
 
   puppeteer-core@25.14.0:
     dependencies:
@@ -635,4 +635,4 @@ snapshots:
     dependencies:
       buffer-crc32: 1.0.0
 
-  zod@4.6.5: {}
+  zod@4.6.7: {}
