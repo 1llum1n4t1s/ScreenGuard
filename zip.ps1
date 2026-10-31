@@ -1,88 +1,103 @@
+#requires -Version 7.0
 # スクリーンカーテン 拡張機能パッケージ生成スクリプト
-# 使い方: powershell -ExecutionPolicy Bypass -File zip.ps1
+# 使い方: pwsh -File zip.ps1
 
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
 
-# 検証済みの作業対象だけを標準APIで削除する。
-function Remove-LocalWorkItem {
-    param([string[]]$LiteralPath, [string]$AllowedRoot, [switch]$IgnoreMissing, [switch]$AllowLeafJunction)
-    if ([string]::IsNullOrWhiteSpace($AllowedRoot) -or -not [IO.Path]::IsPathRooted($AllowedRoot)) { throw 'Cleanup root must be absolute.' }
-    $boundary = [IO.Path]::GetFullPath($AllowedRoot).TrimEnd('\','/') + [IO.Path]::DirectorySeparatorChar
-    foreach ($target in $LiteralPath) {
-        if ([string]::IsNullOrWhiteSpace($target) -or -not [IO.Path]::IsPathRooted($target)) { throw 'Cleanup target must be absolute.' }
-        $resolved = [IO.Path]::GetFullPath($target)
-        if (-not $resolved.StartsWith($boundary, [StringComparison]::OrdinalIgnoreCase)) { throw 'Cleanup target is outside the allowed root.' }
-        $ancestor = $resolved
-        while ($ancestor) {
-            if (Test-Path -LiteralPath $ancestor) {
-                $item = Get-Item -LiteralPath $ancestor -Force -ErrorAction Stop
-                if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -and -not ($AllowLeafJunction -and $ancestor -eq $resolved -and $item.LinkType -eq 'Junction')) { throw 'Cleanup path contains a reparse point.' }
+# 対象自身と親階層のリンク経由の読み書きを拒否する。
+function Assert-NoReparsePoint {
+    param([Parameter(Mandatory)][string]$LiteralPath)
+    $current = [IO.Path]::GetFullPath($LiteralPath)
+    while ($current) {
+        if (Test-Path -LiteralPath $current) {
+            $item = Get-Item -LiteralPath $current -Force
+            if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+                throw "リンク経由のパスは使用できません: $current"
             }
-            $ancestor = Split-Path $ancestor -Parent
         }
-        if (-not (Test-Path -LiteralPath $resolved)) { if ($IgnoreMissing) { continue }; throw "Cleanup target is missing: $resolved" }
-        $item = Get-Item -LiteralPath $resolved -Force -ErrorAction Stop
-        $leafLink = [bool]($item.Attributes -band [IO.FileAttributes]::ReparsePoint)
-        if ($item.PSIsContainer -and -not $leafLink) {
-            if (@(Get-ChildItem -LiteralPath $resolved -Recurse -Force -ErrorAction Stop | Where-Object { $_.Attributes -band [IO.FileAttributes]::ReparsePoint }).Count) { throw 'Cleanup directory contains a reparse point.' }
-        }
-        Remove-Item -LiteralPath $resolved -Recurse:($item.PSIsContainer -and -not $leafLink) -Force -ErrorAction Stop
-        if (Test-Path -LiteralPath $resolved) { throw "Cleanup target remains: $resolved" }
+        $current = Split-Path -Path $current -Parent
     }
 }
 
-Write-Host "拡張機能パッケージを生成中..." -ForegroundColor Cyan
-Write-Host ""
+Write-Host '拡張機能パッケージを生成中...' -ForegroundColor Cyan
+$scriptDir = [IO.Path]::GetFullPath($PSScriptRoot)
+Assert-NoReparsePoint -LiteralPath $scriptDir
+Set-Location -LiteralPath $scriptDir
 
-# スクリプトのディレクトリをカレントディレクトリに設定
-$scriptDir = Split-Path -Parent ($MyInvocation.MyCommand.Path ?? $PSCommandPath ?? $PWD)
-if ($scriptDir) { Set-Location $scriptDir }
+# 生成前の失敗では既存 ZIP に触れない。
+pnpm install --frozen-lockfile
+if ($LASTEXITCODE -ne 0) { throw '依存関係のインストールに失敗しました。' }
+pnpm sync:support --check
+if ($LASTEXITCODE -ne 0) { throw '共通問い合わせ部品の同期確認に失敗しました。' }
+pnpm run generate-icons
+if ($LASTEXITCODE -ne 0) { throw 'アイコン生成に失敗しました。' }
 
-# アイコン生成
-Write-Host "アイコンを生成中..." -ForegroundColor Yellow
-pnpm install --silent 2>$null
-node scripts/generate-icons.js
-
-# 古いZIPファイルを削除
-$zipName = "screen-curtain.zip"
-if (Test-Path $zipName) {
-     Remove-LocalWorkItem -LiteralPath ($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($zipName)) -AllowedRoot $PSScriptRoot
-    Write-Host "既存のZIPファイルを削除しました" -ForegroundColor Yellow
+$zipPath = Join-Path $scriptDir 'screen-curtain.zip'
+Assert-NoReparsePoint -LiteralPath $zipPath
+if ((Test-Path -LiteralPath $zipPath) -and
+    (Get-Item -LiteralPath $zipPath -Force).PSIsContainer) {
+    throw "ZIP の出力先がディレクトリです: $zipPath"
 }
 
-# 一時ディレクトリを作成
-$tempDir = "temp-build"
-if (Test-Path $tempDir) {
-     Remove-LocalWorkItem -LiteralPath ($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($tempDir)) -AllowedRoot $PSScriptRoot
+# 全入力を先に確定し、除外対象も含めて子の reparse point を拒否する。
+$files = [Collections.Generic.List[IO.FileInfo]]::new()
+foreach ($relativePath in @('manifest.json', 'icons', 'src')) {
+    $sourcePath = Join-Path $scriptDir $relativePath
+    Assert-NoReparsePoint -LiteralPath $sourcePath
+    $source = Get-Item -LiteralPath $sourcePath -Force
+    if ($relativePath -eq 'manifest.json' -and $source.PSIsContainer) {
+        throw 'manifest.json がファイルではありません。'
+    }
+    if ($relativePath -ne 'manifest.json' -and -not $source.PSIsContainer) {
+        throw "$relativePath がディレクトリではありません。"
+    }
+    $items = if ($source.PSIsContainer) {
+        @(Get-ChildItem -LiteralPath $sourcePath -Recurse -Force)
+    } else { @($source) }
+    foreach ($item in $items) {
+        if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+            throw "入力にリンクが含まれています: $($item.FullName)"
+        }
+        if (-not $item.PSIsContainer -and
+            $item.Name -notlike '*.DS_Store' -and
+            $item.Name -notlike '*.swp' -and $item.Name -notlike '*~') {
+            $files.Add($item)
+        }
+    }
 }
-New-Item -ItemType Directory -Path $tempDir | Out-Null
 
-# 必要なファイルをコピー
-Write-Host "必要なファイルをコピー中..." -ForegroundColor Yellow
-
-Copy-Item "manifest.json" -Destination $tempDir
-Copy-Item "icons" -Destination $tempDir -Recurse
-Copy-Item "src" -Destination $tempDir -Recurse
-
-# 不要なファイルを除外
-Get-ChildItem -Path $tempDir -Recurse -Include "*.DS_Store", "*.swp", "*~" | ForEach-Object {  Remove-LocalWorkItem -LiteralPath $_.FullName -AllowedRoot $PSScriptRoot -IgnoreMissing }
-
-# ZIPファイルを作成
-Write-Host "ZIPファイルを作成中..." -ForegroundColor Cyan
-Compress-Archive -Path "$tempDir/*" -DestinationPath $zipName -Force
-
-# 一時ディレクトリを削除
- Remove-LocalWorkItem -LiteralPath ($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($tempDir)) -AllowedRoot $PSScriptRoot
-
-if (Test-Path $zipName) {
-    Write-Host "ZIPファイルを作成しました: $zipName" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "ファイルサイズ:" -ForegroundColor Cyan
-    $fileSize = (Get-Item $zipName).Length
-    $fileSizeKB = [math]::Round($fileSize / 1KB, 2)
-    Write-Host "   $fileSizeKB KB" -ForegroundColor White
-    Write-Host ""
-    Write-Host "パッケージが正常に作成されました!" -ForegroundColor Green
-} else {
-    Write-Host "ZIPファイルの作成に失敗しました" -ForegroundColor Red
-    exit 1
+Write-Host 'ZIPファイルを作成中...' -ForegroundColor Cyan
+$zipStream = $null
+$archive = $null
+try {
+    # 実際の出力先を開いて書込み可否を確認する（作業コピー・削除不要）。
+    $zipStream = [IO.File]::Open($zipPath, [IO.FileMode]::Create,
+        [IO.FileAccess]::Write, [IO.FileShare]::None)
+    $archive = [IO.Compression.ZipArchive]::new($zipStream,
+        [IO.Compression.ZipArchiveMode]::Create, $true)
+    foreach ($file in $files) {
+        $entryName = [IO.Path]::GetRelativePath($scriptDir, $file.FullName).Replace('\', '/')
+        $entry = $archive.CreateEntry($entryName, [IO.Compression.CompressionLevel]::Optimal)
+        $entryStream = $null
+        $inputStream = $null
+        try {
+            $inputStream = [IO.File]::OpenRead($file.FullName)
+            $entryStream = $entry.Open()
+            $inputStream.CopyTo($entryStream)
+        } finally {
+            if ($entryStream) { $entryStream.Dispose() }
+            if ($inputStream) { $inputStream.Dispose() }
+        }
+    }
+} finally {
+    try {
+        if ($archive) { $archive.Dispose() }
+    } finally {
+        if ($zipStream) { $zipStream.Dispose() }
+    }
 }
+
+$fileSizeKB = [math]::Round((Get-Item -LiteralPath $zipPath).Length / 1KB, 2)
+Write-Host "ZIPファイルを作成しました: screen-curtain.zip ($fileSizeKB KB)" -ForegroundColor Green
+Write-Host 'パッケージが正常に作成されました!' -ForegroundColor Green

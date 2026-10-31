@@ -11,8 +11,7 @@ const OUTPUT_DIR = path.join(__dirname, 'images');
 // 事前加工済みのメインスクリーンショット（レターボックス済み 1280x800）
 const MAIN_SCREENSHOT = {
   source: path.join(OUTPUT_DIR, 'screenshot-main-1280x800.png'),
-  output: '00-screenshot-main-1280x800.png',
-  type: 'copy'
+  output: '00-screenshot-main-1280x800.png'
 };
 
 // HTMLテンプレートから生成する画像
@@ -22,22 +21,19 @@ const HTML_CONFIGS = [
     input: path.join(TEMPLATE_DIR, '01-popup-ui.html'),
     output: '01-popup-ui-1280x800.png',
     width: 1280,
-    height: 800,
-    type: 'screenshot'
+    height: 800
   },
   {
     input: path.join(TEMPLATE_DIR, '02-overlay-demo.html'),
     output: '02-overlay-demo-1280x800.png',
     width: 1280,
-    height: 800,
-    type: 'screenshot'
+    height: 800
   },
   {
     input: path.join(TEMPLATE_DIR, '03-hero-promo.html'),
     output: '03-hero-promo-1280x800.png',
     width: 1280,
-    height: 800,
-    type: 'screenshot'
+    height: 800
   },
 
   // プロモーション タイル（小）：440x280
@@ -45,8 +41,7 @@ const HTML_CONFIGS = [
     input: path.join(TEMPLATE_DIR, '04-promo-small.html'),
     output: 'promo-small-440x280.png',
     width: 440,
-    height: 280,
-    type: 'promo-small'
+    height: 280
   },
 
   // マーキー プロモーション タイル：1400x560
@@ -54,8 +49,7 @@ const HTML_CONFIGS = [
     input: path.join(TEMPLATE_DIR, '05-promo-marquee.html'),
     output: 'promo-marquee-1400x560.png',
     width: 1400,
-    height: 560,
-    type: 'promo-marquee'
+    height: 560
   }
 ];
 
