@@ -53,11 +53,50 @@ jobs:
       - name: アイコン生成
         run: node scripts/generate-icons.js
 
+      - name: 同梱する共通問い合わせ部品を確認
+        run: pnpm sync:support --check
+
       - name: zip パッケージを作成
         run: |
           zip -r screen-curtain.zip manifest.json icons src \
             -x "*.DS_Store" "*.swp" "*~"
           ls -lh screen-curtain.zip
+
+      - name: 提出するZIPの版・構成・内容を照合
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          python3 - <<'PY'
+          import fnmatch
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          version = os.environ['RELEASE_VERSION']
+          assert json.loads(Path('package.json').read_text())['version'] == version, 'package version mismatch'
+          expected = {'manifest.json'}
+          for directory in ('icons', 'src'):
+              expected.update(path.as_posix() for path in Path(directory).rglob('*')
+                              if path.is_file() and not any(fnmatch.fnmatch(path.name, pattern)
+                                                            for pattern in ('*.DS_Store', '*.swp', '*~')))
+          package = Path('screen-curtain.zip')
+          with ZipFile(package) as archive:
+              entries = [entry.filename for entry in archive.infolist() if not entry.is_dir()]
+              assert len(entries) == len(set(entries)), 'duplicate ZIP entries'
+              assert set(entries) == expected, 'ZIP contents differ from release source'
+              manifest = json.loads(archive.read('manifest.json'))
+              assert manifest['manifest_version'] == 3 and manifest['version'] == version, 'ZIP manifest mismatch'
+              for name in expected:
+                  assert archive.read(name) == Path(name).read_bytes(), f'ZIP bytes mismatch: {name}'
+              for name in manifest['icons'].values():
+                  assert name in expected, f'missing icon: {name}'
+          digest = hashlib.sha256(package.read_bytes()).hexdigest()
+          print(f'ZIP verified: version={version}, files={len(expected)}, sha256={digest}')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write(f'## CWS submission artifact\nVersion: `{version}`\n\nSource: `{os.environ["GITHUB_SHA"]}`\n\nSHA-256: `{digest}`\n')
+          PY
 
       - name: Chrome Web Store にアップロード & 公開
         # pnpm install で devDeps に固定した chrome-webstore-upload-cli を使用
