@@ -8,10 +8,8 @@
 
   // ---------- State ----------
   // host: ページ body 配下の透明コンテナ（ページ CSS 攻撃を inline !important で弾く役）
-  // shadowRoot: closed モード。ページ JS から覗けない
   // overlayEl: shadow 内の実 overlay。位置/サイズ/テーマ/blur を持ち、ページ CSS 影響なし
   let host = null;
-  let shadowRoot = null;
   let overlayEl = null;
   let currentTheme = Themes.LIGHT;
   let currentBlur = BlurConfig.DEFAULT;
@@ -65,7 +63,6 @@
       cleanupDrag();
       disconnectObservers();
       host = null;
-      shadowRoot = null;
       overlayEl = null;
     }
 
@@ -135,7 +132,6 @@
     if (host) {
       host.remove();
       host = null;
-      shadowRoot = null;
       overlayEl = null;
     }
   }
@@ -256,7 +252,6 @@
           cleanupResize();
           cleanupDrag();
           host = null;
-          shadowRoot = null;
           overlayEl = null;
           disconnectObservers();
         }
@@ -346,7 +341,7 @@
     applyHostDefense();
 
     // Closed mode: ページ JS から host.shadowRoot アクセス不可
-    shadowRoot = host.attachShadow({ mode: "closed" });
+    const shadowRoot = host.attachShadow({ mode: "closed" });
 
     // CSS 注入（content-styles.js が先に載せた window.__screenShadeStyles を使用）
     const style = document.createElement("style");
@@ -465,7 +460,6 @@
   let resizeActive = false;
   let resizeTarget = null;
   let resizePointerId = -1;
-  let resizeDir = "";
   let resizeN = false, resizeS = false, resizeE = false, resizeW = false;
   let startX = 0;
   let startY = 0;
@@ -481,7 +475,7 @@
     resizeActive = true;
     resizeTarget = e.currentTarget;
     resizePointerId = e.pointerId;
-    resizeDir = resizeTarget.dataset.direction;
+    const resizeDir = resizeTarget.dataset.direction;
     resizeN = resizeDir.includes("n");
     resizeS = resizeDir.includes("s");
     resizeE = resizeDir.includes("e");

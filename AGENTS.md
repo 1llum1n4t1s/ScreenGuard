@@ -94,7 +94,7 @@ CSS 文字列を `window.__screenShadeStyles` に置くだけの JS モジュー
 - **位置操作ヘルパー** — `applyPosition()` でオーバーレイの top/left/width/height を一括設定、`centerPosition(w, h)` で中央配置座標を計算。リセットや ensureVisible から共通利用される。`centerPosition` は結果を **`MIN_SIZE` で下限クランプする**: ビューポートが `MIN_SIZE + DEFAULT_MARGIN*2`（70px）を下回るとマージン減算で MIN_SIZE 未満（さらに小さいと負値）になり、ResizeObserver 経由で呼ばれるためウィンドウを縮めるたびに overlay が縮んで savePrefs で永続化され、ウィンドウを戻しても復元されない。`loadPrefsAndApply` 側にも同じクランプがあり、旧バージョンが保存した潰れたサイズを読み込み時に救済して保存し直す。
 - **閉じる手段は必ず 2 系統確保する** — オーバーレイを消す UI は shadow 内の × ボタンだけなので、ホバー前提にすると閉じられない環境が生まれる。`.close` は既定で常時表示にし、`@media (hover: hover) and (pointer: fine)` の環境でだけ非ホバー時に隠す。`.close:focus-visible`（`.close` より詳細度が高い）でキーボード時は必ず可視化する。加えて `installKeyboardWatcher()` が document の keydown を capture で拾い、**overlay 表示中のみ** Escape で `closeOverlay()` する（非表示時はページ側の Escape を一切妨げない）。
 - **PointerCapture は drag と resize の両方で取得** — ウィンドウ外移動・Alt+Tab・タッチキャンセル時にも `pointerup/cancel` が確実に届くように、ハンドル要素側で capture する。リスナーも capture した要素に紐付けて document グローバル登録を避ける。
-- **SPA / ビューポート / フルスクリーン対応** — `MutationObserver` が `document.body` の childList を監視して overlay 切り離しを検知、`ResizeObserver` が `documentElement` を監視、`fullscreenchange` で overlay を fullscreen 要素配下へ付け替える。
+- **SPA / ビューポート / フルスクリーン対応** — `MutationObserver` が `document.documentElement` の childList を subtree 込みで監視して、body の差し替えと overlay 切り離しを検知する。`ResizeObserver` が `documentElement` を監視し、`fullscreenchange` で overlay を fullscreen 要素配下へ付け替える。
 - **外部通信の境界を限定する** — オーバーレイ表示、設定保存、利用状況の処理は端末内で完結させる。外部通信は、利用者が問い合わせを送信したときの `https://support.kagayoi.com` へのメール確認・チケット作成だけに限定し、`host_permissions` も同 origin だけを維持する。telemetry・analytics・別の外部 API・追加 host permission が必要な場合は、実装前にユーザーの明示承認を得る。MV3 で実行する JavaScript は引き続きローカル同梱し、リモート JavaScript を実行しない。
 
 ## Storage Keys

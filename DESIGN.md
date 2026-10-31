@@ -37,6 +37,7 @@ Popup は background の `{ ok: true }` を確認したときだけ閉じます�
 ### 設定更新と永続化
 
 - `shadePrefs` は content script が位置、サイズ、テーマを `chrome.storage.local` へ保存します。
+- Popup は保存済みテーマを初期選択に使い、content script は表示要求のテーマを優先して位置・サイズだけを復元します。新規表示の復元完了時にも現在の設定を保存するため、移動・リサイズしなくても選択テーマが次回に引き継がれます。
 - `glassBlur` は Popup がスライダー値を保存し、80 ms のデバウンスで `UPDATE_BLUR` を送ります。
 - リセットは Popup が保留中の blur 保存・送信を cancel してから両 key を削除し、`RESET_PREFS` を送ります。content script は保留中の位置保存を cancel し、表示位置の初期化だけを担当します。
 - ResizeObserver 由来の保存は300 msでデバウンスし、手動操作終了時は即時保存します。
@@ -50,6 +51,8 @@ Popup は background の `{ ok: true }` を確認したときだけ閉じます�
 
 ダイアログ表示中は外側 document のスクロールを固定し、ダイアログ内だけをスクロール領域にします。終了または component 切断時に、外側の inline style と元のスクロール位置を復元します。
 
+問い合わせ UI の言語は、最寄りの `lang` 属性、document の言語、拡張の UI 言語の順に解決し、日本語以外は英語にします。Popup は `lang="ja"` を指定しているため、ブラウザの言語にかかわらず日本語になります。footer は解決した言語をダイアログへ渡します。部品を読み込めずダイアログを開けない場合は、Web のサポート窓口へ誘導します。
+
 問い合わせ以外のオーバーレイ処理、設定保存、閲覧ページの処理は外部へ送信しません。閲覧ページの内容も問い合わせ payload へ含めません。
 
 ### ビルドと公開
@@ -57,6 +60,8 @@ Popup は background の `{ ok: true }` を確認したときだけ閉じます�
 - `pnpm run generate-icons` は `icons/icon.svg` から3サイズの PNG を生成します。
 - `pnpm run generate-screenshots` は `webstore/*.html` を1つの Puppeteer browser 内で直列処理してストア画像を生成します。page lifecycle の並列競合を避けるためで、Puppeteer は開発用生成処理だけで拡張の実行時には含まれません。
 - `src/shared/kagayoi-support-*` は固定版の `@kagayoi/support-extension` package を正本とするローカル同梱snapshotです。`pnpm sync:support` が package から同期し、`pnpm run build` の `prebuild` でも同じ同期を行うため、拡張の実行時は `node_modules` やリモートJavaScriptに依存しません。
+- 開発用の準備は `pnpm install --frozen-lockfile` と `pnpm run build` です。生成・検証時の作業規約は [AGENTS.md](AGENTS.md) を参照してください。
+- ローカル配布用の `zip.ps1`（PowerShell 7以降）と `zip.sh` は、依存関係の固定インストール、`pnpm sync:support --check`、アイコン生成を経て、`manifest.json`・`icons/`・`src/` だけを `screen-curtain.zip` に収めます。開発依存やストア画像は実行時に不要なため含めません。
 - `release/x.y.z` への push だけが公開 workflow を起動し、branch 名と `manifest.json` の version 一致を検証します。
 - workflow は SHA 固定の Actions、frozen lockfile、固定版のローカル CWS CLI を使います。
 
@@ -78,7 +83,7 @@ Popup は background の `{ ok: true }` を確認したときだけ閉じます�
 | 判断 | 理由 | トレードオフ |
 | --- | --- | --- |
 | `activeTab` と動的注入 | 常時の広いページ権限を避け、利用者操作時だけページへ入る | 制限 URL では動作せず、注入失敗を UI へ返す経路が必要 |
-| closed Shadow DOM と host の二層防御 | ページ側の CSS と DOM 操作からオーバーレイを隔離する | 通常の DevTools から内部を調査しにくい |
+| closed Shadow DOM と host の二層防御 | ページ CSS の影響と `host.shadowRoot` 経由の内部 DOM 参照を防ぐ | host 自体の除去は防げず、MutationObserver で切り離しを検知して参照をリセットする |
 | CSS を JavaScript 文字列として先行注入 | Shadow root へ同期的かつ確実にスタイルを渡せる | CSS 単体ファイルより編集時のハイライトが弱い |
 | runtime 共通契約を従来 script に集約 | Popup、service worker、content 注入の3経路で同じ値検証を再利用できる | ES module の import graph は使えない |
 | 設定を `chrome.storage.local` に保存 | アカウント同期や外部サービスなしで再表示時に復元できる | 端末・Chrome profile をまたいだ同期は行わない |

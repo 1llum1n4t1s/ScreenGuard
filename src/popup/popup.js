@@ -90,7 +90,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function setTheme(theme) {
     selectedTheme = theme;
     $themeBtns.forEach((btn) => {
-      btn.classList.toggle("selected", btn.dataset.theme === theme);
+      const selected = btn.dataset.theme === theme;
+      btn.classList.toggle("selected", selected);
+      btn.setAttribute("aria-pressed", String(selected));
     });
     // Glass テーマ選択時のみぼかし設定を表示
     $blurSetting.classList.toggle("visible", theme === Themes.GLASS);

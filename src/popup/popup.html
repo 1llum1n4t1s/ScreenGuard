@@ -10,13 +10,13 @@
     <!-- data-theme の値は src/lib/actions.js の Themes 定数と同期すること -->
     <div class="section-label" data-no="01">テーマ</div>
     <div class="theme-selector">
-      <button type="button" class="theme-btn theme-btn-light selected" data-theme="light" title="Light">
+      <button type="button" class="theme-btn theme-btn-light selected" data-theme="light" title="Light" aria-pressed="true">
         <span class="theme-swatch" aria-hidden="true"></span>Light
       </button>
-      <button type="button" class="theme-btn theme-btn-dark" data-theme="dark" title="Dark">
+      <button type="button" class="theme-btn theme-btn-dark" data-theme="dark" title="Dark" aria-pressed="false">
         <span class="theme-swatch" aria-hidden="true"></span>Dark
       </button>
-      <button type="button" class="theme-btn theme-btn-glass" data-theme="glass" title="Glass">
+      <button type="button" class="theme-btn theme-btn-glass" data-theme="glass" title="Glass" aria-pressed="false">
         <span class="theme-swatch" aria-hidden="true"></span>Glass
       </button>
     </div>
