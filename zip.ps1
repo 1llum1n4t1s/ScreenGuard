@@ -26,11 +26,11 @@ Assert-NoReparsePoint -LiteralPath $scriptDir
 Set-Location -LiteralPath $scriptDir
 
 # 生成前の失敗では既存 ZIP に触れない。
-pnpm install --frozen-lockfile
+bun run deps
 if ($LASTEXITCODE -ne 0) { throw '依存関係のインストールに失敗しました。' }
-pnpm sync:support --check
+bun --bun run sync:support --check
 if ($LASTEXITCODE -ne 0) { throw '共通問い合わせ部品の同期確認に失敗しました。' }
-pnpm run generate-icons
+bun --bun run generate-icons
 if ($LASTEXITCODE -ne 0) { throw 'アイコン生成に失敗しました。' }
 
 $zipPath = Join-Path $scriptDir 'screen-curtain.zip'

@@ -9,13 +9,13 @@
 ## Build Commands
 
 ```bash
-pnpm sync:support             # @kagayoi/support-extension → src/shared/ を同期
-pnpm run build                # 共通問い合わせ部品の同期 + アイコン + スクリーンショット一括生成
-pnpm run generate-icons       # icons/icon.svg → icons/icon-{16,48,128}.png (sharp)
-pnpm run generate-screenshots # webstore/*.html → webstore/images/*.png (Puppeteer)
+bun --bun run sync:support             # @kagayoi/support-extension → src/shared/ を同期
+bun --bun run build                # 共通問い合わせ部品の同期 + アイコン + スクリーンショット一括生成
+bun --bun run generate-icons       # icons/icon.svg → icons/icon-{16,48,128}.png (sharp)
+bun --bun run generate-screenshots # webstore/*.html → webstore/images/*.png (Puppeteer)
 ```
 
-テストフレームワーク・リンターは未導入。動作確認は Chrome で `chrome://extensions` を開き、「パッケージ化されていない拡張機能を読み込む」からプロジェクトルートを選択して手動テスト。JS の構文だけ確認したい時は `node --check <file>` が使える（chrome API 未定義エラーは parse 段階では出ない）。
+テストフレームワーク・リンターは未導入。動作確認は Chrome で `chrome://extensions` を開き、「パッケージ化されていない拡張機能を読み込む」からプロジェクトルートを選択して手動テスト。JS の構文だけ確認したい時は `bun build --no-bundle <file> --outdir <temporary-directory>` が使える（chrome API 未定義エラーは parse 段階では出ない）。
 
 `generate-screenshots` はテンプレート単位の例外をログへ出して処理を続けるため、終了コード 0 だけで成功判定しない。出力に `❌ エラー` がないことと、期待する全画像が生成されていることを確認する。テンプレートは1つの Puppeteer browser 内で直列生成すること。page の作成・終了を `Promise.all` などで並列化すると、全画像の生成後も browser 終了がハングし得る。
 
@@ -23,9 +23,9 @@ pnpm run generate-screenshots # webstore/*.html → webstore/images/*.png (Puppe
 
 バージョン番号は以下の2ファイルに記載されており、**必ず同時に更新**すること:
 - `manifest.json` — Chrome 拡張機能のバージョン
-- `package.json` — npm パッケージのバージョン
+- `package.json` — パッケージのバージョン
 
-`pnpm-lock.yaml` は `pnpm install` 時に自動同期される。
+`bun.lock` は `bun install` 時に自動同期される。
 
 ## Architecture
 
@@ -45,7 +45,7 @@ Popup (src/popup/popup.{html,js,css})
 ### Popup (`src/popup/popup.html`, `popup.js`, `popup.css`)
 テーマ選択 (Light/Dark/Glass)、Glass 選択時のみぼかし強度スライダー (`BlurConfig.MIN`〜`BlurConfig.MAX`) を表示。位置リセットボタンあり。`chrome.tabs.query` で自身で tabId を解決し、`SHOW_OVERLAY` に `{tabId, data: {theme, glassBlur}}` を載せて background へ送信。**応答の `ok` を検査し、`ok:true` のときだけポップアップを閉じる**。失敗時は閉じずに `#statusError`（`role="alert"`、`.status-error` の warn 配色）へ background が返した理由を表示する（閉じてしまうと「押しても何も起きない」に見えるため）。`UPDATE_BLUR` の sendMessage も 80ms デバウンスで連打を間引く。最後のテーマ・blur 値は `chrome.storage.local` から復元。popup.html の `<script src="../lib/actions.js">` は popup からの相対パスであることに注意。
 
-ポップアップ末尾の `<kagayoi-support-footer product-id="screen-guard">` は、ローカル同梱した `src/shared/kagayoi-support-popup.js`、`kagayoi-support-footer.js` と3つの `kagayoi-support-*.css` を一組で使う。これらの正本は固定版の `@kagayoi/support-extension` package であり、直接編集せず `pnpm sync:support` で同期して生成差分を commit する。`pnpm run build` の `prebuild` でも同期を検証する。CSS は各 Web Component の Shadow DOM 内から `<link rel="stylesheet">` で読み込む。問い合わせダイアログは表示中だけ外側 document のスクロールを固定し、終了・切断時に inline style とスクロール位置を復元する。問い合わせ操作時だけ `https://support.kagayoi.com` へメール確認とチケット作成を行い、部品を読み込めない場合は Web のサポート窓口へフォールバックする。
+ポップアップ末尾の `<kagayoi-support-footer product-id="screen-guard">` は、ローカル同梱した `src/shared/kagayoi-support-popup.js`、`kagayoi-support-footer.js` と3つの `kagayoi-support-*.css` を一組で使う。これらの正本は固定版の `@kagayoi/support-extension` package であり、直接編集せず `bun --bun run sync:support` で同期して生成差分を commit する。`bun --bun run build` の先頭でも同期する。CSS は各 Web Component の Shadow DOM 内から `<link rel="stylesheet">` で読み込む。問い合わせダイアログは表示中だけ外側 document のスクロールを固定し、終了・切断時に inline style とスクロール位置を復元する。問い合わせ操作時だけ `https://support.kagayoi.com` へメール確認とチケット作成を行い、部品を読み込めない場合は Web のサポート窓口へフォールバックする。
 
 ### Background (`src/background/background.js`)
 Service worker。`importScripts("/src/lib/actions.js")` で定数をロード。`Object.freeze` でイミュータブル管理されたステート（theme, glassBlur）を保持。`onMessage` で `sender.id === chrome.runtime.id` を検証して外部メッセージを拒否。`request.tabId` を優先、次にキャッシュ、最後に `chrome.tabs.query` の順で対象タブを解決（アクティブタブ曖昧性を回避）。`handleShowOverlay` は `.catch` で reject を捕捉して `sendResponse({ok:false, error})` を返す。対象ページは URL のプロトコルが `http:`, `https:`, `file:` のときのみ処理し、それ以外（chrome://, edge://, about: 等）は**日本語メッセージ付きで throw する**（早期 return すると listener が `ok:true` を返して popup が黙って閉じ、無反応と区別できなくなるため）。`chrome.tabs.sendMessage` が失敗した場合は `forceReinject`（全ての `#screenShadeHost` を除去 → `__screenShadeRunning=false` → 再注入）で 1 度だけ復帰を試みる。`UPDATE_BLUR` は `state.glassBlur` も同時更新（SSoT 維持）。
@@ -75,7 +75,7 @@ CSS 文字列を `window.__screenShadeStyles` に置くだけの JS モジュー
 | `webstore/` | ストア申請用: HTML テンプレート、生成画像、掲載情報テキスト |
 | `docs/privacy-policy.md` | プライバシーポリシー (GitHub Pages で公開) |
 | `DESIGN.md` | 現行アーキテクチャ、責務境界、データフロー、設計判断の正本 |
-| `.github/workflows/publish.yml` | Chrome Web Store 自動公開。Actions は SHA 固定、`pnpm install --frozen-lockfile` 厳密、devDep の CLI 使用 |
+| `.github/workflows/publish.yml` | Chrome Web Store 自動公開。Actions は SHA 固定、`bun run deps` 厳密、devDep の CLI 使用 |
 
 ## Store Asset Generation
 
@@ -112,6 +112,18 @@ Chrome Web Store への自動公開は **`release/x.y.z` ブランチへの push
 ## CI / Supply Chain
 
 - Actions は **コミット SHA 固定**（タグはミュータブルなので、SHA でピン留めする）
-- `pnpm install --frozen-lockfile` のみを使用する。lockfile を書き換えるフォールバックは使わない（lockfile bypass の温床になるため）。
-- Chrome Web Store CLI は `devDependencies` に固定バージョンで記載し、CI では `pnpm exec` で local node_modules の版を使用（`npx --yes @patch` の patch 版乗っ取りを回避）
+- `bun run deps` のみを使用する。lockfile を書き換えるフォールバックは使わない（lockfile bypass の温床になるため）。
+- Chrome Web Store 公開は `scripts/Publish-Cws.ps1` でAPIを直接呼ぶ。
 - CI で OAuth refresh_token 等の CWS 資格情報は GitHub Actions Secrets (`CWS_CLIENT_ID`/`CWS_CLIENT_SECRET`/`CWS_REFRESH_TOKEN`/`CWS_EXTENSION_ID`) 経由でのみ渡す。ワークフロー内で `echo` やログには出さない。
+
+### CWS 公開のHTTP境界
+
+`publish.yml` はビルド済みZIPを `scripts/Publish-Cws.ps1`（PowerShell 7）へ渡す。既存のOAuth secrets・publisher/item IDを維持し、ZIPをストリーム送信し、upload成功を確認してからpublishする。重複・通信断・不明な応答を公開成功として扱わず、ストア状態を確認してから再開する。公開専用npm CLIは使用しない。変更時はHTTP fixtureで成功・版/ID不一致・upload失敗・publish拒否を確認する。
+
+CWS公開workflowはrepository固定のconcurrency groupで直列化する。同期uploadの成功・ID・版を確認した場合だけpublishし、非同期uploadはAPI v2でdraft版を要求と結び付けられないため停止する。APIにはuploadとpublishの原子的なCASが無いため、提出中はDashboardや他の手動公開操作を並行しない。
+
+## Bun依存の脆弱性検出
+
+依存の固定復元は `bun run deps` を使う。lock欠落・破損を拒否し、`[run] bun=true` 経由で依存のpostinstallまでBunで実行する。Node.jsがあるPCでも通常の `bun install` を直接使う経路へ戻さない。
+
+日次と手動実行では `bun audit` でlock全体を監査する。ローカルでも同じコマンドで確認できる。BunはDependabotの通常の更新PRには対応するが、脆弱性起点の自動修正PRは `dependency-security.yml` が補完する。日次・手動で全件監査し、隔離領域で `bun audit fix` による候補を作成し、同じrunから既存の Dependency validation を呼ぶ。未対策アドバイザリが減少し、依存以外のmanifest・パッチ・24時間待機を保ち、全検証が成功した場合だけ、検証したマージコミットを競合検知付きの通常pushで取り込む。保護されたブランチには自動pushせず、修正版未公開・互換性・検証失敗は単一のIssueに通知して次回再試行する。生の監査は警告を除外せず、対策済みパッチの認定も監査成功とは区別してsummaryへ残す。既知のdeepmerge対策はアドバイザリ・版・パッチSHAが完全一致した場合だけ修正対象から外し、生監査には残す。通常のDependabot更新と他ecosystemの設定は維持する。

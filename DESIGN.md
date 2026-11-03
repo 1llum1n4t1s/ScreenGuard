@@ -57,11 +57,11 @@ Popup は background の `{ ok: true }` を確認したときだけ閉じます�
 
 ### ビルドと公開
 
-- `pnpm run generate-icons` は `icons/icon.svg` から3サイズの PNG を生成します。
-- `pnpm run generate-screenshots` は `webstore/*.html` を1つの Puppeteer browser 内で直列処理してストア画像を生成します。page lifecycle の並列競合を避けるためで、Puppeteer は開発用生成処理だけで拡張の実行時には含まれません。
-- `src/shared/kagayoi-support-*` は固定版の `@kagayoi/support-extension` package を正本とするローカル同梱snapshotです。`pnpm sync:support` が package から同期し、`pnpm run build` の `prebuild` でも同じ同期を行うため、拡張の実行時は `node_modules` やリモートJavaScriptに依存しません。
-- 開発用の準備は `pnpm install --frozen-lockfile` と `pnpm run build` です。生成・検証時の作業規約は [AGENTS.md](AGENTS.md) を参照してください。
-- ローカル配布用の `zip.ps1`（PowerShell 7以降）と `zip.sh` は、依存関係の固定インストール、`pnpm sync:support --check`、アイコン生成を経て、`manifest.json`・`icons/`・`src/` だけを `screen-curtain.zip` に収めます。開発依存やストア画像は実行時に不要なため含めません。
+- `bun --bun run generate-icons` は `icons/icon.svg` から3サイズの PNG を生成します。
+- `bun --bun run generate-screenshots` は `webstore/*.html` を1つの Puppeteer browser 内で直列処理してストア画像を生成します。page lifecycle の並列競合を避けるためで、Puppeteer は開発用生成処理だけで拡張の実行時には含まれません。
+- `src/shared/kagayoi-support-*` は固定版の `@kagayoi/support-extension` package を正本とするローカル同梱snapshotです。`bun --bun run sync:support` が package から同期し、`bun --bun run build` の先頭でも同じ同期を行うため、拡張の実行時は `node_modules` やリモートJavaScriptに依存しません。
+- 開発用の準備は `bun run deps` と `bun --bun run build` です。生成・検証時の作業規約は [AGENTS.md](AGENTS.md) を参照してください。
+- ローカル配布用の `zip.ps1`（PowerShell 7以降）と `zip.sh` は、依存関係の固定インストール、`bun --bun run sync:support --check`、アイコン生成を経て、`manifest.json`・`icons/`・`src/` だけを `screen-curtain.zip` に収めます。開発依存やストア画像は実行時に不要なため含めません。
 - `release/x.y.z` への push だけが公開 workflow を起動し、branch 名と `manifest.json` の version 一致を検証します。
 - workflow は SHA 固定の Actions、frozen lockfile、固定版のローカル CWS CLI を使います。
 

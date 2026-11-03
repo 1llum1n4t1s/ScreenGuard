@@ -12,9 +12,9 @@ if ! command -v zip &> /dev/null; then
   exit 1
 fi
 
-pnpm install --frozen-lockfile
-pnpm sync:support --check
-pnpm run generate-icons
+bun run deps
+bun --bun run sync:support --check
+bun --bun run generate-icons
 
 # 入力確認までは既存 ZIP を保持する。
 test -f manifest.json
