@@ -63,17 +63,19 @@ Chrome Web Store 掲載情報（コピペ用）
 ■ ストアアイコン（128x128）
 → images/icon-128.png
 
-■ スクリーンショット（1280x800）※最大5枚、最低1枚
-  1枚目: webstore/images/00-screenshot-main-1280x800.png
-  2枚目: webstore/images/01-popup-ui-1280x800.png
-  3枚目: webstore/images/02-overlay-demo-1280x800.png
-  4枚目: webstore/images/03-hero-promo-1280x800.png
+■ スクリーンショット（1280x800）※最大5枚、最低1枚（言語ごとに webstore/images/<言語コード>/ から選ぶ。ja の例）
+  1枚目: webstore/images/ja/screenshot-01.png
+  2枚目: webstore/images/ja/screenshot-02.png
+  3枚目: webstore/images/ja/screenshot-03.png
+  4枚目: webstore/images/ja/screenshot-04.png
+  5枚目: webstore/images/ja/screenshot-05.png
+  （言語コード: en ja zh_CN zh_TW ko es fr de pt_BR。`bun --bun run generate-screenshots` で再生成）
 
-■ プロモーション タイル（小）（440x280）※任意
-→ webstore/images/promo-small-440x280.png
+■ プロモーション タイル（小）（440x280）※任意（全言語共通・英字表記）
+→ webstore/images/tile-small.png
 
-■ マーキー プロモーション タイル（1400x560）※任意
-→ webstore/images/promo-marquee-1400x560.png
+■ マーキー プロモーション タイル（1400x560）※任意（全言語共通・英字表記）
+→ webstore/images/tile-marquee.png
 
 ------------------------------------------------------------
 

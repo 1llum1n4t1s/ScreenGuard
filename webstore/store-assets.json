@@ -1,0 +1,386 @@
+{
+  "brand": "Screen Curtain",
+  "icon": "icons/icon.svg",
+  "extensionDir": "webstore/.capture-ext",
+  "palette": {
+    "primary": "#6D8CFF",
+    "secondary": "#B07CFF"
+  },
+  "locales": [
+    "en",
+    "ja",
+    "zh_CN",
+    "zh_TW",
+    "ko",
+    "es",
+    "fr",
+    "de",
+    "pt_BR"
+  ],
+  "captures": [
+    {
+      "id": "popup-glass",
+      "kind": "popup",
+      "page": "src/popup/popup.html",
+      "storage": {
+        "shadePrefs": {
+          "theme": "glass"
+        },
+        "glassBlur": 12
+      }
+    },
+    {
+      "id": "page-dark",
+      "kind": "page",
+      "url": "https://www.example.org/dashboard",
+      "fixture": "page.html",
+      "width": 618,
+      "height": 540,
+      "storage": {
+        "shadePrefs": {
+          "theme": "dark",
+          "top": 140,
+          "left": 70,
+          "width": 440,
+          "height": 240
+        }
+      }
+    },
+    {
+      "id": "page-glass",
+      "kind": "page",
+      "url": "https://www.example.org/dashboard",
+      "fixture": "page.html",
+      "width": 1120,
+      "height": 524,
+      "storage": {
+        "shadePrefs": {
+          "theme": "glass",
+          "top": 118,
+          "left": 300,
+          "width": 520,
+          "height": 290
+        },
+        "glassBlur": 10
+      }
+    },
+    {
+      "id": "page-light",
+      "kind": "page",
+      "url": "https://www.example.org/dashboard",
+      "fixture": "page.html",
+      "width": 618,
+      "height": 540,
+      "storage": {
+        "shadePrefs": {
+          "theme": "light",
+          "top": 110,
+          "left": 130,
+          "width": 410,
+          "height": 280
+        }
+      }
+    }
+  ],
+  "slides": [
+    {
+      "layout": "hero",
+      "capture": "popup-glass",
+      "product": {
+        "msg": "appName"
+      },
+      "tagline": {
+        "msg": "appDescription"
+      },
+      "chips": [
+        {
+          "en": "Light, Dark or Glass",
+          "ja": "ライト・ダーク・ガラス",
+          "zh_CN": "浅色、深色或玻璃",
+          "zh_TW": "淺色、深色或玻璃",
+          "ko": "라이트·다크·글라스",
+          "es": "Claro, Oscuro o Cristal",
+          "fr": "Clair, Sombre ou Verre",
+          "de": "Hell, Dunkel oder Glas",
+          "pt_BR": "Claro, Escuro ou Vidro"
+        },
+        {
+          "en": "Drag and resize",
+          "ja": "ドラッグ移動とリサイズ",
+          "zh_CN": "可拖动、可调整大小",
+          "zh_TW": "可拖曳、可調整大小",
+          "ko": "이동과 크기 조절",
+          "es": "Mover y redimensionar",
+          "fr": "Déplacer et redimensionner",
+          "de": "Verschieben und skalieren",
+          "pt_BR": "Mover e redimensionar"
+        },
+        {
+          "en": "Remembers position and theme",
+          "ja": "位置とテーマを記憶",
+          "zh_CN": "记住位置和主题",
+          "zh_TW": "記住位置與主題",
+          "ko": "위치와 테마 기억",
+          "es": "Recuerda posición y tema",
+          "fr": "Mémorise position et thème",
+          "de": "Merkt sich Position und Design",
+          "pt_BR": "Lembra posição e tema"
+        }
+      ]
+    },
+    {
+      "layout": "feature",
+      "capture": "page-dark",
+      "kicker": {
+        "en": "Privacy",
+        "ja": "プライバシー",
+        "zh_CN": "隐私",
+        "zh_TW": "隱私",
+        "ko": "개인정보",
+        "es": "Privacidad",
+        "fr": "Confidentialité",
+        "de": "Privatsphäre",
+        "pt_BR": "Privacidade"
+      },
+      "title": {
+        "en": "Hide what you'd rather not show",
+        "ja": "見せたくない部分を、さっと隠す",
+        "zh_CN": "把不想展示的内容遮起来",
+        "zh_TW": "把不想展示的內容遮起來",
+        "ko": "보여주고 싶지 않은 부분을 가립니다",
+        "es": "Oculte lo que no quiere mostrar",
+        "fr": "Masquez ce que vous ne voulez pas montrer",
+        "de": "Verdecken, was nicht zu sehen sein soll",
+        "pt_BR": "Oculte o que você não quer mostrar"
+      },
+      "body": {
+        "en": "One overlay covers any part of the page. Close it with the × button or the Esc key.",
+        "ja": "オーバーレイ1枚でページの一部を覆います。閉じるときは×ボタンかEscキーで。",
+        "zh_CN": "一个遮罩即可盖住页面的任意部分。点击×[[按钮]]或按Esc键即可关闭。",
+        "zh_TW": "一個遮罩就能蓋住網頁的任何部分。按一下×[[按鈕]]或按Esc鍵即可關閉。",
+        "ko": "오버레이 하나로 페이지의 원하는 부분을 가립니다. × 버튼이나 Esc 키로 닫을 수 있습니다.",
+        "es": "Una sola superposición cubre cualquier parte de la página. Ciérrela con el botón × o con la tecla Esc.",
+        "fr": "Une seule superposition couvre n’importe quelle partie de la page. Fermez-la avec le bouton × ou la touche Échap.",
+        "de": "Ein Overlay verdeckt jeden beliebigen Teil der Seite. Schließen Sie es mit der ×-Schaltfläche oder der Esc-Taste.",
+        "pt_BR": "Uma única sobreposição cobre qualquer parte da página. Feche com o botão × ou com a tecla Esc."
+      },
+      "bullets": [
+        {
+          "en": "Start it from the toolbar popup",
+          "ja": "ツールバーのポップアップから開始",
+          "zh_CN": "从工具栏弹出窗口启动",
+          "zh_TW": "從工具列彈出視窗啟動",
+          "ko": "도구 모음 팝업에서 시작",
+          "es": "Se inicia desde el popup de la barra de herramientas",
+          "fr": "Se lance depuis le popup de la barre d’outils",
+          "de": "Start über das Popup in der Symbolleiste",
+          "pt_BR": "Inicie pelo popup na barra de ferramentas"
+        },
+        {
+          "en": "Stays on top, even in full screen",
+          "ja": "全画面表示中も前面に表示",
+          "zh_CN": "全屏时也保持在最前",
+          "zh_TW": "全螢幕時也保持在最上層",
+          "ko": "전체 화면에서도 맨 위에 유지",
+          "es": "Se mantiene al frente, también a pantalla completa",
+          "fr": "Reste au premier plan, même en plein écran",
+          "de": "Bleibt im Vordergrund, auch im Vollbild",
+          "pt_BR": "Fica na frente, até em tela cheia"
+        },
+        {
+          "en": "Display and settings stay on your device",
+          "ja": "表示と設定は端末内で完結",
+          "zh_CN": "显示和设置都在本机完成",
+          "zh_TW": "顯示與設定都在本機完成",
+          "ko": "표시와 설정은 기기 안에서 처리",
+          "es": "Todo se queda en su dispositivo",
+          "fr": "Tout reste sur votre appareil",
+          "de": "Alles bleibt auf Ihrem Gerät",
+          "pt_BR": "Tudo fica no seu dispositivo"
+        }
+      ]
+    },
+    {
+      "layout": "wide",
+      "capture": "page-glass",
+      "title": {
+        "en": "Frosted glass, adjustable blur",
+        "ja": "すりガラスで、ぼかしも調整",
+        "zh_CN": "毛玻璃效果，模糊可调",
+        "zh_TW": "毛玻璃效果，模糊可調",
+        "ko": "글라스 테마, 흐림 강도 조절",
+        "es": "Cristal esmerilado, desenfoque ajustable",
+        "fr": "Verre dépoli, flou réglable",
+        "de": "Milchglas mit einstellbarer Unschärfe",
+        "pt_BR": "Vidro fosco com desfoque ajustável"
+      },
+      "body": {
+        "en": "The Glass theme blurs what is behind it. Set the strength from 1 to 20px.",
+        "ja": "ガラステーマは背後をぼかして表示します。強度は1〜20pxで調整できます。",
+        "zh_CN": "玻璃主题会模糊背后的内容，强度可在1至20px之间调整。",
+        "zh_TW": "玻璃主題會模糊後方的內容，強度可在1至20px之間調整。",
+        "ko": "글라스 테마는 뒤쪽 내용을 흐리게 보여 줍니다. 강도는 1~20px로 조절할 수 있습니다.",
+        "es": "El tema Cristal desenfoca lo que hay detrás. Ajuste la intensidad de 1 a 20 px.",
+        "fr": "Le thème Verre floute ce qui se trouve derrière. Réglez l’intensité de 1 à 20 px.",
+        "de": "Das Design „Glas“ verwischt, was dahinter liegt. Die Stärke lässt sich von 1 bis 20 px einstellen.",
+        "pt_BR": "O tema Vidro desfoca o que está atrás. Ajuste a intensidade de 1 a 20 px."
+      }
+    },
+    {
+      "layout": "feature",
+      "capture": "page-light",
+      "kicker": {
+        "en": "Layout",
+        "ja": "レイアウト",
+        "zh_CN": "布局",
+        "zh_TW": "版面",
+        "ko": "레이아웃",
+        "es": "Disposición",
+        "fr": "Disposition",
+        "de": "Anordnung",
+        "pt_BR": "Layout"
+      },
+      "title": {
+        "en": "Drag it, resize it, and it stays",
+        "ja": "動かして、大きさを変えて、そのまま保存",
+        "zh_CN": "拖动、缩放，位置自动保存",
+        "zh_TW": "拖曳、縮放，位置自動儲存",
+        "ko": "옮기고 크기를 바꾸면 그대로 저장됩니다",
+        "es": "Muévala, cambie su tamaño y se queda así",
+        "fr": "Déplacez-la, redimensionnez-la, elle reste en place",
+        "de": "Verschieben, skalieren – und es bleibt so",
+        "pt_BR": "Mova, redimensione e ela fica assim"
+      },
+      "body": {
+        "en": "Grab any edge or corner to resize. Position, size and theme are saved for next time.",
+        "ja": "辺や角をつかんでサイズを変更できます。位置・サイズ・テーマは保存され、次回も同じ状態で使えます。",
+        "zh_CN": "拖动任意边缘或角即可调整大小。位置、大小和主题会保存，下次直接沿用。",
+        "zh_TW": "拖曳任一邊緣或角落即可調整大小。位置、大小和主題會儲存，下次直接沿用。",
+        "ko": "가장자리나 모서리를 끌어 크기를 조절합니다. 위치, 크기, 테마는 다음을 위해 저장됩니다.",
+        "es": "Arrastre cualquier borde o esquina para cambiar el tamaño. La posición, el tamaño y el tema se guardan para la próxima vez.",
+        "fr": "Faites glisser un bord ou un coin pour redimensionner. La position, la taille et le thème sont enregistrés pour la prochaine fois.",
+        "de": "Ziehen Sie an einer Kante oder Ecke, um die Größe zu ändern. Position, Größe und Design werden für das nächste Mal gespeichert.",
+        "pt_BR": "Arraste qualquer borda ou canto para redimensionar. Posição, tamanho e tema ficam salvos para a próxima vez."
+      },
+      "bullets": [
+        {
+          "en": "Eight resize handles",
+          "ja": "8方向のハンドルでリサイズ",
+          "zh_CN": "八个方向都能调整大小",
+          "zh_TW": "八個方向都能調整大小",
+          "ko": "8방향 핸들로 크기 조절",
+          "es": "Ocho puntos de control",
+          "fr": "Huit poignées de redimensionnement",
+          "de": "Acht Anfasser zum Skalieren",
+          "pt_BR": "Oito alças de redimensionamento"
+        },
+        {
+          "en": "Follows window resizing",
+          "ja": "ウィンドウの大きさ変更にも追従",
+          "zh_CN": "窗口大小改变时自动跟随",
+          "zh_TW": "視窗大小改變時自動跟隨",
+          "ko": "창 크기가 바뀌어도 따라옵니다",
+          "es": "Se adapta al cambiar el tamaño de la ventana",
+          "fr": "Suit le redimensionnement de la fenêtre",
+          "de": "Passt sich der Fenstergröße an",
+          "pt_BR": "Acompanha o redimensionamento da janela"
+        },
+        {
+          "en": "Reset anytime from the popup",
+          "ja": "ポップアップからいつでもリセット",
+          "zh_CN": "随时可在弹出窗口中重置",
+          "zh_TW": "隨時可在彈出視窗中重設",
+          "ko": "팝업에서 언제든 초기화",
+          "es": "Restablezca cuando quiera desde el popup",
+          "fr": "Réinitialisez à tout moment depuis le popup",
+          "de": "Jederzeit im Popup zurücksetzen",
+          "pt_BR": "Redefina quando quiser pelo popup"
+        }
+      ]
+    },
+    {
+      "layout": "steps",
+      "title": {
+        "en": "Cover your screen in three steps",
+        "ja": "3ステップで画面を覆う",
+        "zh_CN": "三步遮住屏幕",
+        "zh_TW": "三步驟遮住畫面",
+        "ko": "3단계로 화면 가리기",
+        "es": "Cubra la pantalla en tres pasos",
+        "fr": "Masquez l’écran en trois étapes",
+        "de": "In drei Schritten abdecken",
+        "pt_BR": "Cubra a tela em três passos"
+      },
+      "steps": [
+        {
+          "title": {
+            "en": "Click the icon",
+            "ja": "アイコンをクリック",
+            "zh_CN": "点击图标",
+            "zh_TW": "按一下圖示",
+            "ko": "아이콘 클릭",
+            "es": "Haga clic en el icono",
+            "fr": "Cliquez sur l’icône",
+            "de": "Auf das Symbol klicken",
+            "pt_BR": "Clique no ícone"
+          },
+          "body": {
+            "en": "Open the popup from the toolbar.",
+            "ja": "ツールバーからポップアップを開きます。",
+            "zh_CN": "在工具栏中打开弹出窗口。",
+            "zh_TW": "從工具列開啟彈出視窗。",
+            "ko": "도구 모음에서 팝업을 엽니다.",
+            "es": "Abra el popup desde la barra de herramientas.",
+            "fr": "Ouvrez le popup depuis la barre d’outils.",
+            "de": "Öffnen Sie das Popup in der Symbolleiste.",
+            "pt_BR": "Abra o popup na barra de ferramentas."
+          }
+        },
+        {
+          "title": {
+            "en": "Choose a theme",
+            "ja": "テーマを選ぶ",
+            "zh_CN": "选择主题",
+            "zh_TW": "選擇主題",
+            "ko": "테마 선택",
+            "es": "Elija un tema",
+            "fr": "Choisissez un thème",
+            "de": "Design wählen",
+            "pt_BR": "Escolha um tema"
+          },
+          "body": {
+            "en": "Light, Dark or Glass. Glass adds a blur slider.",
+            "ja": "ライト、ダーク、ガラスから選びます。ガラスならぼかしも調整できます。",
+            "zh_CN": "浅色、深色或玻璃。选择玻璃后还可调整模糊强度。",
+            "zh_TW": "淺色、深色或玻璃。選擇玻璃後還可調整模糊強度。",
+            "ko": "라이트, 다크, 글라스 중에서 고릅니다. 글라스는 흐림 강도도 조절할 수 있습니다.",
+            "es": "Claro, Oscuro o Cristal. Con Cristal también puede ajustar el desenfoque.",
+            "fr": "Clair, Sombre ou Verre. Avec Verre, réglez aussi le flou.",
+            "de": "Hell, Dunkel oder Glas. Bei Glas lässt sich auch die Unschärfe einstellen.",
+            "pt_BR": "Claro, Escuro ou Vidro. No Vidro, também dá para ajustar o desfoque."
+          }
+        },
+        {
+          "title": {
+            "msg": "popupShowOverlay"
+          },
+          "body": {
+            "en": "Close it with the × button or the Esc key.",
+            "ja": "×ボタンかEscキーで閉じます。",
+            "zh_CN": "点击×[[按钮]]或按Esc键关闭。",
+            "zh_TW": "按一下×[[按鈕]]或按Esc鍵關閉。",
+            "ko": "× 버튼이나 Esc 키로 닫습니다.",
+            "es": "Ciérrela con el botón × o la tecla Esc.",
+            "fr": "Fermez-la avec le bouton × ou la touche Échap.",
+            "de": "Schließen Sie es mit × oder der Esc-Taste.",
+            "pt_BR": "Feche com o botão × ou a tecla Esc."
+          }
+        }
+      ]
+    }
+  ],
+  "tiles": {
+    "tagline": "Cover any page with a movable overlay",
+    "capture": "popup-glass"
+  }
+}

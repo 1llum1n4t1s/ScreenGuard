@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="vitrina-fixture" content="page">
+<title></title>
+<!--
+  ストア画像用の固定ページ（ダッシュボード風の中立的な骨組み）。
+  文字・ロゴ・商標は描かない（色付きの面と灰色のバーだけ）。ガラステーマのぼかしが
+  「背後の内容」を実際に和らげていると伝わるよう、色の差がはっきりした面を置いている。
+  幅 720〜1120px のどちらでも崩れないよう、狭い幅ではサイドバーを畳む。
+-->
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #f4f6fa; }
+  .app { display: grid; grid-template-columns: 200px 1fr; grid-template-rows: 56px 1fr; height: 100%; }
+  .top { grid-column: 1 / -1; display: flex; align-items: center; gap: 20px; padding: 0 24px; background: #fff; border-bottom: 1px solid #e3e7ee; }
+  .logo { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #5b8def, #8a5cf6); }
+  .search { width: 320px; height: 32px; border-radius: 16px; background: #eef1f6; }
+  .avatar { margin-left: auto; width: 30px; height: 30px; border-radius: 50%; background: #cfd6e4; }
+  .side { padding: 20px 16px; background: #fff; border-right: 1px solid #e3e7ee; }
+  .side i { display: block; height: 12px; margin-bottom: 18px; border-radius: 6px; background: #e3e7ee; }
+  .side i:nth-child(1) { width: 70%; background: #c9d7f8; }
+  .side i:nth-child(2) { width: 85%; }
+  .side i:nth-child(3) { width: 60%; }
+  .side i:nth-child(4) { width: 78%; }
+  .side i:nth-child(5) { width: 52%; }
+  .main { padding: 24px; display: grid; gap: 20px; grid-template-rows: auto 1fr; min-width: 0; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .card { background: #fff; border-radius: 14px; border: 1px solid #e3e7ee; padding: 18px; min-width: 0; }
+  .stat b { display: block; width: 46%; height: 12px; border-radius: 6px; background: #d5dbe8; margin-bottom: 14px; }
+  .stat u { display: block; width: 72%; height: 26px; border-radius: 8px; text-decoration: none; }
+  .stat:nth-child(1) u { background: #5b8def; }
+  .stat:nth-child(2) u { background: #f59e0b; }
+  .stat:nth-child(3) u { background: #10b981; }
+  .body { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; min-height: 0; }
+  .chart { display: flex; align-items: flex-end; gap: 14px; padding-bottom: 6px; }
+  .chart i { flex: 1; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, #5b8def, #8fb0f7); }
+  .chart i:nth-child(3n) { background: linear-gradient(180deg, #f59e0b, #fcd28a); }
+  .chart i:nth-child(4n) { background: linear-gradient(180deg, #8a5cf6, #bda5fa); }
+  .rows i { display: block; height: 12px; margin-bottom: 16px; border-radius: 6px; background: #dde2ed; }
+  .rows i:nth-child(3n) { width: 60%; background: #c9d7f8; }
+  .rows i:nth-child(4n) { width: 80%; background: #fde2b0; }
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .side { display: none; }
+    .search { width: 200px; }
+    .body { grid-template-columns: 1fr; }
+    .rows { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="top"><div class="logo"></div><div class="search"></div><div class="avatar"></div></div>
+    <div class="side"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="main">
+      <div class="stats">
+        <div class="card stat"><b></b><u></u></div>
+        <div class="card stat"><b></b><u></u></div>
+        <div class="card stat"><b></b><u></u></div>
+      </div>
+      <div class="body">
+        <div class="card chart"><i style="height:46%"></i><i style="height:72%"></i><i style="height:38%"></i><i style="height:88%"></i><i style="height:58%"></i><i style="height:66%"></i><i style="height:42%"></i><i style="height:78%"></i></div>
+        <div class="card rows"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
