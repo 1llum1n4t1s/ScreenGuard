@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "スクリーンカーテン",
-  "description": "ページをオーバーレイで覆い隠します。3テーマ対応、ドラッグ移動・リサイズ可能。",
+  "default_locale": "en",
+  "name": "__MSG_appName__",
+  "description": "__MSG_appDescription__",
   "version": "1.0.19",
   "homepage_url": "https://github.com/1llum1n4t1s/ScreenGuard",
   "action": {
@@ -10,7 +11,7 @@
       "48": "icons/icon-48.png",
       "128": "icons/icon-128.png"
     },
-    "default_title": "スクリーンカーテン",
+    "default_title": "__MSG_defaultTitle__",
     "default_popup": "src/popup/popup.html"
   },
   "icons": {

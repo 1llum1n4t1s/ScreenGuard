@@ -1,0 +1,71 @@
+{
+  "appName": {
+    "message": "スクリーンカーテン"
+  },
+  "appDescription": {
+    "message": "ページをオーバーレイで覆い隠します。3テーマ対応、ドラッグ移動・リサイズ可能。"
+  },
+  "defaultTitle": {
+    "message": "スクリーンカーテン"
+  },
+  "popupThemeHeading": {
+    "message": "テーマ"
+  },
+  "themeLight": {
+    "message": "ライト"
+  },
+  "themeDark": {
+    "message": "ダーク"
+  },
+  "themeGlass": {
+    "message": "ガラス"
+  },
+  "popupBlurLabel": {
+    "message": "ぼかし強度"
+  },
+  "popupActionsHeading": {
+    "message": "アクション"
+  },
+  "popupShowOverlay": {
+    "message": "オーバーレイを表示"
+  },
+  "popupResetButton": {
+    "message": "リセット"
+  },
+  "popupResetTitle": {
+    "message": "位置とサイズをリセット"
+  },
+  "popupResetDone": {
+    "message": "完了!"
+  },
+  "popupErrorShowOverlay": {
+    "message": "オーバーレイを表示できませんでした。"
+  },
+  "popupErrorReset": {
+    "message": "設定をリセットできませんでした。もう一度お試しください。"
+  },
+  "errorNoTargetTab": {
+    "message": "対象のタブを特定できませんでした。"
+  },
+  "errorPageUnavailable": {
+    "message": "このページでは利用できません。"
+  },
+  "overlayCloseLabel": {
+    "message": "オーバーレイを閉じる"
+  },
+  "languageAuto": {
+    "message": "自動（ブラウザ）"
+  },
+  "languageSelectLabel": {
+    "message": "言語"
+  },
+  "languageSelectTitle": {
+    "message": "言語（開いているページは再読み込みで反映）"
+  },
+  "kagayoiSupportContact": {
+    "message": "お問い合わせ"
+  },
+  "kagayoiSupportRate": {
+    "message": "評価をお願いします！"
+  }
+}

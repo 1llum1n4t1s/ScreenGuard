@@ -42,7 +42,7 @@ if ((Test-Path -LiteralPath $zipPath) -and
 
 # 全入力を先に確定し、除外対象も含めて子の reparse point を拒否する。
 $files = [Collections.Generic.List[IO.FileInfo]]::new()
-foreach ($relativePath in @('manifest.json', 'icons', 'src')) {
+foreach ($relativePath in @('manifest.json', '_locales', 'icons', 'src')) {
     $sourcePath = Join-Path $scriptDir $relativePath
     Assert-NoReparsePoint -LiteralPath $sourcePath
     $source = Get-Item -LiteralPath $sourcePath -Force

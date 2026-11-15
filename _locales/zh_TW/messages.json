@@ -1,0 +1,71 @@
+{
+  "appName": {
+    "message": "螢幕窗簾"
+  },
+  "appDescription": {
+    "message": "以可移動、可調整大小的遮罩覆蓋網頁。支援淺色、深色和玻璃三種主題。"
+  },
+  "defaultTitle": {
+    "message": "螢幕窗簾"
+  },
+  "popupThemeHeading": {
+    "message": "主題"
+  },
+  "themeLight": {
+    "message": "淺色"
+  },
+  "themeDark": {
+    "message": "深色"
+  },
+  "themeGlass": {
+    "message": "玻璃"
+  },
+  "popupBlurLabel": {
+    "message": "模糊強度"
+  },
+  "popupActionsHeading": {
+    "message": "操作"
+  },
+  "popupShowOverlay": {
+    "message": "顯示遮罩"
+  },
+  "popupResetButton": {
+    "message": "重設"
+  },
+  "popupResetTitle": {
+    "message": "重設位置和大小"
+  },
+  "popupResetDone": {
+    "message": "完成！"
+  },
+  "popupErrorShowOverlay": {
+    "message": "無法顯示遮罩。"
+  },
+  "popupErrorReset": {
+    "message": "無法重設設定，請重試。"
+  },
+  "errorNoTargetTab": {
+    "message": "無法確定目標分頁。"
+  },
+  "errorPageUnavailable": {
+    "message": "此頁面不支援使用。"
+  },
+  "overlayCloseLabel": {
+    "message": "關閉遮罩"
+  },
+  "languageAuto": {
+    "message": "自動（跟隨瀏覽器）"
+  },
+  "languageSelectLabel": {
+    "message": "語言"
+  },
+  "languageSelectTitle": {
+    "message": "語言（已開啟的頁面需重新整理後生效）"
+  },
+  "kagayoiSupportContact": {
+    "message": "聯絡支援"
+  },
+  "kagayoiSupportRate": {
+    "message": "請為我們評分！"
+  }
+}

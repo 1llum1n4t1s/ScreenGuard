@@ -1,3 +1,4 @@
+importScripts("/src/shared/ui-localizer.js");
 importScripts("/src/lib/actions.js");
 
 const INJECTABLE_PROTOCOLS = Object.freeze(["http:", "https:", "file:"]);
@@ -17,6 +18,19 @@ chrome.tabs.onActivated.addListener((info) => {
 });
 chrome.tabs.onRemoved.addListener((tabId) => {
   if (cachedTabId === tabId) cachedTabId = null;
+});
+
+// ツールバーのツールチップ。manifest の default_title はブラウザ言語固定なので、
+// 選択言語が分かった時点・変更時に上書きする。
+function applyActionTitle() {
+  chrome.action.setTitle({ title: Localizer.t("defaultTitle", undefined, "Screen Curtain") }).catch(() => {});
+}
+Localizer.ready.then(applyActionTitle);
+Localizer.onChange(applyActionTitle);
+chrome.runtime.onInstalled.addListener(async () => {
+  await Localizer.ready;
+  await Localizer.ensureFresh(); // 拡張更新後に保存済み辞書を作り直す
+  applyActionTitle();
 });
 
 // ---------- Message Handler ----------
@@ -56,6 +70,8 @@ async function resolveTabId(request) {
 }
 
 async function handleShowOverlay(request) {
+  // 選択言語の辞書が読み込まれる前にエラー文言を引かないよう待つ
+  await Localizer.ready;
   state = Object.freeze({
     theme: sanitizeTheme(request.data?.theme),
     glassBlur: clampBlur(request.data?.glassBlur),
@@ -65,14 +81,14 @@ async function handleShowOverlay(request) {
   // 以降の失敗は必ず throw する。早期 return すると listener が ok:true を返してしまい、
   // popup 側は「成功した」と解釈して黙って閉じるため、ユーザーには無反応にしか見えない。
   if (typeof tabId !== "number") {
-    throw new Error("対象のタブを特定できませんでした。");
+    throw new Error(Localizer.t("errorNoTargetTab", undefined, "Could not identify the target tab."));
   }
   cachedTabId = tabId;
 
   // タブ URL のプロトコル検証（chrome://, edge://, about: 等の拡張注入不可領域を除外）
   const tab = await chrome.tabs.get(tabId).catch(() => null);
   if (!tab?.url || !isInjectableUrl(tab.url)) {
-    throw new Error("このページでは利用できません。");
+    throw new Error(Localizer.t("errorPageUnavailable", undefined, "This page is not supported."));
   }
 
   await ensureInjected(tabId);
@@ -134,6 +150,7 @@ function injectContentScripts(tabId) {
   return chrome.scripting.executeScript({
     target: { tabId },
     files: [
+      "src/shared/ui-localizer.js",
       "src/lib/actions.js",
       "src/content/content-styles.js",
       "src/content/content.js",

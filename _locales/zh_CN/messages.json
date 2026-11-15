@@ -1,0 +1,71 @@
+{
+  "appName": {
+    "message": "屏幕窗帘"
+  },
+  "appDescription": {
+    "message": "用可移动、可调整大小的遮罩覆盖网页。支持浅色、深色和玻璃三种主题。"
+  },
+  "defaultTitle": {
+    "message": "屏幕窗帘"
+  },
+  "popupThemeHeading": {
+    "message": "主题"
+  },
+  "themeLight": {
+    "message": "浅色"
+  },
+  "themeDark": {
+    "message": "深色"
+  },
+  "themeGlass": {
+    "message": "玻璃"
+  },
+  "popupBlurLabel": {
+    "message": "模糊强度"
+  },
+  "popupActionsHeading": {
+    "message": "操作"
+  },
+  "popupShowOverlay": {
+    "message": "显示遮罩"
+  },
+  "popupResetButton": {
+    "message": "重置"
+  },
+  "popupResetTitle": {
+    "message": "重置位置和大小"
+  },
+  "popupResetDone": {
+    "message": "完成！"
+  },
+  "popupErrorShowOverlay": {
+    "message": "无法显示遮罩。"
+  },
+  "popupErrorReset": {
+    "message": "无法重置设置，请重试。"
+  },
+  "errorNoTargetTab": {
+    "message": "无法确定目标标签页。"
+  },
+  "errorPageUnavailable": {
+    "message": "此页面不支持使用。"
+  },
+  "overlayCloseLabel": {
+    "message": "关闭遮罩"
+  },
+  "languageAuto": {
+    "message": "自动（跟随浏览器）"
+  },
+  "languageSelectLabel": {
+    "message": "语言"
+  },
+  "languageSelectTitle": {
+    "message": "语言（已打开的页面需刷新后生效）"
+  },
+  "kagayoiSupportContact": {
+    "message": "联系支持"
+  },
+  "kagayoiSupportRate": {
+    "message": "请给我们评分！"
+  }
+}

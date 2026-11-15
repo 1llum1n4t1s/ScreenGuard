@@ -6,3 +6,9 @@ temp-build/
 
 # wrangler のローカル状態キャッシュ (web/ のデプロイ時に生成される)
 web/.wrangler/
+
+# ストア画像の生成物・撮影用の一時物（webstore/generate-screenshots.mjs が作る）
+webstore/.capture-ext/
+webstore/.work/
+# 手作りのメイン画像（再生成できないため images/ の外へ退避して保持）
+webstore/manual/

@@ -5,7 +5,7 @@
     "": {
       "name": "screen-curtain",
       "devDependencies": {
-        "@kagayoi/support-extension": "1.0.9",
+        "@kagayoi/support-extension": "1.0.12",
         "puppeteer": "^25.16.0",
         "sharp": "^0.35.5",
       },
@@ -72,7 +72,7 @@
 
     "@img/sharp-win32-x64": ["@img/sharp-win32-x64@0.35.5", "", { "os": "win32", "cpu": "x64" }, "sha512-x76eH0vEiHlcMQu8Y8IenntaACtddpT6W0wmXtWrnKcnKI7ME5DdgqhAD6SEWOEl1v2zDvkZDhFA9KnURwpfqg=="],
 
-    "@kagayoi/support-extension": ["@kagayoi/support-extension@1.0.9", "", { "bin": { "kagayoi-support-sync": "bin/kagayoi-support-sync.mjs" } }, "sha512-51zr97JiPTkmmqYJT8NfuqYMnnrUFyIxuyHDNCncENQdvhLhpbIoKcsWIbqy/ThWln5FjCsyPvbTY7eEBcpO2Q=="],
+    "@kagayoi/support-extension": ["@kagayoi/support-extension@1.0.12", "", { "bin": { "kagayoi-support-sync": "bin/kagayoi-support-sync.mjs" } }, "sha512-EwYHu6bbHb/+NydLL5C3isALcPhxKB4tQLu3FRrDt4qzwxzY1k5cIr++JHi21C3ILYTqCjuN+9ewzmHJco9OQg=="],
 
     "@puppeteer/browsers": ["@puppeteer/browsers@3.2.6", "", { "dependencies": { "modern-tar": "0.8.6", "yargs": "18.2.0" }, "peerDependencies": { "proxy-agent": ">=8.0.1", "yauzl": "^2.10.0 || ^3.4.0" }, "optionalPeers": ["proxy-agent", "yauzl"], "bin": { "browsers": "lib/main-cli.js" } }, "sha512-MJP29gVoHznmqmwhH1tlZqzfeQ3aylTpSSa6WKZXtkwYUH02i9imBmWGTyZrbnAou5paX78SE4jMAUqnEPf8ug=="],
 

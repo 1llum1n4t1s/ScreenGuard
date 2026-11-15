@@ -1,0 +1,71 @@
+{
+  "appName": {
+    "message": "Rideau d’écran"
+  },
+  "appDescription": {
+    "message": "Masquez n’importe quelle page avec une superposition déplaçable et redimensionnable. Trois thèmes : Clair, Sombre et Verre."
+  },
+  "defaultTitle": {
+    "message": "Rideau d’écran"
+  },
+  "popupThemeHeading": {
+    "message": "Thème"
+  },
+  "themeLight": {
+    "message": "Clair"
+  },
+  "themeDark": {
+    "message": "Sombre"
+  },
+  "themeGlass": {
+    "message": "Verre"
+  },
+  "popupBlurLabel": {
+    "message": "Intensité du flou"
+  },
+  "popupActionsHeading": {
+    "message": "Actions"
+  },
+  "popupShowOverlay": {
+    "message": "Afficher la superposition"
+  },
+  "popupResetButton": {
+    "message": "Réinitialiser"
+  },
+  "popupResetTitle": {
+    "message": "Réinitialiser la position et la taille"
+  },
+  "popupResetDone": {
+    "message": "Terminé !"
+  },
+  "popupErrorShowOverlay": {
+    "message": "Impossible d’afficher la superposition."
+  },
+  "popupErrorReset": {
+    "message": "Impossible de réinitialiser les paramètres. Veuillez réessayer."
+  },
+  "errorNoTargetTab": {
+    "message": "Impossible d’identifier l’onglet cible."
+  },
+  "errorPageUnavailable": {
+    "message": "Cette page n’est pas prise en charge."
+  },
+  "overlayCloseLabel": {
+    "message": "Fermer la superposition"
+  },
+  "languageAuto": {
+    "message": "Automatique (navigateur)"
+  },
+  "languageSelectLabel": {
+    "message": "Langue"
+  },
+  "languageSelectTitle": {
+    "message": "Langue (les pages ouvertes se mettent à jour au rechargement)"
+  },
+  "kagayoiSupportContact": {
+    "message": "Contacter le support"
+  },
+  "kagayoiSupportRate": {
+    "message": "Évaluez-nous !"
+  }
+}

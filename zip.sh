@@ -18,12 +18,14 @@ bun --bun run generate-icons
 
 # 入力確認までは既存 ZIP を保持する。
 test -f manifest.json
+test -d _locales
 test -d icons
 test -d src
 rm -f ./screen-curtain.zip
 
 zip -r ./screen-curtain.zip \
   manifest.json \
+  _locales/ \
   icons/ \
   src/ \
   -x "*.DS_Store" "*.swp" "*~"

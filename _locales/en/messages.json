@@ -1,0 +1,71 @@
+{
+  "appName": {
+    "message": "Screen Curtain"
+  },
+  "appDescription": {
+    "message": "Cover any page with a movable, resizable overlay. Three themes: Light, Dark and Glass."
+  },
+  "defaultTitle": {
+    "message": "Screen Curtain"
+  },
+  "popupThemeHeading": {
+    "message": "Theme"
+  },
+  "themeLight": {
+    "message": "Light"
+  },
+  "themeDark": {
+    "message": "Dark"
+  },
+  "themeGlass": {
+    "message": "Glass"
+  },
+  "popupBlurLabel": {
+    "message": "Blur strength"
+  },
+  "popupActionsHeading": {
+    "message": "Actions"
+  },
+  "popupShowOverlay": {
+    "message": "Show overlay"
+  },
+  "popupResetButton": {
+    "message": "Reset"
+  },
+  "popupResetTitle": {
+    "message": "Reset position and size"
+  },
+  "popupResetDone": {
+    "message": "Done!"
+  },
+  "popupErrorShowOverlay": {
+    "message": "Could not show the overlay."
+  },
+  "popupErrorReset": {
+    "message": "Could not reset the settings. Please try again."
+  },
+  "errorNoTargetTab": {
+    "message": "Could not identify the target tab."
+  },
+  "errorPageUnavailable": {
+    "message": "This page is not supported."
+  },
+  "overlayCloseLabel": {
+    "message": "Close overlay"
+  },
+  "languageAuto": {
+    "message": "Auto (browser)"
+  },
+  "languageSelectLabel": {
+    "message": "Language"
+  },
+  "languageSelectTitle": {
+    "message": "Language. Open pages need a reload to update."
+  },
+  "kagayoiSupportContact": {
+    "message": "Contact support"
+  },
+  "kagayoiSupportRate": {
+    "message": "Please rate us!"
+  }
+}

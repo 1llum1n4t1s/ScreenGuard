@@ -34,11 +34,16 @@
   }
 
   function installMessageListener() {
+    // popup で言語が変わったら、表示中の閉じるボタンのラベルも更新する
+    Localizer.onChange(() => {
+      overlayEl?.querySelector(".close")?.setAttribute("aria-label", Localizer.t("overlayCloseLabel", undefined, "Close overlay"));
+    });
     chrome.runtime.onMessage.addListener((request, sender) => {
       if (sender.id !== chrome.runtime.id) return;
 
       if (request.action === Actions.SHOW_OVERLAY_CS) {
-        onShowCommand(request.data?.theme, request.data?.glassBlur);
+        // 選択言語の辞書を読み込んでから作る（読み込み前だとブラウザ標準の言語で一瞬出る）
+        Localizer.ready.then(() => onShowCommand(request.data?.theme, request.data?.glassBlur));
       } else if (request.action === Actions.UPDATE_BLUR) {
         currentBlur = clampBlur(request.data?.glassBlur);
         applyBlur();
@@ -358,7 +363,7 @@
     const closeBtn = document.createElement("button");
     closeBtn.className = "close";
     closeBtn.type = "button";
-    closeBtn.setAttribute("aria-label", "オーバーレイを閉じる");
+    closeBtn.setAttribute("aria-label", Localizer.t("overlayCloseLabel", undefined, "Close overlay"));
     closeBtn.addEventListener("click", closeOverlay);
     overlayEl.appendChild(closeBtn);
 

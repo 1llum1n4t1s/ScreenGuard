@@ -67,6 +67,15 @@
     "JetBrains Mono", Consolas, monospace;
 }
 
+/* 中国語は IBM Plex Sans JP（日本の字形）より先に各言語向けの書体を使う。
+   ストア画像の検査で、簡体・繁体の文言が日本語向けフォントで描かれる不具合として検出された。 */
+:root:lang(zh-CN) {
+  --font-sans: "Microsoft YaHei UI", "PingFang SC", "Noto Sans SC", "IBM Plex Sans JP", "Segoe UI", system-ui, sans-serif;
+}
+:root:lang(zh-TW) {
+  --font-sans: "Microsoft JhengHei UI", "PingFang TC", "Noto Sans TC", "IBM Plex Sans JP", "Segoe UI", system-ui, sans-serif;
+}
+
 /*
  * ダーク追従: ブラウザ / OS の prefers-color-scheme: dark に従ってトークンを上書き。
  * 配色: 墨黒（微藍寄り）に月光のような明るい青を散らす。
@@ -137,6 +146,30 @@ body {
   );
 }
 
+/* 言語セレクト（ヘッダー右寄せ） */
+.popup-header {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+#uiLanguage {
+  max-width: 150px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  color: var(--ink-soft);
+  background: var(--paper-card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+#uiLanguage:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* 番号付きラベル（"01 — テーマ" のような editorial な小見出し） */
 .section-label {
   display: flex;
@@ -167,7 +200,7 @@ body {
 }
 
 /* 一番最初のラベルは上 padding を詰める（アクセント帯と近接させる） */
-.popup-container > .section-label:first-of-type {
+.popup-header + .section-label {
   padding-top: 8px;
 }
 

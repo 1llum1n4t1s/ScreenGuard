@@ -1,39 +1,43 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="color-scheme" content="light dark" />
+  <script src="../shared/ui-localizer.js"></script>
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
   <div class="popup-container">
+    <div class="popup-header">
+      <select id="uiLanguage" data-i18n-attr="aria-label:languageSelectLabel;title:languageSelectTitle"></select>
+    </div>
     <!-- data-theme の値は src/lib/actions.js の Themes 定数と同期すること -->
-    <div class="section-label" data-no="01">テーマ</div>
+    <div class="section-label" data-no="01" data-i18n="popupThemeHeading">Theme</div>
     <div class="theme-selector">
-      <button type="button" class="theme-btn theme-btn-light selected" data-theme="light" title="Light" aria-pressed="true">
-        <span class="theme-swatch" aria-hidden="true"></span>Light
+      <button type="button" class="theme-btn theme-btn-light selected" data-theme="light" data-i18n-attr="title:themeLight" title="Light" aria-pressed="true">
+        <span class="theme-swatch" aria-hidden="true"></span><span data-i18n="themeLight">Light</span>
       </button>
-      <button type="button" class="theme-btn theme-btn-dark" data-theme="dark" title="Dark" aria-pressed="false">
-        <span class="theme-swatch" aria-hidden="true"></span>Dark
+      <button type="button" class="theme-btn theme-btn-dark" data-theme="dark" data-i18n-attr="title:themeDark" title="Dark" aria-pressed="false">
+        <span class="theme-swatch" aria-hidden="true"></span><span data-i18n="themeDark">Dark</span>
       </button>
-      <button type="button" class="theme-btn theme-btn-glass" data-theme="glass" title="Glass" aria-pressed="false">
-        <span class="theme-swatch" aria-hidden="true"></span>Glass
+      <button type="button" class="theme-btn theme-btn-glass" data-theme="glass" data-i18n-attr="title:themeGlass" title="Glass" aria-pressed="false">
+        <span class="theme-swatch" aria-hidden="true"></span><span data-i18n="themeGlass">Glass</span>
       </button>
     </div>
     <div class="blur-setting" id="blurSetting">
       <label class="blur-label" for="blurRange">
-        <span>ぼかし強度</span>
+        <span data-i18n="popupBlurLabel">Blur strength</span>
         <span class="blur-value" id="blurValue">5px</span>
       </label>
       <input type="range" id="blurRange" min="1" max="20" value="5" />
     </div>
-    <div class="section-label" data-no="02">アクション</div>
+    <div class="section-label" data-no="02" data-i18n="popupActionsHeading">Actions</div>
     <div class="action-buttons">
-      <button type="button" id="showOverlay" class="btn-primary">
-        オーバーレイを表示
+      <button type="button" id="showOverlay" class="btn-primary" data-i18n="popupShowOverlay">
+        Show overlay
       </button>
-      <button type="button" id="resetPrefs" class="btn-reset" title="位置とサイズをリセット">
-        リセット
+      <button type="button" id="resetPrefs" class="btn-reset" data-i18n="popupResetButton" data-i18n-attr="title:popupResetTitle" title="Reset position and size">
+        Reset
       </button>
     </div>
     <p class="status-error" id="statusError" role="alert" hidden></p>

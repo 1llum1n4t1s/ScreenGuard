@@ -1,0 +1,71 @@
+{
+  "appName": {
+    "message": "Bildschirmvorhang"
+  },
+  "appDescription": {
+    "message": "Verdecken Sie jede Seite mit einem verschieb- und skalierbaren Overlay. Drei Designs: Hell, Dunkel und Glas."
+  },
+  "defaultTitle": {
+    "message": "Bildschirmvorhang"
+  },
+  "popupThemeHeading": {
+    "message": "Design"
+  },
+  "themeLight": {
+    "message": "Hell"
+  },
+  "themeDark": {
+    "message": "Dunkel"
+  },
+  "themeGlass": {
+    "message": "Glas"
+  },
+  "popupBlurLabel": {
+    "message": "Unschärfe-Stärke"
+  },
+  "popupActionsHeading": {
+    "message": "Aktionen"
+  },
+  "popupShowOverlay": {
+    "message": "Overlay anzeigen"
+  },
+  "popupResetButton": {
+    "message": "Zurücksetzen"
+  },
+  "popupResetTitle": {
+    "message": "Position und Größe zurücksetzen"
+  },
+  "popupResetDone": {
+    "message": "Fertig!"
+  },
+  "popupErrorShowOverlay": {
+    "message": "Das Overlay konnte nicht angezeigt werden."
+  },
+  "popupErrorReset": {
+    "message": "Die Einstellungen konnten nicht zurückgesetzt werden. Bitte erneut versuchen."
+  },
+  "errorNoTargetTab": {
+    "message": "Der Ziel-Tab konnte nicht ermittelt werden."
+  },
+  "errorPageUnavailable": {
+    "message": "Diese Seite wird nicht unterstützt."
+  },
+  "overlayCloseLabel": {
+    "message": "Overlay schließen"
+  },
+  "languageAuto": {
+    "message": "Automatisch (Browser)"
+  },
+  "languageSelectLabel": {
+    "message": "Sprache"
+  },
+  "languageSelectTitle": {
+    "message": "Sprache (geöffnete Seiten übernehmen sie nach dem Neuladen)"
+  },
+  "kagayoiSupportContact": {
+    "message": "Support kontaktieren"
+  },
+  "kagayoiSupportRate": {
+    "message": "Bitte bewerten Sie uns!"
+  }
+}

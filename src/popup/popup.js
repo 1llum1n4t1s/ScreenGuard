@@ -1,5 +1,8 @@
 "use strict";
 
+// <html lang> を同期で合わせる（Kagayoi フッターは module で遅延実行され、実行前にこの lang を読む）
+Localizer.applyDocumentLang();
+
 /** デバウンスヘルパー */
 function debounce(fn, ms) {
   let id;
@@ -28,7 +31,19 @@ async function getTargetTabId() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  // 保存済みの言語を読み込んでから静的文言を置換し、言語セレクトを組み立てる
+  await Localizer.ready;
+  await Localizer.ensureFresh();
+  Localizer.localizeDocument();
+  Localizer.mountLanguageSelect(document.getElementById("uiLanguage"));
+
+  // 共通フッターは読み込み直後（辞書の読み込み前）にラベルを決めるため、ブラウザの UI 言語と
+  // 選択言語が違うと選択言語にならない。辞書が揃ってから作り直して選択言語で描かせる。
+  // （ストア画像の検査 kana-in-non-ja で検出。未定義の間は何もせず、定義時に新しい要素が描画される）
+  const footer = document.querySelector("kagayoi-support-footer");
+  if (footer) footer.replaceWith(footer.cloneNode(true));
+
   const $btn = document.getElementById("showOverlay");
   const $reset = document.getElementById("resetPrefs");
   const $themeBtns = document.querySelectorAll(".theme-btn");
@@ -148,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 注入不可ページや注入失敗は例外ではなく ok:false で返る。
     // ここで閉じると失敗が一切伝わらないので、閉じずに理由を出す。
     if (!res?.ok) {
-      showError(res?.error ?? "オーバーレイを表示できませんでした。");
+      showError(res?.error ?? Localizer.t("popupErrorShowOverlay", undefined, "Could not show the overlay."));
       return;
     }
     window.close();
@@ -166,12 +181,12 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error("[ScreenGuard] storage.remove failed:", err);
       resetInProgress = false;
-      showError("設定をリセットできませんでした。もう一度お試しください。");
+      showError(Localizer.t("popupErrorReset", undefined, "Could not reset the settings. Please try again."));
       return;
     }
     const tabId = await getTargetTabId();
     chrome.runtime.sendMessage({ action: Actions.RESET_PREFS, tabId }).catch(() => {});
-    $reset.textContent = "完了!";
+    $reset.textContent = Localizer.t("popupResetDone", undefined, "Done!");
     $reset.disabled = true;
     setTimeout(() => window.close(), 600);
   });

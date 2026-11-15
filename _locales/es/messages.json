@@ -1,0 +1,71 @@
+{
+  "appName": {
+    "message": "Cortina de pantalla"
+  },
+  "appDescription": {
+    "message": "Cubra cualquier página con una superposición movible y redimensionable. Tres temas: Claro, Oscuro y Cristal."
+  },
+  "defaultTitle": {
+    "message": "Cortina de pantalla"
+  },
+  "popupThemeHeading": {
+    "message": "Tema"
+  },
+  "themeLight": {
+    "message": "Claro"
+  },
+  "themeDark": {
+    "message": "Oscuro"
+  },
+  "themeGlass": {
+    "message": "Cristal"
+  },
+  "popupBlurLabel": {
+    "message": "Intensidad del desenfoque"
+  },
+  "popupActionsHeading": {
+    "message": "Acciones"
+  },
+  "popupShowOverlay": {
+    "message": "Mostrar superposición"
+  },
+  "popupResetButton": {
+    "message": "Restablecer"
+  },
+  "popupResetTitle": {
+    "message": "Restablecer posición y tamaño"
+  },
+  "popupResetDone": {
+    "message": "¡Listo!"
+  },
+  "popupErrorShowOverlay": {
+    "message": "No se pudo mostrar la superposición."
+  },
+  "popupErrorReset": {
+    "message": "No se pudieron restablecer los ajustes. Inténtelo de nuevo."
+  },
+  "errorNoTargetTab": {
+    "message": "No se pudo identificar la pestaña de destino."
+  },
+  "errorPageUnavailable": {
+    "message": "Esta página no es compatible."
+  },
+  "overlayCloseLabel": {
+    "message": "Cerrar superposición"
+  },
+  "languageAuto": {
+    "message": "Automático (navegador)"
+  },
+  "languageSelectLabel": {
+    "message": "Idioma"
+  },
+  "languageSelectTitle": {
+    "message": "Idioma (las páginas abiertas se actualizan al recargar)"
+  },
+  "kagayoiSupportContact": {
+    "message": "Contactar con soporte"
+  },
+  "kagayoiSupportRate": {
+    "message": "¡Déjenos su valoración!"
+  }
+}
