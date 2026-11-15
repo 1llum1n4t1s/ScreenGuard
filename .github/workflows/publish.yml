@@ -1,4 +1,7 @@
 name: Publish to Chrome Web Store
+# CWS は「アップロード」と「審査への申請」を別 workflow に分けている。
+# この workflow は検証済みZIPを下書きとしてアップロードするだけで、申請しない。
+# 申請は掲載画像などを Dashboard で整えた後に、cws-submit.yml を手動で実行する。
 
 on:
   push:
@@ -15,7 +18,7 @@ concurrency:
 
 jobs:
   publish:
-    name: Chrome Web Store 公開
+    name: Chrome Web Store アップロード（申請は cws-submit.yml）
     runs-on: ubuntu-latest
     steps:
       - name: Checkout release commit with native git
@@ -67,7 +70,7 @@ jobs:
 
       - name: zip パッケージを作成
         run: |
-          zip -r screen-curtain.zip manifest.json icons src \
+          zip -r screen-curtain.zip manifest.json _locales icons src \
             -x "*.DS_Store" "*.swp" "*~"
           ls -lh screen-curtain.zip
 
@@ -86,7 +89,7 @@ jobs:
           version = os.environ['RELEASE_VERSION']
           assert json.loads(Path('package.json').read_text())['version'] == version, 'package version mismatch'
           expected = {'manifest.json'}
-          for directory in ('icons', 'src'):
+          for directory in ('_locales', 'icons', 'src'):
               expected.update(path.as_posix() for path in Path(directory).rglob('*')
                               if path.is_file() and not any(fnmatch.fnmatch(path.name, pattern)
                                                             for pattern in ('*.DS_Store', '*.swp', '*~')))
@@ -107,7 +110,7 @@ jobs:
               summary.write(f'## CWS submission artifact\nVersion: `{version}`\n\nSource: `{os.environ["GITHUB_SHA"]}`\n\nSHA-256: `{digest}`\n')
           PY
 
-      - name: Chrome Web Store にアップロード & 公開
+      - name: Chrome Web Store にアップロード（下書き）
         env:
           CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
@@ -116,4 +119,4 @@ jobs:
           PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
         run: |
           pwsh -NoProfile -File scripts/Test-PublishCws.ps1 -WorkDirectory "$RUNNER_TEMP/cws-publisher-tests"
-          pwsh -NoProfile -File scripts/Publish-Cws.ps1 -Archive "screen-curtain.zip"
+          pwsh -NoProfile -File scripts/Publish-Cws.ps1 -Archive "screen-curtain.zip" -Stage Upload
