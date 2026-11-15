@@ -1,0 +1,38 @@
+Cortina de pantalla es una extensión de Chrome que cubre la página con una superposición.
+Puede usarla para ocultar información que no desea mostrar o para proteger su privacidad cuando se ausenta.
+
+■ Funciones principales
+
+・Tres temas (Claro / Oscuro / Cristal)
+  Cambie el aspecto de la superposición según sus preferencias.
+  Con el tema Cristal, puede ajustar la intensidad del desenfoque con un control deslizante (de 1 a 20 px).
+
+・Arrastrar para mover y cambiar el tamaño
+  Arrastre la superposición para moverla libremente.
+  Con los 8 controladores de las esquinas y los bordes, puede ajustar el tamaño a su gusto.
+  Si cambia el tamaño de la ventana, la superposición se adapta.
+
+・Memoria automática de los ajustes
+  La posición, el tamaño, el tema y la intensidad del desenfoque se guardan automáticamente.
+  La próxima vez, la superposición aparecerá en el mismo estado.
+  Con «Restablecer» en la ventana emergente, puede devolver la posición, el tamaño y la intensidad del desenfoque guardada a su estado inicial.
+
+■ Cómo se usa
+
+1. Haga clic en el icono de la barra de herramientas
+2. Elija un tema (con Cristal, también puede ajustar la intensidad del desenfoque)
+3. Pulse el botón «Mostrar superposición»
+
+Para cerrar la superposición, haga clic en el botón × de la esquina superior derecha o pulse la tecla Escape.
+
+※ No se puede usar en páginas internas del navegador, como chrome://. Si no se puede mostrar, la ventana emergente indica el motivo.
+
+■ Contacto
+
+Puede enviar avisos de errores o consultas desde «Contactar con soporte», en la parte inferior de la ventana emergente. La primera vez, deberá introducir un código de confirmación que recibirá por correo electrónico.
+
+■ Privacidad
+
+・La visualización de la superposición y el guardado de los ajustes se realizan por completo en su dispositivo
+・Solo cuando usted envía el formulario de contacto, se transmiten a Kagayoi Support la dirección de correo electrónico, el nombre (opcional), el contenido de la consulta y el código de confirmación que haya introducido
+・No se recopilan ni se envían datos con fines publicitarios, de análisis ni de telemetría

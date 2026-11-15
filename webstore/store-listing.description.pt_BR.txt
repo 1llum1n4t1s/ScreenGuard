@@ -1,0 +1,38 @@
+Cortina de tela é uma extensão do Chrome que cobre a página com uma sobreposição.
+Você pode usá-la para ocultar informações que prefere não mostrar ou para proteger sua privacidade quando se ausentar.
+
+■ Principais recursos
+
+・Três temas (Claro / Escuro / Vidro)
+  Alterne a aparência da sobreposição de acordo com sua preferência.
+  No tema Vidro, você pode ajustar a intensidade do desfoque com um controle deslizante (de 1 a 20 px).
+
+・Arrastar para mover e redimensionar
+  Arraste a sobreposição para movê-la livremente.
+  Com as 8 alças nos cantos e nas bordas, você pode ajustar o tamanho como quiser.
+  Se você alterar o tamanho da janela, a sobreposição acompanha.
+
+・Configurações lembradas automaticamente
+  Posição, tamanho, tema e intensidade do desfoque são salvos automaticamente.
+  Na próxima vez, a sobreposição aparece no mesmo estado.
+  Com “Redefinir” no pop-up, você volta a posição, o tamanho e a intensidade do desfoque salva ao estado inicial.
+
+■ Como usar
+
+1. Clique no ícone da barra de ferramentas
+2. Escolha um tema (no Vidro, você também pode ajustar a intensidade do desfoque)
+3. Clique no botão “Mostrar sobreposição”
+
+Para fechar a sobreposição, clique no botão × no canto superior direito ou pressione a tecla Escape.
+
+※ Não é possível usar em páginas internas do navegador, como chrome://. Se não for possível exibir, o pop-up mostra o motivo.
+
+■ Contato
+
+Você pode relatar problemas ou enviar dúvidas em “Falar com o suporte”, na parte inferior do pop-up. Na primeira vez, você digita um código de confirmação enviado por e-mail.
+
+■ Privacidade
+
+・A exibição da sobreposição e o salvamento das configurações são feitos inteiramente no seu dispositivo
+・Somente quando você envia o formulário de contato, o endereço de e-mail, o nome (opcional), o conteúdo da consulta e o código de confirmação que você digitou são enviados à Kagayoi Support
+・Nenhum dado é coletado ou enviado para fins de publicidade, análise ou telemetria

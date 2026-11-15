@@ -1,0 +1,38 @@
+Bildschirmvorhang ist eine Chrome-Erweiterung, die die Seite mit einem Overlay abdeckt.
+Damit können Sie Informationen verbergen, die nicht sichtbar sein sollen, oder Ihre Privatsphäre schützen, wenn Sie den Platz verlassen.
+
+■ Hauptfunktionen
+
+・Drei Designs (Hell / Dunkel / Glas)
+  Ändern Sie das Aussehen des Overlays nach Ihrem Geschmack.
+  Beim Glas-Design können Sie die Unschärfe-Stärke mit einem Schieberegler einstellen (1 bis 20 px).
+
+・Verschieben per Ziehen und Größe ändern
+  Ziehen Sie das Overlay, um es frei zu verschieben.
+  Über 8 Griffe an den Ecken und Kanten lässt sich die Größe beliebig anpassen.
+  Wenn Sie die Fenstergröße ändern, passt sich das Overlay an.
+
+・Einstellungen werden automatisch gespeichert
+  Position, Größe, Design und Unschärfe-Stärke werden automatisch gespeichert.
+  Beim nächsten Mal erscheint das Overlay im selben Zustand.
+  Mit „Zurücksetzen“ im Popup setzen Sie Position und Größe sowie die gespeicherte Unschärfe-Stärke auf den Ausgangszustand zurück.
+
+■ So wird es verwendet
+
+1. Klicken Sie auf das Symbol in der Symbolleiste
+2. Wählen Sie ein Design (beim Glas-Design können Sie auch die Unschärfe-Stärke einstellen)
+3. Klicken Sie auf die Schaltfläche „Overlay anzeigen“
+
+Um das Overlay zu schließen, klicken Sie oben rechts auf die Schaltfläche × oder drücken Sie die Escape-Taste.
+
+※ Auf internen Browserseiten wie chrome:// ist die Erweiterung nicht verfügbar. Wenn das Overlay nicht angezeigt werden kann, nennt das Popup den Grund.
+
+■ Kontakt
+
+Probleme melden oder Fragen stellen können Sie über „Support kontaktieren“ unten im Popup. Beim ersten Mal geben Sie einen Bestätigungscode ein, den Sie per E-Mail erhalten.
+
+■ Datenschutz
+
+・Die Anzeige des Overlays und das Speichern der Einstellungen erfolgen vollständig auf Ihrem Gerät
+・Nur wenn Sie das Kontaktformular absenden, werden die eingegebene E-Mail-Adresse, der optionale Name, der Inhalt Ihrer Anfrage und der Bestätigungscode an Kagayoi Support übermittelt
+・Es werden keine Daten zu Werbe-, Analyse- oder Telemetriezwecken erfasst oder übermittelt

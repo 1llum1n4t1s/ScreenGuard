@@ -1,0 +1,38 @@
+Rideau d’écran est une extension Chrome qui recouvre la page d’une superposition.
+Elle permet de masquer des informations que vous ne souhaitez pas montrer, ou de protéger votre vie privée lorsque vous vous absentez.
+
+■ Fonctionnalités principales
+
+・Trois thèmes (Clair / Sombre / Verre)
+  Changez l’apparence de la superposition selon vos préférences.
+  Avec le thème Verre, vous pouvez régler l’intensité du flou à l’aide d’un curseur (de 1 à 20 px).
+
+・Déplacement par glisser et redimensionnement
+  Faites glisser la superposition pour la déplacer où vous voulez.
+  Huit poignées, aux angles et sur les côtés, vous permettent de la redimensionner librement.
+  Si vous redimensionnez la fenêtre, la superposition s’adapte.
+
+・Mémorisation automatique des réglages
+  La position, la taille, le thème et l’intensité du flou sont enregistrés automatiquement.
+  La prochaine fois, la superposition s’affichera dans le même état.
+  Le bouton « Réinitialiser » de la fenêtre contextuelle rétablit la position, la taille et l’intensité du flou enregistrée à leur état initial.
+
+■ Utilisation
+
+1. Cliquez sur l’icône de la barre d’outils
+2. Choisissez un thème (avec Verre, vous pouvez aussi régler l’intensité du flou)
+3. Appuyez sur le bouton « Afficher la superposition »
+
+Pour fermer la superposition, cliquez sur le bouton × en haut à droite ou appuyez sur la touche Escape.
+
+※ L’extension ne fonctionne pas sur les pages internes du navigateur, comme chrome://. Si la superposition ne peut pas s’afficher, la fenêtre contextuelle en indique la raison.
+
+■ Contact
+
+Vous pouvez signaler un problème ou poser une question via « Contacter le support », en bas de la fenêtre contextuelle. La première fois, vous devez saisir un code de confirmation reçu par e-mail.
+
+■ Confidentialité
+
+・L’affichage de la superposition et l’enregistrement des réglages s’effectuent entièrement sur votre appareil
+・Ce n’est que lorsque vous envoyez le formulaire de contact que l’adresse e-mail, le nom (facultatif), le contenu du message et le code de confirmation que vous avez saisis sont transmis à Kagayoi Support
+・Aucune donnée n’est collectée ni transmise à des fins publicitaires, d’analyse ou de télémétrie

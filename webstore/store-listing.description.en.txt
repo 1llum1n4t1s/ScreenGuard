@@ -1,0 +1,38 @@
+Screen Curtain is a Chrome extension that covers the page with an overlay.
+Use it to hide information you would rather not show, or to protect your privacy when you step away.
+
+■ Key features
+
+・Three themes (Light / Dark / Glass)
+  Switch the look of the overlay to suit your taste.
+  With the Glass theme, you can adjust the blur strength with a slider (1 to 20 px).
+
+・Drag to move and resize
+  Drag the overlay to move it anywhere you like.
+  Eight handles on the corners and edges let you resize it freely.
+  The overlay follows when you resize the window.
+
+・Settings remembered automatically
+  Position, size, theme and blur strength are saved automatically.
+  The overlay appears in the same state next time.
+  The popup's "Reset" button restores the position and size, and the saved blur strength, to their defaults.
+
+■ How to use
+
+1. Click the toolbar icon
+2. Choose a theme (for Glass, you can also adjust the blur strength)
+3. Press the "Show overlay" button
+
+To close the overlay, click the × button at the top right or press the Escape key.
+
+※ The extension cannot be used on internal browser pages such as chrome://. If the overlay cannot be shown, the popup displays the reason.
+
+■ Contact
+
+You can report problems or send questions from "Contact support" at the bottom of the popup. The first time, you enter a confirmation code sent to you by email.
+
+■ Privacy
+
+・Showing the overlay and saving settings are handled entirely on your device
+・Only when you choose to submit the contact form, the email address, optional name, message and confirmation code you enter are sent to Kagayoi Support
+・No data is collected or sent for advertising, analytics or telemetry

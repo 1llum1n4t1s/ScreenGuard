@@ -3,7 +3,7 @@
   "default_locale": "en",
   "name": "__MSG_appName__",
   "description": "__MSG_appDescription__",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "homepage_url": "https://github.com/1llum1n4t1s/ScreenGuard",
   "action": {
     "default_icon": {
