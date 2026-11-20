@@ -17,9 +17,9 @@ bun --bun run generate-screenshots # webstore/store-assets.json → webstore/ima
 
 テストフレームワーク・リンターは未導入。動作確認は Chrome で `chrome://extensions` を開き、「パッケージ化されていない拡張機能を読み込む」からプロジェクトルートを選択して手動テスト。JS の構文だけ確認したい時は `bun build --no-bundle <file> --outdir <temporary-directory>` が使える（chrome API 未定義エラーは parse 段階では出ない）。
 
-`generate-screenshots` は撮影用の拡張コピー（`webstore/.capture-ext/`）を作ってから `webstore/vitrina/vitrina.mjs generate` を実行する。終了コードに加えて `bun webstore/vitrina/vitrina.mjs verify` が OK（9言語×5枚＋タイル2種）で、`D:\tmp\vitrina-ScreenGuard\ui-defects.json`（作業フォルダー。Windows で D: が無ければ OS 一時フォルダー）が空であることを確認する。Linux（CI）は smoke プロファイル（en のみ・実拡張なし）になり、`images/.smoke` が残るため verify は失敗する（正常）。
+`generate-screenshots` は撮影用の拡張コピー（`webstore/.capture-ext/`）を作ってから `webstore/vitrina/vitrina.mjs generate` を実行する。終了コードに加えて `bun webstore/vitrina/vitrina.mjs verify` が OK（9言語×5枚＋タイル2種）で、`%TEMP%\vitrina-ScreenGuard\ui-defects.json`（作業フォルダー。OS の一時フォルダー配下）が空であることを確認する。Linux（CI）は smoke プロファイル（en のみ・実拡張なし）になり、`images/.smoke` が残るため verify は失敗する（正常）。
 
-- **Chrome を起動するスクリプトを足すときはシード必須**: puppeteer.launch・chrome-launcher・Chrome の直接起動は、起動前に user-data-dir の `Local State` へ `{"password_manager":{"os_password_blank":false,"os_password_last_changed":"9223372036854775000"}}` を書く。Windows の Chromium は新規プロファイルごとに空パスワードで LogonUser を呼び（`password_manager_util_win.cc` の `CheckBlankPasswordWithPrefs`）、ログオン失敗（Security 4625）として数えられるため、並列・連続起動で Windows アカウントがロックされる（2026-11-15 実害）。userDataDir 未指定の起動は作らず、`webstore/vitrina/lib/capture.mjs` の `seedChromeProfile`（および一時プロファイルは D:\tmp 配下）と同等の処理を先に呼ぶ。`webstore/vitrina/` は逐語コピーで対策済み。
+- **Chrome を起動するスクリプトを足すときはシード必須**: puppeteer.launch・chrome-launcher・Chrome の直接起動は、起動前に user-data-dir の `Local State` へ `{"password_manager":{"os_password_blank":false,"os_password_last_changed":"9223372036854775000"}}` を書く。Windows の Chromium は新規プロファイルごとに空パスワードで LogonUser を呼び（`password_manager_util_win.cc` の `CheckBlankPasswordWithPrefs`）、ログオン失敗（Security 4625）として数えられるため、並列・連続起動で Windows アカウントがロックされる（2026-11-15 実害）。userDataDir 未指定の起動は作らず、`webstore/vitrina/lib/capture.mjs` の `seedChromeProfile`（および一時プロファイルは %TEMP% 配下）と同等の処理を先に呼ぶ。`webstore/vitrina/` は逐語コピーで対策済み。
 
 ## Version Management
 

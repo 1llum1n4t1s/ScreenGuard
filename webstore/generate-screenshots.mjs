@@ -1,6 +1,6 @@
 // ストア画像の生成入口（npm run generate-screenshots）。
 // 1) 撮影用の拡張コピーを作る  2) vitrina generate を実行する（引数はそのまま渡す）。
-// --work-dir は未指定ならキットの既定値（Windows は D:\tmp\vitrina-<リポジトリ名>、それ以外は OS の一時フォルダー配下）。
+// --work-dir は未指定ならキットの既定値（OS の一時フォルダー %TEMP% = os.tmpdir() 配下の vitrina-<リポジトリ名>）。
 // CI（Linux）では vitrina が smoke プロファイルになる（en のみ・実拡張なし）。
 import path from "node:path";
 import { fileURLToPath } from "node:url";
