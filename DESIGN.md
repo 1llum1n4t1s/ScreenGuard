@@ -20,7 +20,7 @@ ScreenGuard（スクリーンカーテン）は Manifest V3 の Chrome 拡張機
 | Content script | `src/content/content.js` | closed Shadow DOM 内のオーバーレイ生成、移動・リサイズ・終了操作、SPA・フルスクリーン・ビューポート変化への追従、設定保存 |
 | Content styles | `src/content/content-styles.js` | Shadow DOM へ同期注入する CSS 文字列を `window.__screenShadeStyles` として提供 |
 | Shared runtime contract | `src/lib/actions.js` | メッセージ action、テーマ、寸法、storage key、値の正規化関数を3実行コンテキストへ提供 |
-| Build and release | `scripts/`, `webstore/`, `.github/workflows/publish.yml` | sharp によるアイコン生成、vitrina（Puppeteer）によるストア画像生成、release branch からの CWS 公開 |
+| Build and release | `scripts/`, `webstore/`, `.github/workflows/publish.yml` | sharp によるアイコン生成、vitrina（Puppeteer）によるストア画像生成、版タグの push からの CWS 公開 |
 
 ## データフロー
 
@@ -62,7 +62,7 @@ Popup は background の `{ ok: true }` を確認したときだけ閉じます�
 - `src/shared/kagayoi-support-*` は固定版の `@kagayoi/support-extension` package を正本とするローカル同梱snapshotです。`bun --bun run sync:support` が package から同期し、`bun --bun run build` の先頭でも同じ同期を行うため、拡張の実行時は `node_modules` やリモートJavaScriptに依存しません。
 - 開発用の準備は `bun run deps` と `bun --bun run build` です。生成・検証時の作業規約は [AGENTS.md](AGENTS.md) を参照してください。
 - ローカル配布用の `zip.ps1`（PowerShell 7以降）と `zip.sh` は、依存関係の固定インストール、`bun --bun run sync:support --check`、アイコン生成を経て、`manifest.json`・`icons/`・`src/` だけを `screen-curtain.zip` に収めます。開発依存やストア画像は実行時に不要なため含めません。
-- `release/x.y.z` への push だけが公開 workflow を起動し、branch 名と `manifest.json` の version 一致を検証します。
+- 版タグ `vx.y.z`（`main` のコミットに付けた軽量タグ）の push だけが公開 workflow を起動し、タグ名と `manifest.json` の version 一致を検証します。
 - workflow は SHA 固定の Actions、frozen lockfile、固定版のローカル CWS CLI を使います。
 
 ## 重要な不変条件
@@ -88,4 +88,4 @@ Popup は background の `{ ok: true }` を確認したときだけ閉じます�
 | runtime 共通契約を従来 script に集約 | Popup、service worker、content 注入の3経路で同じ値検証を再利用できる | ES module の import graph は使えない |
 | 設定を `chrome.storage.local` に保存 | アカウント同期や外部サービスなしで再表示時に復元できる | 端末・Chrome profile をまたいだ同期は行わない |
 | 問い合わせ UI を固定版packageから同期し、ローカル Web Components と外部 CSS として同梱 | Kagayoi 製品間で正本を共有し、MV3 CSP を守りながら実行時の外部依存なしで入力・認証・表示契約を再利用できる | package更新時は同期snapshotも同じ変更で更新し、Support API の host permission と終了時の外側 document のスクロール復元を維持する必要がある |
-| release branch を公開トリガーにする | version と公開操作を branch 名で明示的に結び付ける | `main` への通常 push だけでは公開されない |
+| 版タグを公開トリガーにする | version と公開操作を tag 名で明示的に結び付ける | `main` への通常 push だけでは公開されない |
