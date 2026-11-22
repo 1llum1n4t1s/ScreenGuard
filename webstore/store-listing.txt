@@ -116,7 +116,7 @@ Chrome Web Store 掲載情報（コピペ用）
   お問い合わせ機能で、ユーザー操作時に https://support.kagayoi.com のメール確認APIおよびチケット作成APIへHTTPS通信するために必要です。通信はお問い合わせ時だけ行い、閲覧中のページ内容の収集・変更・追跡には使用しません。
 
 ■ プライバシーポリシー URL
-https://screenguard.kagayoi.com/privacy
+https://privacy.kagayoi.com/screenguard
 
 ■ リモートコードを使用していますか？
 いいえ
